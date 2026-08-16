@@ -1,0 +1,862 @@
+<title>RohySafe – Tous les appareils</title>
+
+<style>
+  /* ── All-devices fragment styles ── */
+  .ad-wrap { padding: 36px 40px; max-width: 1320px; margin: 0 auto; font-family: 'DM Sans', sans-serif; }
+
+  .ad-wrap .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 26px; gap: 16px; flex-wrap: wrap;
+  }
+  .ad-wrap .page-title h1 { font-size: 26px; font-weight: 600; letter-spacing: -.5px; margin-bottom: 3px; color: var(--text); }
+  .ad-wrap .page-title p { font-size: 13px; color: var(--text-muted); }
+  .ad-wrap .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── Scan button ── */
+  .ad-wrap .btn-scan {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 18px; background: var(--chartreuse); color: var(--ink);
+    border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: opacity .2s, transform .1s; white-space: nowrap;
+  }
+  .ad-wrap .btn-scan:hover { opacity: .88; }
+  .ad-wrap .btn-scan:active { transform: scale(.97); }
+  .ad-wrap .btn-scan.scanning { opacity: .7; pointer-events: none; }
+  .ad-wrap .btn-scan svg.spin { animation: adSpin 1s linear infinite; }
+  @keyframes adSpin { to { transform: rotate(360deg); } }
+
+  /* ── Auto scan toggle ── */
+  .ad-wrap .auto-scan-wrap {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 13px; color: var(--text-muted); cursor: pointer;
+    transition: border-color .2s; user-select: none;
+  }
+  .ad-wrap .auto-scan-wrap:hover { border-color: rgba(202,244,56,0.3); }
+  .ad-wrap .auto-scan-wrap.active { border-color: var(--chartreuse); color: var(--text); }
+  .ad-wrap .radio-toggle {
+    width: 36px; height: 20px;
+    background: rgba(202,244,56,0.1); border: 1px solid var(--border);
+    border-radius: 20px; position: relative; transition: background .25s, border-color .25s; flex-shrink: 0;
+  }
+  .ad-wrap .radio-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text-muted); transition: transform .25s, background .25s;
+  }
+  .ad-wrap .radio-toggle.on { background: rgba(202,244,56,0.2); border-color: var(--chartreuse); }
+  .ad-wrap .radio-toggle.on::after { transform: translateX(16px); background: var(--chartreuse); }
+  .ad-wrap .auto-interval {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--chartreuse); background: rgba(202,244,56,0.08);
+    padding: 2px 7px; border-radius: 4px; display: none;
+  }
+  .ad-wrap .auto-scan-wrap.active .auto-interval { display: inline; }
+
+  /* ── Stat cards ── */
+  .ad-wrap .stats-bar {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; margin-bottom: 28px;
+  }
+  .ad-wrap .stat-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px 16px;
+    position: relative; overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .ad-wrap .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.3); }
+  .ad-wrap .stat-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    border-radius: 0 0 14px 14px;
+  }
+  .ad-wrap .stat-card.c-total::after { background: var(--chartreuse); }
+  .ad-wrap .stat-card.c-auth::after  { background: var(--green, #7efb5c); }
+  .ad-wrap .stat-card.c-block::after { background: #ff5c6a; }
+
+  .ad-wrap .stat-card-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .ad-wrap .stat-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .ad-wrap .c-total .stat-icon { background: rgba(202,244,56,.12); color: var(--chartreuse); }
+  .ad-wrap .c-auth  .stat-icon { background: rgba(126,251,92,.12); color: #7efb5c; }
+  .ad-wrap .c-block .stat-icon { background: rgba(255,92,106,.12); color: #ff5c6a; }
+
+  .ad-wrap .stat-trend {
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    padding: 3px 7px; border-radius: 5px;
+    color: var(--text-muted); background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+  }
+
+  .ad-wrap .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 36px; font-weight: 700; line-height: 1;
+    margin-bottom: 4px; letter-spacing: -2px;
+  }
+  .ad-wrap .c-total .stat-value { color: var(--text); }
+  .ad-wrap .c-auth  .stat-value { color: #7efb5c; }
+  .ad-wrap .c-block .stat-value { color: #ff5c6a; }
+
+  .ad-wrap .stat-label {
+    font-size: 12px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .6px; font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .ad-wrap .stat-bar-track {
+    height: 3px; background: rgba(255,255,255,.06);
+    border-radius: 99px; overflow: hidden;
+  }
+  .ad-wrap .stat-bar-fill { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .ad-wrap .c-total .stat-bar-fill { background: var(--chartreuse); }
+  .ad-wrap .c-auth  .stat-bar-fill { background: #7efb5c; }
+  .ad-wrap .c-block .stat-bar-fill { background: #ff5c6a; }
+
+  @media(max-width:780px) { .ad-wrap .stats-bar { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:460px) { .ad-wrap .stats-bar { grid-template-columns: 1fr; } }
+
+  /* ── Filters row ── */
+  .ad-wrap .filters-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+  .ad-wrap .search-box {
+    display: flex; align-items: center;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; gap: 8px;
+    transition: border-color .2s; flex: 1; min-width: 180px;
+  }
+  .ad-wrap .search-box:focus-within { border-color: var(--chartreuse); }
+  .ad-wrap .search-box input {
+    border: none !important; outline: none !important; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text) !important; background: transparent !important;
+    width: 100%; box-shadow: none !important; padding: 0 !important;
+  }
+  .ad-wrap .search-box input::placeholder { color: var(--text-muted) !important; }
+
+  .ad-wrap .filter-select {
+    background: var(--card-bg) !important; border: 1px solid var(--border) !important;
+    border-radius: 8px; padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text) !important;
+    cursor: pointer; outline: none; transition: border-color .2s;
+  }
+  .ad-wrap .filter-select:focus { border-color: var(--chartreuse) !important; }
+  .ad-wrap .filter-select option { background: #0a1f10; }
+
+  /* ── Duration range filter ── */
+  .ad-wrap .duration-filter {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 13px; color: var(--text-muted);
+    transition: border-color .2s;
+  }
+  .ad-wrap .duration-filter:focus-within { border-color: var(--chartreuse); }
+  .ad-wrap .duration-filter label { white-space: nowrap; font-size: 12px; }
+  .ad-wrap .duration-input {
+    width: 60px; background: rgba(202,244,56,0.06) !important;
+    border: 1px solid var(--border) !important; border-radius: 5px;
+    padding: 3px 7px !important; color: var(--text) !important;
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    outline: none; text-align: center; transition: border-color .2s;
+    box-shadow: none !important;
+  }
+  .ad-wrap .duration-input:focus { border-color: var(--chartreuse) !important; }
+  .ad-wrap .duration-unit {
+    background: var(--card-bg) !important; border: 1px solid var(--border) !important;
+    border-radius: 5px; padding: 3px 7px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text) !important;
+    cursor: pointer; outline: none;
+  }
+  .ad-wrap .duration-unit option { background: #0a1f10; }
+  .ad-wrap .dur-sep { color: var(--text-muted); font-size: 12px; padding: 0 2px; }
+
+  /* ── Table ── */
+  .ad-wrap .table-wrap {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; position: relative;
+  }
+  .ad-wrap .scanning-overlay {
+    display: none; position: absolute; inset: 0; pointer-events: none; border-radius: 12px;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(202,244,56,0.03) 2px,rgba(202,244,56,0.03) 4px);
+    animation: adScanMove 1.5s linear infinite;
+  }
+  @keyframes adScanMove { from{background-position:0 0} to{background-position:0 40px} }
+  .ad-wrap .table-wrap.scanning .scanning-overlay { display: block; }
+
+  .ad-wrap table { width: 100%; border-collapse: collapse; }
+  .ad-wrap thead tr { border-bottom: 1px solid var(--border); background: rgba(202,244,56,0.04); }
+  .ad-wrap thead th {
+    padding: 12px 16px; text-align: left;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--text-muted); white-space: nowrap;
+  }
+  .ad-wrap thead th.col-actions { text-align: center; }
+
+  .ad-wrap tbody tr { border-bottom: 1px solid rgba(202,244,56,0.06); transition: background .15s; }
+  .ad-wrap tbody tr:last-child { border-bottom: none; }
+  .ad-wrap tbody tr:hover { background: rgba(202, 244, 56, 0.07); }
+  .ad-wrap tbody tr.blocked { opacity: .5; }
+  .ad-wrap td { padding: 13px 16px; font-size: 14px; vertical-align: middle; }
+
+  .ad-wrap .device-name { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .ad-wrap .device-mac { font-size: 11px; font-family: 'Space Mono', monospace; color: var(--text-muted); }
+
+  .ad-wrap .signal-bar { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .ad-wrap .signal-bar span { width: 4px; border-radius: 1px; background: rgba(202,244,56,0.12); }
+  .ad-wrap .signal-bar span.lit      { background: #7efb5c; }
+  .ad-wrap .signal-bar span.lit.warn { background: #f5a623; }
+  .ad-wrap .signal-bar span.lit.bad  { background: #ff5c6a; }
+
+  .ad-wrap .badge-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .ad-wrap .badge-status.autorisé { background: rgba(126,251,92,0.12); color: #7efb5c; }
+  .ad-wrap .badge-status.bloqué   { background: rgba(255,92,106,0.12); color: #ff5c6a; }
+  .ad-wrap .badge-status.nouveau  { background: rgba(202,244,56,0.12); color: var(--chartreuse); }
+  .ad-wrap .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .ad-wrap .autorisé .badge-dot { background: #7efb5c; }
+  .ad-wrap .bloqué   .badge-dot { background: #ff5c6a; }
+  .ad-wrap .nouveau  .badge-dot { background: var(--chartreuse); }
+
+  /* ── Action buttons ── */
+  .ad-wrap .col-actions { text-align: center; }
+  .ad-wrap .actions { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ad-wrap .btn-action {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 13px; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+    border: 1px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .ad-wrap .btn-allow  { background: rgba(126,251,92,0.10); border-color: rgba(126,251,92,0.25); color: #7efb5c; }
+  .ad-wrap .btn-allow:hover  { background: rgba(126,251,92,0.22); }
+  .ad-wrap .btn-block  { background: rgba(255,92,106,0.10); border-color: rgba(255,92,106,0.25); color: #ff5c6a; }
+  .ad-wrap .btn-block:hover  { background: rgba(255,92,106,0.22); }
+  .ad-wrap .btn-info   { background: rgba(202,244,56,0.07); border-color: var(--border); color: var(--text-muted); padding: 5px 9px; }
+  .ad-wrap .btn-info:hover   { color: var(--text); background: rgba(202,244,56,0.12); }
+
+  /* ── Empty state ── */
+  .ad-wrap .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .ad-wrap .empty-state svg { margin-bottom: 14px; opacity: .35; }
+  .ad-wrap .empty-state p { font-size: 15px; }
+
+  /* ── Pagination ── */
+  .ad-wrap .pagination-wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 12px 2px 0; color: var(--text-muted);
+    font-size: 12px; flex-wrap: wrap;
+  }
+  .ad-wrap .pagination-info {
+    font-family: 'Space Mono', monospace;
+  }
+  .ad-wrap .pagination-controls {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ad-wrap .pagination-btn {
+    padding: 5px 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--card-bg);
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12px;
+    cursor: pointer; transition: border-color .2s, opacity .2s;
+  }
+  .ad-wrap .pagination-btn:hover:not(:disabled) { border-color: var(--chartreuse); }
+  .ad-wrap .pagination-btn:disabled { opacity: .4; cursor: default; }
+
+  /* ── Toast ── */
+  .ad-toast-wrap { position: fixed; bottom: 28px; right: 28px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
+  .ad-toast {
+    background: rgba(5,22,12,0.96); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px; font-size: 13px; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+    animation: adSlideIn .25s ease; backdrop-filter: blur(8px); min-width: 240px;
+  }
+  @keyframes adSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  @media(max-width:680px) {
+    .ad-wrap { padding: 20px 16px; }
+    .ad-wrap .duration-filter { flex-wrap: wrap; }
+  }
+</style>
+
+<div class="ad-wrap">
+
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Tous les appareils</h1>
+      <p id="adPageSubtitle">Site ITU · tous les AP</p>
+    </div>
+    <div class="toolbar">
+      <div class="auto-scan-wrap" id="adAutoScanWrap" onclick="adToggleAutoScan()">
+        <div class="radio-toggle" id="adRadioToggle"></div>
+        <span>Scan auto</span>
+        <span class="auto-interval">30s</span>
+      </div>
+      <button class="btn-scan" id="adBtnScan" onclick="adTriggerScan()">
+        <svg id="adScanIconSvg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Scanner
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card c-total">
+      <div class="stat-card-top">
+        <div class="stat-icon">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <span class="stat-trend">Site ITU</span>
+      </div>
+      <div class="stat-value" id="adTotalDevices">0</div>
+      <div class="stat-label">Total</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="adBarTotal" style="width:100%"></div></div>
+    </div>
+
+    <div class="stat-card c-auth">
+      <div class="stat-card-top">
+        <div class="stat-icon">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="stat-trend">autorisé</span>
+      </div>
+      <div class="stat-value" id="adAllowedDevices">0</div>
+      <div class="stat-label">Autorisés</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="adBarAllowed" style="width:0%"></div></div>
+    </div>
+
+    <div class="stat-card c-block">
+      <div class="stat-card-top">
+        <div class="stat-icon">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        </div>
+        <span class="stat-trend">bloqué</span>
+      </div>
+      <div class="stat-value" id="adBlockedDevices">0</div>
+      <div class="stat-label">Bloqués</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="adBarBlocked" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-row">
+    <div class="search-box">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="adDeviceSearch" placeholder="Nom, MAC, IP…" oninput="adRenderTable()">
+    </div>
+    <select class="filter-select" id="adDeviceFilter" onchange="adRenderTable()">
+      <option value="all">Tous les statuts</option>
+      <option value="autorisé">Autorisés</option>
+      <option value="bloqué">Bloqués</option>
+      <option value="nouveau">Nouveaux</option>
+    </select>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn-action btn-info" onclick="adSelectAll()" id="adSelectAllBtn" title="Sélectionner tout">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Tout sélectionner
+      </button>
+      <button class="btn-action btn-allow" onclick="adAuthorizeSelected()" id="adAuthorizeSelectedBtn" title="Autoriser la sélection" style="display:none">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Autoriser sélection
+      </button>
+      <button class="btn-action btn-block" onclick="adBlockSelected()" id="adBlockSelectedBtn" title="Bloquer la sélection" style="display:none">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Bloquer sélection
+      </button>
+      <button class="btn-action btn-block" onclick="adExpelSelected()" id="adExpelSelectedBtn" title="Expulser la sélection" style="display:none">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5"/><line x1="21" y1="12" x2="9" y2="12"/><path d="M4 4h5v16H4z"/></svg>
+        Expulser sélection
+      </button>
+    </div>
+    <div class="duration-filter">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text-muted);flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <label>Durée de</label>
+      <input class="duration-input" type="number" id="adDurMin" min="0" placeholder="0" oninput="adRenderTable()">
+      <select class="duration-unit" id="adDurUnitMin" onchange="adRenderTable()">
+        <option value="min">min</option>
+        <option value="h">h</option>
+      </select>
+      <span class="dur-sep">→</span>
+      <input class="duration-input" type="number" id="adDurMax" min="0" placeholder="∞" oninput="adRenderTable()">
+      <select class="duration-unit" id="adDurUnitMax" onchange="adRenderTable()">
+        <option value="min">min</option>
+        <option value="h" selected>h</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap" id="adTableWrap">
+    <div class="scanning-overlay"></div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px; text-align: center;"><input type="checkbox" id="adSelectAllCheckbox" onchange="adToggleSelectAll()"></th>
+          <th>Étudiant</th>
+          <th>Adresse IP</th>
+          <th>Signal</th>
+          <th>Durée connectée</th>
+          <th>Statut</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="adDeviceTable"></tbody>
+    </table>
+    <div class="empty-state" id="adEmptyState" style="display:none">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 6l5.5 5.5L12 6l5.5 5.5L23 6"/><path d="M1 12l5.5 5.5L12 12l5.5 5.5L23 12"/></svg>
+      <p>Aucun appareil trouvé</p>
+    </div>
+  </div>
+
+  <div class="pagination-wrap" id="adPaginationWrap">
+    <div class="pagination-info" id="adPaginationInfo">0–0 / 0</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn" id="adPrevPageBtn" onclick="adChangePage(-1)">Précédent</button>
+      <span id="adPageIndicator">Page 1 / 1</span>
+      <button class="pagination-btn" id="adNextPageBtn" onclick="adChangePage(1)">Suivant</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="ad-toast-wrap" id="adToastWrap"></div>
+
+<script>
+// ── Data ──
+var adDevices = [];
+var adAutoScanOn = false;
+var adAutoScanTimer = null;
+var adCurrentPage = 1;
+var adItemsPerPage = 10;
+var adLastFilterKey = '';
+var AD_API_BASE = "http://localhost:8000";
+
+// Lire les paramètres depuis window.scanVlanParams (défini avant loadPageContent)
+var adScanParams = window.scanVlanParams || {};
+var AD_NETWORK_SUBNET = adScanParams.subnet || "192.168.1.0/24";
+var AD_SCAN_INTERFACE = adScanParams.interface || "eno1";
+var AD_VLAN_NUM = adScanParams.vlan || "";
+var AD_SALLE_NAME = adScanParams.salle || "";
+// Nettoyer après lecture
+window.scanVlanParams = null;
+
+console.log("Scan params:", { AD_NETWORK_SUBNET, AD_SCAN_INTERFACE, AD_VLAN_NUM, AD_SALLE_NAME });
+
+// Afficher le VLAN dans le sous-titre si passé en paramètre
+if (AD_VLAN_NUM || AD_SALLE_NAME) {
+  var subtitleEl = document.getElementById('adPageSubtitle');
+  var titleEl = document.querySelector('.ad-wrap .page-title h1');
+  if (subtitleEl) subtitleEl.textContent = (AD_SALLE_NAME || ('VLAN ' + AD_VLAN_NUM)) + ' · ' + AD_NETWORK_SUBNET;
+  if (titleEl) titleEl.textContent =  (AD_SALLE_NAME || ('VLAN ' + AD_VLAN_NUM));
+}
+
+// ── Signal bars ──
+window.adSignalBars = function(level, status) {
+  var heights = [4, 7, 10, 14];
+  var cls = (status==='bloqué'||level<=1) ? 'bad' : level===2 ? 'warn' : '';
+  return '<div class="signal-bar">' + heights.map(function(h, i) {
+    return '<span style="height:'+h+'px" class="'+(i<level?'lit '+cls:'')+'"></span>';
+  }).join('') + '</div>';
+};
+
+window.adToMinutes = function(val, unit) {
+  if (val === '' || val === null || isNaN(Number(val))) return null;
+  return unit === 'h' ? Number(val) * 60 : Number(val);
+};
+
+// expulsion
+window.adExpelDevice = async function(mac) {
+  if (!confirm("Expulser complètement cette machine ?\nMAC : " + mac)) return;
+  try {
+    var response = await fetch(AD_API_BASE + '/firewall/expulserTotalement', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mac: mac })
+    });
+    var data = await response.json();
+    if (data.success || data.status === "ok") {
+      adDevices.forEach(function(d) { if (d.mac === mac) d.status = "bloqué"; });
+      adRenderTable();
+      adUpdateStats();
+      adToast("🚫 Machine expulsée");
+    }
+  } catch (error) {
+    console.error(error);
+    adToast("❌ Erreur expulsion");
+  }
+};
+
+// ── Render ──
+window.adRenderTable = function() {
+  var q    = document.getElementById('adDeviceSearch').value.toLowerCase();
+  var sf   = document.getElementById('adDeviceFilter').value;
+  var dMin = adToMinutes(document.getElementById('adDurMin').value, document.getElementById('adDurUnitMin').value);
+  var dMax = adToMinutes(document.getElementById('adDurMax').value, document.getElementById('adDurUnitMax').value);
+
+  var filterKey = [q, sf, dMin === null ? '' : dMin, dMax === null ? '' : dMax].join('|');
+  if (adLastFilterKey !== filterKey) {
+    adCurrentPage = 1;
+    adLastFilterKey = filterKey;
+  }
+
+  var list = adDevices.filter(function(d) {
+    if (sf !== 'all' && d.status !== sf) return false;
+    if (dMin !== null && d.uptimeMin < dMin) return false;
+    if (dMax !== null && d.uptimeMin > dMax) return false;
+    if (q && !d.name.toLowerCase().includes(q) && !(d.etu || '').toLowerCase().includes(q) && !d.mac.toLowerCase().includes(q) && !d.ip.includes(q)) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('adDeviceTable');
+  var empty = document.getElementById('adEmptyState');
+  var totalItems = list.length;
+  var totalPages = Math.max(1, Math.ceil(totalItems / adItemsPerPage));
+  if (adCurrentPage > totalPages) adCurrentPage = totalPages;
+  if (adCurrentPage < 1) adCurrentPage = 1;
+
+  var startIndex = (adCurrentPage - 1) * adItemsPerPage;
+  var endIndex = Math.min(startIndex + adItemsPerPage, totalItems);
+  var pageList = list.slice(startIndex, endIndex);
+
+  if (!list.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    var selectAll = document.getElementById('adSelectAllCheckbox');
+    if (selectAll) selectAll.checked = false;
+    adUpdatePagination(0, 0, 0, 1);
+    adUpdateButtonsVisibility();
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = pageList.map(function(d) {
+    return '<tr>' +
+      '<td style="text-align: center;"><input type="checkbox" class="ad-device-checkbox" data-device-id="' + d.id + '" onchange="adUpdateButtonsVisibility()"></td>' +
+      '<td><div style="display:flex;align-items:center;gap:10px"><div>' +
+        '<div class="device-name">' + d.name + '</div>' +
+        '<div class="device-mac">' + (d.etu || d.mac) + '</div>' +
+      '</div></div></td>' +
+      '<td><span style="font-family:\'Space Mono\',monospace;font-size:12px;color:var(--text-muted)">' + d.ip + '</span></td>' +
+      '<td>' + adSignalBars(d.signal, d.status) + '</td>' +
+      '<td style="font-size:13px;color:var(--text-muted);font-family:\'Space Mono\',monospace">' + d.uptime + '</td>' +
+      '<td><span class="badge-status ' + d.status + '"><div class="badge-dot"></div>' + d.status.charAt(0).toUpperCase() + d.status.slice(1) + '</span></td>' +
+      '<td class="col-actions"><div class="actions">' +
+        (d.status !== 'autorisé'
+          ? '<button class="btn-action btn-allow" onclick="adSetStatus('+d.id+',\'autorisé\')"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Autoriser</button>'
+          : '<button class="btn-action btn-allow" disabled style="opacity:.3;cursor:default"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Autorisé</button>') +
+        (d.status !== 'bloqué'
+          ? '<button class="btn-action btn-block" onclick="adSetStatus('+d.id+',\'bloqué\')"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Bloquer</button>'
+          : '<button class="btn-action btn-block" disabled style="opacity:.3;cursor:default"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Bloqué</button>') +
+        '<button class="btn-action btn-block" onclick="adExpelDevice(\''+d.mac+'\')" title="Expulser totalement"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5"/><line x1="21" y1="12" x2="9" y2="12"/><path d="M4 4h5v16H4z"/></svg>Expulser</button>' +
+        '<button class="btn-action btn-info" title="Détails" onclick="adShowInfo('+d.id+')"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button>' +
+      '</div></td></tr>';
+  }).join('');
+
+  adUpdatePagination(startIndex + 1, endIndex, totalItems, totalPages);
+  adUpdateButtonsVisibility();
+};
+
+window.adUpdatePagination = function(start, end, total, totalPages) {
+  var wrap = document.getElementById('adPaginationWrap');
+  var info = document.getElementById('adPaginationInfo');
+  var indicator = document.getElementById('adPageIndicator');
+  var prevBtn = document.getElementById('adPrevPageBtn');
+  var nextBtn = document.getElementById('adNextPageBtn');
+
+  if (!wrap || !info || !indicator || !prevBtn || !nextBtn) return;
+
+  wrap.style.display = total > 0 ? 'flex' : 'none';
+  info.textContent = start + '–' + end + ' / ' + total;
+  indicator.textContent = 'Page ' + adCurrentPage + ' / ' + totalPages;
+  prevBtn.disabled = adCurrentPage <= 1;
+  nextBtn.disabled = adCurrentPage >= totalPages;
+};
+
+window.adChangePage = function(offset) {
+  adCurrentPage += offset;
+  adRenderTable();
+};
+
+window.adUpdateStats = function() {
+  var total   = adDevices.length;
+  var allowed = adDevices.filter(function(d){ return d.status==='autorisé'; }).length;
+  var blocked = adDevices.filter(function(d){ return d.status==='bloqué'; }).length;
+
+  document.getElementById('adTotalDevices').textContent   = total;
+  document.getElementById('adAllowedDevices').textContent = allowed;
+  document.getElementById('adBlockedDevices').textContent = blocked;
+  document.getElementById('adPageSubtitle').textContent   = ((AD_SALLE_NAME || AD_VLAN_NUM) ? (AD_SALLE_NAME || ('VLAN ' + AD_VLAN_NUM)) + ' · ' : 'Site ITU · ') + total + ' appareils';
+
+  var pct = function(v) { return total > 0 ? Math.round(v / total * 100) : 0; };
+  document.getElementById('adBarTotal').style.width   = '100%';
+  document.getElementById('adBarAllowed').style.width = pct(allowed) + '%';
+  document.getElementById('adBarBlocked').style.width = pct(blocked) + '%';
+};
+
+// ── Actions ──
+window.adSetStatus = async function(id, newStatus) {
+  var dev = adDevices.find(function(d){ return d.id === id; });
+  if (!dev) return;
+  try {
+    if (newStatus === "autorisé") {
+      await fetch(AD_API_BASE + '/firewall/authorize', {
+        method: "POST", headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mac: dev.mac, hostname: dev.name })
+      });
+    } else {
+      await fetch(AD_API_BASE + '/firewall/block', {
+        method: "POST", headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mac: dev.mac })
+      });
+    }
+    dev.status = newStatus;
+    adRenderTable();
+    adUpdateStats();
+    adToast('✔ ' + dev.name + ' → ' + newStatus);
+  } catch (error) {
+    console.error(error);
+    adToast("❌ Erreur communication serveur");
+  }
+};
+
+window.adShowInfo = function(id) {
+  var dev = adDevices.find(function(d){ return d.id===id; });
+  if (!dev) return;
+  adToast('ℹ️ <strong>'+dev.name+'</strong> · ETU: '+(dev.etu || 'N/A')+' · MAC: '+dev.mac+' · '+dev.ip+' · '+dev.uptime);
+};
+
+// ── Scan ──
+window.adTriggerScan = async function() {
+  var btn = document.getElementById('adBtnScan');
+  var wrap = document.getElementById('adTableWrap');
+  btn.classList.add('scanning');
+  wrap.classList.add('scanning');
+  btn.innerHTML = '<svg class="spin" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Scan en cours…';
+
+  try {
+    var response = await fetch(AD_API_BASE + '/firewall/scan?network=' + encodeURIComponent(AD_NETWORK_SUBNET) + '&interface=' + encodeURIComponent(AD_SCAN_INTERFACE));
+    var rawDevices = await response.json();
+    adDevices = rawDevices.map(function(d, index) {
+      return {
+        id: index + 1,
+        name: d.nom || d.hostname || "Non identifié",
+        etu: d.etu || "",
+        mac: d.mac,
+        ip: d.ip,
+        signal: 3,
+        uptime: "Actif",
+        uptimeMin: 5,
+        status: d.authorized ? "autorisé" : "bloqué"
+      };
+    });
+    adRenderTable();
+    adUpdateStats();
+    adToast('✅ ' + adDevices.length + ' appareil(s) détecté(s)');
+  } catch (err) {
+    console.error(err);
+    adToast("❌ Erreur scan réseau");
+  }
+
+  btn.classList.remove('scanning');
+  wrap.classList.remove('scanning');
+  btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Scanner';
+};
+
+window.adToggleAutoScan = function() {
+  adAutoScanOn = !adAutoScanOn;
+  document.getElementById('adAutoScanWrap').classList.toggle('active', adAutoScanOn);
+  document.getElementById('adRadioToggle').classList.toggle('on', adAutoScanOn);
+  if (adAutoScanOn) {
+    adToast("🔄 Scan auto activé");
+    adTriggerScan();
+    adAutoScanTimer = setInterval(function(){ adTriggerScan(); }, 10000);
+  } else {
+    clearInterval(adAutoScanTimer);
+    adToast("⏹ Scan auto désactivé");
+  }
+};
+
+// ── Toast ──
+window.adToast = function(msg) {
+  var wrap = document.getElementById('adToastWrap');
+  if (!wrap) return;
+  var el = document.createElement('div');
+  el.className = 'ad-toast';
+  el.innerHTML = msg;
+  wrap.appendChild(el);
+  setTimeout(function() { el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(function(){el.remove();},400); }, 3000);
+};
+
+// ── Selection Management ──
+window.adToggleSelectAll = function() {
+  var checkbox = document.getElementById('adSelectAllCheckbox');
+  var checkboxes = document.querySelectorAll('.ad-device-checkbox');
+  checkboxes.forEach(function(cb) {
+    cb.checked = checkbox.checked;
+  });
+  adUpdateButtonsVisibility();
+};
+
+window.adSelectAll = function() {
+  var checkbox = document.getElementById('adSelectAllCheckbox');
+  checkbox.checked = true;
+  adToggleSelectAll();
+};
+
+window.adGetSelectedDevices = function() {
+  var checkboxes = document.querySelectorAll('.ad-device-checkbox:checked');
+  var selected = [];
+  checkboxes.forEach(function(cb) {
+    var deviceId = parseInt(cb.getAttribute('data-device-id'));
+    var device = adDevices.find(function(d) { return d.id === deviceId; });
+    if (device) selected.push(device);
+  });
+  return selected;
+};
+
+window.adUpdateButtonsVisibility = function() {
+  var selected = adGetSelectedDevices();
+  var selectAllCheckbox = document.getElementById('adSelectAllCheckbox');
+  var selectAllBtn = document.getElementById('adSelectAllBtn');
+  var authorizeBtn = document.getElementById('adAuthorizeSelectedBtn');
+  var blockBtn = document.getElementById('adBlockSelectedBtn');
+  var expelBtn = document.getElementById('adExpelSelectedBtn');
+  
+  // Update main select all checkbox
+  var allCheckboxes = document.querySelectorAll('.ad-device-checkbox');
+  if (allCheckboxes.length > 0) {
+    selectAllCheckbox.checked = allCheckboxes.length === selected.length && selected.length > 0;
+  }
+  
+  // Show/hide bulk action buttons
+  if (selected.length > 0) {
+    authorizeBtn.style.display = 'inline-flex';
+    blockBtn.style.display = 'inline-flex';
+    expelBtn.style.display = 'inline-flex';
+    selectAllBtn.style.display = 'none';
+  } else {
+    authorizeBtn.style.display = 'none';
+    blockBtn.style.display = 'none';
+    expelBtn.style.display = 'none';
+    selectAllBtn.style.display = 'inline-flex';
+  }
+};
+
+window.adAuthorizeSelected = async function() {
+  var selected = adGetSelectedDevices();
+  if (!selected.length) {
+    adToast('❌ Aucun appareil sélectionné');
+    return;
+  }
+  if (!confirm('Autoriser ' + selected.length + ' appareil(s) ?')) return;
+  
+  var success = 0;
+  var failed = 0;
+  for (var i = 0; i < selected.length; i++) {
+    var dev = selected[i];
+    try {
+      await fetch(AD_API_BASE + '/firewall/authorize', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mac: dev.mac, hostname: dev.name })
+      });
+      dev.status = 'autorisé';
+      success++;
+    } catch (error) {
+      console.error(error);
+      failed++;
+    }
+  }
+  
+  // Clear selection
+  document.querySelectorAll('.ad-device-checkbox').forEach(function(cb) { cb.checked = false; });
+  adUpdateButtonsVisibility();
+  adRenderTable();
+  adUpdateStats();
+  
+  var msg = '✔ ' + success + ' autorisé(s)';
+  if (failed > 0) msg += ', ' + failed + ' erreur(s)';
+  adToast(msg);
+};
+
+window.adBlockSelected = async function() {
+  var selected = adGetSelectedDevices();
+  if (!selected.length) {
+    adToast('❌ Aucun appareil sélectionné');
+    return;
+  }
+  if (!confirm('Bloquer ' + selected.length + ' appareil(s) ?')) return;
+  
+  var success = 0;
+  var failed = 0;
+  for (var i = 0; i < selected.length; i++) {
+    var dev = selected[i];
+    try {
+      await fetch(AD_API_BASE + '/firewall/block', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mac: dev.mac })
+      });
+      dev.status = 'bloqué';
+      success++;
+    } catch (error) {
+      console.error(error);
+      failed++;
+    }
+  }
+  
+  // Clear selection
+  document.querySelectorAll('.ad-device-checkbox').forEach(function(cb) { cb.checked = false; });
+  adUpdateButtonsVisibility();
+  adRenderTable();
+  adUpdateStats();
+  
+  var msg = '🚫 ' + success + ' bloqué(s)';
+  if (failed > 0) msg += ', ' + failed + ' erreur(s)';
+  adToast(msg);
+};
+
+window.adExpelSelected = async function() {
+  var selected = adGetSelectedDevices();
+  if (!selected.length) {
+    adToast('❌ Aucun appareil sélectionné');
+    return;
+  }
+  if (!confirm('Expulser ' + selected.length + ' appareil(s) ?')) return;
+  
+  var success = 0;
+  var failed = 0;
+  for (var i = 0; i < selected.length; i++) {
+    var dev = selected[i];
+    try {
+      await fetch(AD_API_BASE + '/firewall/expulserTotalement', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mac: dev.mac })
+      });
+      dev.status = 'bloqué';
+      success++;
+    } catch (error) {
+      console.error(error);
+      failed++;
+    }
+  }
+  
+  // Clear selection
+  document.querySelectorAll('.ad-device-checkbox').forEach(function(cb) { cb.checked = false; });
+  adUpdateButtonsVisibility();
+  adRenderTable();
+  adUpdateStats();
+  
+  var msg = '⚠️ ' + success + ' expulsé(s)';
+  if (failed > 0) msg += ', ' + failed + ' erreur(s)';
+  adToast(msg);
+};
+
+// ── Init ──
+adRenderTable();
+adUpdateStats();
+adUpdateButtonsVisibility();
+adTriggerScan();
+</script>

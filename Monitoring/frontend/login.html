@@ -1,0 +1,264 @@
+<!doctype html>
+<html class="dark" lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Connexion</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "var(--chartreuse)",
+              "background-light": "var(--card-bg)",
+              "background-dark": "var(--ink)",
+              "card-dark": "rgba(60,79,46,0.25)",
+              "surface-dark": "var(--sidebar-bg)",
+              "text-base": "var(--text)",
+              "text-muted": "var(--text-muted)",
+              border: "var(--border)",
+            },
+            fontFamily: { display: ["Inter", "sans-serif"] },
+            borderRadius: { DEFAULT: "4px" },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --ink: #001925;
+        --sidebar-bg: rgba(68, 112, 60, 0.15);
+        --sidebar-hover: rgba(202, 244, 56, 0.07);
+        --sidebar-active: rgba(202, 244, 56, 0.12);
+        --chartreuse: #CAF438;
+        --india: #258714;
+        --green: #7efb5c;
+        --text: #e8f5e2;
+        --text-muted: rgba(232, 245, 226, 0.5);
+        --border: rgba(202, 244, 56, 0.12);
+        --card-bg: rgba(60, 79, 46, 0.18);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--ink);
+        color: var(--text);
+        overflow: hidden;
+      }
+
+      .text-slate-800, .dark .text-slate-200 { color: var(--text) !important; }
+      .text-slate-400, .text-slate-500, .text-slate-600,
+      .dark .text-slate-400, .dark .text-slate-500 { color: var(--text-muted) !important; }
+      .border-slate-200, .border-slate-100,
+      .dark .border-slate-700\/50,
+      .dark .border-slate-800 { border-color: var(--border) !important; }
+      .placeholder\:text-slate-400::placeholder { color: var(--text-muted) !important; }
+      .dark .placeholder\:text-slate-500::placeholder { color: var(--text-muted) !important; }
+
+      .logo { display: flex; align-items: center; gap: 12px; }
+      .logo-rect { width: 44px; height: 16px; background: var(--chartreuse); border-radius: 2px; }
+      .logo-text { font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); }
+      .logo-text span { color: var(--chartreuse); }
+
+      .auth-card {
+        background: rgba(60, 79, 46, 0.25);
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+      }
+
+      .auth-page input[type="text"],
+      .auth-page input[type="password"] {
+        background-color: #0a2a1a !important;
+        border: 1px solid rgba(202, 244, 56, 0.2) !important;
+        color: #e8f5e2 !important;
+        -webkit-text-fill-color: #e8f5e2 !important;
+        caret-color: #CAF438;
+      }
+      .auth-page input[type="text"]:focus,
+      .auth-page input[type="password"]:focus {
+        border-color: #CAF438 !important;
+        box-shadow: 0 0 0 2px rgba(202, 244, 56, 0.15) !important;
+        background-color: #0a2a1a !important;
+      }
+      .auth-page input::placeholder {
+        color: rgba(232, 245, 226, 0.35) !important;
+        -webkit-text-fill-color: rgba(232, 245, 226, 0.35) !important;
+      }
+      .auth-page input:-webkit-autofill,
+      .auth-page input:-webkit-autofill:hover,
+      .auth-page input:-webkit-autofill:focus,
+      .auth-page input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #0a2a1a inset !important;
+        -webkit-text-fill-color: #e8f5e2 !important;
+        border: 1px solid rgba(202, 244, 56, 0.2) !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+
+      .glow {
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(202, 244, 56, 0.18), transparent 70%);
+        top: -40px;
+        right: -60px;
+        filter: blur(2px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+    <div class="auth-page w-full px-6 py-10 max-w-md">
+      <div class="auth-card rounded-lg p-8">
+        <div class="mb-8 text-center">
+          <div class="flex items-center justify-center mb-4">
+            <div class="logo">
+              <div class="logo-rect"></div>
+              <span class="logo-text">Rohy<span>Safe</span></span>
+            </div>
+          </div>
+          <h1 class="text-2xl font-bold dark:text-white mb-2">Connexion</h1>
+          <p class="text-sm" style="color:var(--text-muted)">Utilisez vos identifiants pour accéder au tableau de bord</p>
+        </div>
+
+        <form class="space-y-6" onsubmit="return false;">
+          <div>
+            <label for="username" class="block text-sm font-medium dark:text-white mb-2">Nom d'utilisateur</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Ex: admin"
+              class="w-full px-4 py-2.5 border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              style="color:var(--text)"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium dark:text-white mb-2">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Entrez votre mot de passe"
+              class="w-full px-4 py-2.5 border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              style="color:var(--text)"
+            />
+          </div>
+
+          <div id="error-message" class="hidden px-4 py-3 rounded-md" style="background:rgba(255,67,67,0.1); border:1px solid rgba(255,67,67,0.3); color:#ff4343;">
+          </div>
+
+          <div>
+            <button
+              id="login-btn"
+              onclick="handleLogin()"
+              type="button"
+              class="w-full px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide hover:opacity-90"
+              style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+              Se Connecter
+            </button>
+          </div>
+
+          <div class="text-center">
+            <p class="text-sm" style="color:var(--text-muted)">
+              Pas encore de compte ? <a href="#" style="color:var(--chartreuse); text-decoration:none; cursor:pointer;">Creer un compte</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      window.handleLogin = function() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errorDiv = document.getElementById('error-message');
+
+        // Reinitialiser le message d'erreur
+        errorDiv.classList.add('hidden');
+
+        // Validation
+        if (!username) {
+          showError("Veuillez entrer votre nom d'utilisateur");
+          return;
+        }
+        if (!password) {
+          showError("Veuillez entrer votre mot de passe");
+          return;
+        }
+
+        const loginBtn = document.getElementById('login-btn');
+        loginBtn.disabled = true;
+        loginBtn.style.opacity = '0.5';
+
+        fetch('http://localhost:8000/api/logins/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            pwd: password
+          })
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(data => {
+              throw new Error(data.detail || "Erreur de connexion");
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.status === 'ok') {
+            sessionStorage.setItem('user', JSON.stringify(data.user));
+            alert("Connexion reussie!");
+            window.location.href = 'model.html';
+          } else {
+            showError(data.message || "Erreur lors de la connexion");
+          }
+        })
+        .catch(error => {
+          console.error("Erreur:", error);
+          showError(error.message || "Une erreur est survenue lors de la connexion");
+        })
+        .finally(() => {
+          loginBtn.disabled = false;
+          loginBtn.style.opacity = '1';
+        });
+      };
+
+      function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+          passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              handleLogin();
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

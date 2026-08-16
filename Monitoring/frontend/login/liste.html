@@ -1,0 +1,159 @@
+<title>Gestion des Utilisateurs</title>
+
+<div class="px-6 py-8 flex-1 flex flex-col gap-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold dark:text-white mb-4">Gestion des Utilisateurs</h1>
+      <div class="flex items-center gap-4">
+        <div class="relative group">
+          <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color:var(--text-muted)">search</span>
+          <input id="searchUserInput" class="w-full md:w-80 pl-10 pr-4 py-2.5 dark:bg-card-dark border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" style="color:var(--text)" placeholder="Rechercher un utilisateur…" type="text" />
+        </div>
+        <p class="mt-2 text-sm" id="countUsers" style="color:var(--text-muted)">0 éléments</p>
+      </div>
+    </div>
+    <div class="self-end md:self-center">
+      <button onclick="loadPageContent('login/addLogin.html')" class="bg-primary font-bold py-2.5 px-6 rounded-md transition-colors text-sm uppercase tracking-wide hover:opacity-90 whitespace-nowrap" style="color:#001925; border:none; cursor:pointer;">Ajouter un Utilisateur</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto dark:bg-card-dark rounded-lg border dark:border-slate-700/50">
+    <table class="w-full">
+      <thead class="bg-slate-800/50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Utilisateur</th>
+          <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Code</th>
+          <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Rôle</th>
+          <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody" class="divide-y dark:divide-slate-700/50">
+        <tr>
+          <td colspan="4" class="px-6 py-8 text-center" style="color:var(--text-muted)">Chargement...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  var API_BASE = 'http://localhost:8000/api';
+  let allUsers = [];
+
+  window.loadUsers = async function() {
+    try {
+      const response = await fetch(API_BASE + '/logins');
+      const result = await response.json();
+      if (result.status === 'ok' && result.data) {
+        allUsers = result.data;
+        window.displayUsers(allUsers);
+      } else {
+        console.error('Erreur:', result);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+    }
+  };
+
+  window.setupUserSearch = function() {
+    const searchInput = document.getElementById('searchUserInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        if (term === '') {
+          window.displayUsers(allUsers);
+        } else {
+          const filtered = allUsers.filter(u =>
+            (u.username && u.username.toLowerCase().includes(term)) ||
+            (u.code && u.code.toLowerCase().includes(term)) ||
+            (u.role && u.role.toLowerCase().includes(term))
+          );
+          window.displayUsers(filtered);
+        }
+      });
+    }
+  };
+
+  window.displayUsers = function(users) {
+    const tbody = document.getElementById('usersTableBody');
+    const countEl = document.getElementById('countUsers');
+
+    if (!tbody || !countEl) return;
+
+    tbody.innerHTML = '';
+
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center" style="color:var(--text-muted)">Aucun utilisateur trouvé</td></tr>';
+      countEl.textContent = '0 éléments';
+      return;
+    }
+
+    countEl.textContent = users.length + ' élément' + (users.length > 1 ? 's' : '');
+
+    users.forEach((user) => {
+      const row = document.createElement('tr');
+      row.className = 'hover:bg-slate-800/30 transition-colors';
+
+      row.innerHTML = [
+        '<td class="px-6 py-4">',
+        '  <div class="flex items-center gap-3">',
+        '    <div class="w-10 h-10 rounded-full bg-purple-600/30 flex items-center justify-center text-primary font-bold">',
+        '      ' + (user.username.charAt(0).toUpperCase()) + '',
+        '    </div>',
+        '    <span class="font-medium dark:text-white">' + user.username + '</span>',
+        '  </div>',
+        '</td>',
+        '<td class="px-6 py-4 dark:text-white">' + user.code + '</td>',
+        '<td class="px-6 py-4">',
+        '  <span class="inline-block px-3 py-1 rounded-full text-xs font-medium" style="background:rgba(202,244,56,0.1); color:var(--chartreuse);">',
+        '    ' + user.role + '',
+        '  </span>',
+        '</td>',
+        '<td class="px-6 py-4">',
+        '  <div class="flex items-center gap-2">',
+        '    <button onclick="editUser(' + user.id + ')" class="p-2 rounded-md transition-colors hover:bg-slate-700/50" title="Modifier">',
+        '      <span class="material-icons-outlined text-lg" style="color:var(--chartreuse)">edit</span>',
+        '    </button>',
+        '    <button onclick="deleteUser(' + user.id + ')" class="p-2 rounded-md transition-colors hover:bg-slate-700/50" title="Supprimer">',
+        '      <span class="material-icons-outlined text-lg" style="color:#ff4343">delete</span>',
+        '    </button>',
+        '  </div>',
+        '</td>'
+      ].join('\n');
+
+      tbody.appendChild(row);
+    });
+  };
+
+  window.editUser = function(userId) {
+    // Implémenter la fonctionnalité d'édition
+    alert("Édition non encore implémentée pour le user ID: " + userId);
+  };
+
+  window.deleteUser = function(userId) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+      return;
+    }
+
+    fetch(API_BASE + '/logins/' + userId, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        alert("Utilisateur supprimé avec succès");
+        window.loadUsers();
+      } else {
+        alert("Erreur: " + (data.detail || "Impossible de supprimer l'utilisateur"));
+      }
+    })
+    .catch(error => {
+      console.error("Erreur:", error);
+      alert("Une erreur est survenue: " + error.message);
+    });
+  };
+
+  window.loadUsers();
+  window.setupUserSearch();
+</script>

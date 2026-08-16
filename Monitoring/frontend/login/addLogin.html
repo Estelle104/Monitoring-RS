@@ -1,0 +1,175 @@
+<title>Ajouter un Utilisateur</title>
+
+<div class="px-6 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold dark:text-white mb-2">Ajouter un nouvel Utilisateur</h1>
+    <p class="text-sm" style="color:var(--text-muted)">Remplissez les informations puis cliquez sur Créer</p>
+  </div>
+
+  <div class="dark:bg-card-dark rounded-lg p-6 border dark:border-slate-700/50">
+    <form class="space-y-6" onsubmit="return false;">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="username" class="block text-sm font-medium dark:text-white mb-2">Nom d'utilisateur</label>
+          <input 
+            type="text" 
+            id="username" 
+            placeholder="Ex: john_admin"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+        </div>
+
+        <div>
+          <label for="code" class="block text-sm font-medium dark:text-white mb-2">Code d'accès</label>
+          <input 
+            type="text" 
+            id="code" 
+            placeholder="Ex: ADMIN001"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium dark:text-white mb-2">Mot de passe</label>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="Entrez un mot de passe sécurisé"
+          class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+          style="color:var(--text)"
+        />
+      </div>
+
+      <div>
+        <label for="confirm-password" class="block text-sm font-medium dark:text-white mb-2">Confirmer mot de passe</label>
+        <input 
+          type="password" 
+          id="confirm-password" 
+          placeholder="Confirmez le mot de passe"
+          class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+          style="color:var(--text)"
+        />
+      </div>
+
+      <div>
+        <label for="role" class="block text-sm font-medium dark:text-white mb-2">Rôle</label>
+        <select 
+          id="role"
+          class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+          style="color:var(--text)"
+        >
+          <option value="">Sélectionner un rôle</option>
+          <option value="admin">Administrateur</option>
+          <option value="user">Utilisateur</option>
+          <option value="viewer">Lecteur</option>
+          <option value="manager">Gestionnaire</option>
+        </select>
+      </div>
+
+      <div id="error-message" class="hidden px-4 py-3 rounded-md" style="background:rgba(255,67,67,0.1); border:1px solid rgba(255,67,67,0.3); color:#ff4343; display:none;">
+      </div>
+
+      <div class="flex gap-4 pt-4">
+        <button 
+          onclick="createUser()" 
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+          Créer l'Utilisateur
+        </button>
+        <button 
+          onclick="loadPageContent('login/liste.html')" 
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:rgba(202,244,56,0.1); color:var(--chartreuse); border:none; cursor:pointer;">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  window.createUser = function() {
+    const username = document.getElementById('username').value.trim();
+    const code = document.getElementById('code').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const role = document.getElementById('role').value;
+    const errorDiv = document.getElementById('error-message');
+
+    // Réinitialiser le message d'erreur
+    errorDiv.style.display = 'none';
+
+    // Validation
+    if (!username) {
+      showError("Le nom d'utilisateur est requis.");
+      return;
+    }
+    if (!code) {
+      showError("Le code d'accès est requis.");
+      return;
+    }
+    if (!password) {
+      showError("Le mot de passe est requis.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      showError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    if (!role) {
+      showError("Veuillez sélectionner un rôle.");
+      return;
+    }
+
+    fetch('http://localhost:8000/api/logins/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        username: username,
+        pwd: password,
+        code: code,
+        role: role
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => {
+          throw new Error(data.detail || "Erreur lors de la création");
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.status === 'ok') {
+        alert("Utilisateur créé avec succès ! ID: " + data.data.id);
+        // Réinitialiser le formulaire
+        document.getElementById('username').value = '';
+        document.getElementById('code').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('confirm-password').value = '';
+        document.getElementById('role').value = '';
+        // Charger la liste avec un délai pour que l'alerte se ferme
+        setTimeout(() => {
+          window.loadPageContent('login/liste.html');
+        }, 100);
+      } else {
+        showError(data.message || "Erreur lors de la création de l'utilisateur");
+      }
+    })
+    .catch(error => {
+      console.error("Erreur:", error);
+      showError(error.message || "Une erreur est survenue lors de la création de l'utilisateur");
+    });
+  };
+
+  function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+</script>

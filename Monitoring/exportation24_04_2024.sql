@@ -1,0 +1,5176 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict PfHRhS1zGl80HrKYbbu5COJa76QfoHbEn3j0cUZJhVhbBZzif5USfo6KH1Iytch
+
+-- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: etudiants; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.etudiants (
+    id integer NOT NULL,
+    nom character varying(255) NOT NULL,
+    etu integer NOT NULL
+);
+
+
+ALTER TABLE public.etudiants OWNER TO postgres;
+
+--
+-- Name: macs; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.macs (
+    id integer NOT NULL,
+    mac character varying(255) NOT NULL,
+    id_etudiant integer
+);
+
+
+ALTER TABLE public.macs OWNER TO postgres;
+
+--
+-- Name: etu_macs; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.etu_macs AS
+ SELECT e.nom,
+    e.etu,
+    m.mac
+   FROM (public.etudiants e
+     LEFT JOIN public.macs m ON ((e.id = m.id_etudiant)));
+
+
+ALTER VIEW public.etu_macs OWNER TO postgres;
+
+--
+-- Name: etudiants_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.etudiants_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.etudiants_id_seq OWNER TO postgres;
+
+--
+-- Name: etudiants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.etudiants_id_seq OWNED BY public.etudiants.id;
+
+
+--
+-- Name: machine; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.machine (
+    id integer NOT NULL,
+    mac character varying(17) NOT NULL,
+    etu character varying(100),
+    hostname character varying(100),
+    mdp character varying(100),
+    type_user integer
+);
+
+
+ALTER TABLE public.machine OWNER TO postgres;
+
+--
+-- Name: machine_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.machine_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.machine_id_seq OWNER TO postgres;
+
+--
+-- Name: machine_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.machine_id_seq OWNED BY public.machine.id;
+
+
+--
+-- Name: macs_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.macs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.macs_id_seq OWNER TO postgres;
+
+--
+-- Name: macs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.macs_id_seq OWNED BY public.macs.id;
+
+
+--
+-- Name: port; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.port (
+    id character varying(20) NOT NULL,
+    numero_port integer,
+    id_vlan character varying(20)
+);
+
+
+ALTER TABLE public.port OWNER TO postgres;
+
+--
+-- Name: quota; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.quota (
+    id integer NOT NULL,
+    id_type_user integer NOT NULL,
+    quota_limite bigint NOT NULL
+);
+
+
+ALTER TABLE public.quota OWNER TO postgres;
+
+--
+-- Name: quota_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.quota_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.quota_id_seq OWNER TO postgres;
+
+--
+-- Name: quota_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.quota_id_seq OWNED BY public.quota.id;
+
+
+--
+-- Name: quota_machine; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.quota_machine (
+    id integer NOT NULL,
+    id_machine integer NOT NULL,
+    quota_consomme bigint DEFAULT 0,
+    id_quota integer NOT NULL
+);
+
+
+ALTER TABLE public.quota_machine OWNER TO postgres;
+
+--
+-- Name: quota_machine_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.quota_machine_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.quota_machine_id_seq OWNER TO postgres;
+
+--
+-- Name: quota_machine_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.quota_machine_id_seq OWNED BY public.quota_machine.id;
+
+
+--
+-- Name: salle; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.salle (
+    id character varying(20) NOT NULL,
+    salle character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.salle OWNER TO postgres;
+
+--
+-- Name: salle_vlan; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.salle_vlan (
+    id_salle character varying(20) NOT NULL,
+    id_vlan character varying(20) NOT NULL,
+    limit_debit integer,
+    limit_nb_machine integer,
+    limit_bande_passante bigint
+);
+
+
+ALTER TABLE public.salle_vlan OWNER TO postgres;
+
+--
+-- Name: type_user; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.type_user (
+    id integer NOT NULL,
+    type_user character varying(20)
+);
+
+
+ALTER TABLE public.type_user OWNER TO postgres;
+
+--
+-- Name: vlan; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.vlan (
+    id character varying(20) NOT NULL,
+    vlan integer NOT NULL,
+    ip character varying(15) NOT NULL,
+    id_salle character varying(15) NOT NULL
+);
+
+-- insert into public.vlan (id, vlan, ip, id_salle) values ('vlan1', 10, '192.168.1.1', 'salle1');
+
+ALTER TABLE public.vlan OWNER TO postgres;
+
+--
+-- Name: etudiants id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etudiants ALTER COLUMN id SET DEFAULT nextval('public.etudiants_id_seq'::regclass);
+
+
+--
+-- Name: machine id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.machine ALTER COLUMN id SET DEFAULT nextval('public.machine_id_seq'::regclass);
+
+
+--
+-- Name: macs id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.macs ALTER COLUMN id SET DEFAULT nextval('public.macs_id_seq'::regclass);
+
+
+--
+-- Name: quota id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota ALTER COLUMN id SET DEFAULT nextval('public.quota_id_seq'::regclass);
+
+
+--
+-- Name: quota_machine id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota_machine ALTER COLUMN id SET DEFAULT nextval('public.quota_machine_id_seq'::regclass);
+
+
+--
+-- Data for Name: etudiants; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.etudiants (id, nom, etu) FROM stdin;
+1475	AINAMBININA Johny Olivier	4282
+1476	ANDRIAMAHASETRA Bariaina Mahenitsoa Parson	4173
+1477	ANDRIAMAHAZOSON Obadia Fifaliana	3945
+1478	ANDRIAMAHERISON Fandresena Hajasoa Loic	4291
+1479	ANDRIAMALAZA Jonathan	3902
+1480	ANDRIAMANAMPISOA Miantsa Sarindra	3947
+1481	ANDRIAMANANA Mirado Evann Noah	3915
+1482	ANDRIAMANANTSOA Rado Michaël	4310
+1483	ANDRIAMANASAINA Solofo Tsirimanana Doneli	4160
+1484	ANDRIAMANDRANTO Aina Natanaela	4038
+1485	ANDRIAMASY Tokin Ny Aina Razoson	4034
+1486	ANDRIAMIANDRISOA Manakoazy Augustin	4062
+1487	Andriampanana Mamihaja Giovan	4083
+1488	ANDRIAMPARANY Manda Miaro Hanontsoa	4180
+1489	ANDRIANAIVOSON Mirantsoa Tiavina	3929
+1490	ANDRIANARIJAONA Aina Hendrinosoa	4183
+1491	ANDRIANARIVONINOMBANA Ny Hanja Navalona	4300
+1492	ANDRIANARY Jaona Manohisoa	3959
+1493	ANDRIANAVALONA Tiananiaina Anjarasoa Brandon	4255
+1494	ANDRIANJANAKOLONA Fitiavana Ny Avo Angelin	4171
+1495	ANDRIANOMENJANAHARY Fitia Manambina Luciano	3881
+1496	ANDRIANONY Hasinera John	1944
+1497	ANDRIANTSEHENO Ny Mahefa Kenny	4013
+1498	ARINAIVO ANDRIATSIHAFA Ranto Miarantsoa	3930
+1499	BARAKA Andrianiainarivelo Regantburg Xavier	1547
+1500	BIRA Jean David	1949
+1501	CHAN KAN Maude	3960
+1502	FAVRE Vinod	4248
+1503	FENOHERILIANTSOA Ny Aina Andreane	4199
+1504	HAJAHARIMANANA Mandresy Nicolas	4227
+1505	HAJANIRIVO Miranto Christinah	4290
+1506	HANAFFI ABDOUL ALAN	4312
+1507	Hanintsoa Richia Carole	4278
+1508	HARIMALALA Elisa	4123
+1509	HASIKOLOINJANAHARY Edinah	4280
+1510	HASIMANANA Feno Fitahiana	4299
+1511	HERIMAMY Fitia Mandresy	3994
+1512	HERIMANANA Volatiana Estelle	4185
+1513	HERINANDRIANINA IZAIA	4044
+1514	HERITIANA Liantsoa Fabrice	4075
+1515	LOVASOA Alexis Etienne	4526
+1516	MANJATONIELA Finaritra Daniellah	3896
+1517	MISAINA NY AVO Manankasina Aspiera	3968
+1518	MOISE VOAFIDY VONOKANDRESY	4292
+1519	niriarimanana tojonarindra	4295
+1520	NOMENJANAHARY FANIRY ANTHONY	3919
+1521	NOTOHAVINJANAHARY Six Lovatiana	4311
+1522	NY RADO Andry Miaro	3913
+1523	RABARIVELONJATOVO ZELIARILALA ITOKIANA	3900
+1524	RABEARIDIMBY Nofy	4120
+1525	RABEARISOA Rinah Kamel	4093
+1526	RABEFARIHY Rova Andrianina Lucas	3904
+1527	RABELAZA Aldine Windy Adriane	3901
+1528	RABEMANANJARA Samimanantsoa Jonathan	3894
+1529	RABEMANJATO Midera Nieferana	4281
+1530	RABETOKOTANY Andriamampandry Jemison Eric	4297
+1531	RABEZANAHARY Manohisoa Mahafaly	4058
+1532	RAELISON Onimpanahy Vanella	4135
+1533	RAFALIMANANA Tsiory Fandresena	4184
+1534	RAHAINGOSON Ambina Tsiky Hasimbola	4069
+1535	RAHARINJANAHARY Aina mahay	4128
+1536	RAHARINJATOVO Ianjara Nomena	4011
+1537	RAHARISON Andrianirina Maherisoa	3971
+1538	RAHARISON NY AVO ANDRIANINA	3950
+1539	RAININORO Nirina Fenosoa	4301
+1540	RAJAONARIMANANA Rovatiana Sariaka	4153
+1541	RAJERISON Hasinirina	3962
+1542	RAKOTOARIMANANA Safidiniaina Tsiky Fitiavana	4139
+1543	RAKOTOARISOA Oly Mickaelah	3932
+1544	RAKOTOARISON Harena	3958
+1545	RAKOTOARISON Mino Fitia Sylvanoh	4059
+1546	RAKOTOARIVELO Valisoa Ryan	3882
+1547	rakotoarivelo feno ismael	4253
+1548	RAKOTOARIVONY Dylan Tiavina	3952
+1549	RAKOTOBE Joely	3883
+1550	RAKOTOHASINAVALONA Andrianina Tsihoarana	4047
+1551	RAKOTOMALALA Sanorana Coralie Christnah	4250
+1552	RAKOTOMANGA Toky Antenaina	4307
+1553	RAKOTOMANGA Nekena	4092
+1554	RAKOTOMANIRISOA Sandratriniaina Lucas	2718
+1555	RAKOTONDRABEARISON Tendry Mbola Nekena	3942
+1556	RAKOTONDRAMANANA Andriantsoa Iantran Ny Avo	3970
+1557	RAKOTONIMARO Roger Ricardo	4308
+1558	RAKOTONIRINA Tendry Manambitsoa Kevin	3920
+1559	RAKOTONJANAHARY Miaro Yollan	4304
+1560	RAKOTONJANAHARY Hajaniaina Olivier	4137
+1561	RAKOTOZAFY Bakonimpiaro	4285
+1562	RAKOTOZANANY Andriamanana Ny Aina Andy	4028
+1563	RAKRISTERA Ny Aina Audry	4305
+1564	RALAIVAO Tiavina Ismael	4302
+1565	RALALARISON Tiavina Kevin Mariano	4166
+1566	Ralijaona Jonathan Andriamanamisa	4102
+1567	RAMAHARO Nomenjanahary Sandanirainy	3917
+1568	RAMANAMIHANTA Mikoja Valiavo	3923
+1569	RAMANANDRAIBE Harena sarobidy	4293
+1570	RAMANANDRAISOA Andrianina Anthony	4108
+1571	RAMANIBOLA ANJARA KOLOINA	4025
+1572	RAMANITRARIVO Antso Ny Aina Josué	4104
+1573	RAMBOLIARISOA Tsihoarana Hasinarivo Bryan	4175
+1574	RAMPARANY INDRA	4086
+1575	RANAIVOSOA Owan	4277
+1576	RANAIVOSON Maeva Laeticia	4386
+1577	RANARISON Antsa Rary	4378
+1578	RANDRIALALATIANA Andhy Stephano	4276
+1579	RANDRIAMAHAZONORO Nasaina	4298
+1580	RANDRIAMANJATO Nomenjanahary Elie	3895
+1581	RANDRIAMBOLA Mamisoa	3339
+1582	RANDRIAMBOLOLONA JIMMY	4068
+1583	RANDRIAMBOLOLONA Rindra Mananjara	4200
+1584	RANDRIAMIALISAONA Sandratra Elysee	3963
+1585	randrianajaina tsirinirina anthony	4050
+1586	RANDRIANARISON Andry Fanantenana	4219
+1587	RANDRIANARIVELO Aina nathanael	4014
+1588	RANDRIANARIVELO Mahatsangy Aaron	3886
+1589	Randrianasolo Mbola Itokiana Olivier	4379
+1590	Randrianasolo Hasina Tiana Sydney	4237
+1591	RANOTRONARISON Rolph Harimahefa Busson	4148
+1592	RAOBELINA Nomenjanahary Elia	4045
+1593	RAPANOELA Ny Antema Zo Mitia	4226
+1594	RASOAHAGA Hasimbola Andrianina	3355
+1595	RASOAMALALA Elia Onintsoa	4100
+1596	RASOAMANANA Aro Mahefa Mamonjisoa	4275
+1597	RASOLOFOMANANTSOA Sariakamanjaka Oméga	4067
+1598	RASOLOFONIAINA Onja Mialy Tatianna	3941
+1599	RASOLONDRAIBE MAMINIAINA Nomen Ny Avo	4015
+1600	RATANDRA Thierry Arsenoh	4031
+1601	Ratojonirina Fandresena	4240
+1602	RATOMBONTSOA Maeva	4117
+1603	RATOVONDRAINY Davida Mamorisoa	3944
+1604	RATOVONIAINA Faneva Mamisoa	4246
+1605	RATSARAHASIMBOLA Fanevasoa Fidèle	4283
+1606	RATSIARANTINA Andriatoavina	4245
+1607	RATSIMA Andriamalala Tsilavo	3905
+1608	RATSIRISON MISANIAINA FENOSOA MICKAEL	4091
+1609	RAVELOMANANA Ny Andrianina Mariah Lorolei	4190
+1610	Ravelonalimanana Ariniaina Alexia Reyas	4215
+1611	RAVELONARIVO Feno Harena Sahaza	4161
+1612	RAZAFIARIMANANA Jeannie Philberthe	4279
+1613	RAZAFIMAHEFA Mihamintsoa Iraka	4264
+1614	RAZAFIMANANTSOA Rojovola Salomon	3967
+1615	RAZAFINDRAIBE Daniella	3935
+1616	RAZAFINDRAIBE Nampoina Fandresena Miotisoa	4017
+1617	RAZAFINDRAKOTO Aristide	4143
+1618	RAZAFINDRALAMBO Herizo	4089
+1619	RAZAFINDRAMANANA IDEALY	4269
+1620	RAZAFINDRATSIRA ALBERTO JEREMIE	4286
+1621	RAZAFINDRAVONONA Angeli Iriantsoa	3964
+1622	RAZAFITSALAMA Harena Ny Aina	4026
+1623	RAZANAJATOVO ANDRIANIMERINA Rohinjary	3966
+1624	RIVOHARISATA DIAMONDRA IRINAH PRINCIA	4181
+1625	TAHIRINIAINA Sarobidy Olivier	4157
+1626	TOJO NY NANDRASANA Joe Armando	4196
+1627	Tondra Hanaa	4273
+1628	RASAMIARAMANANA Herilalaina Roddy Bryan	4018
+1629	Mahefasoa Tsiky Herinomeniavo	3277
+1630	MENDRIKHAJA Lionel Rayan Lai	3972
+1631	AKO Ny Antso Rivaldo	3933
+1632	ANDRETSEHENO Christon	4151
+1633	ANDRIAFENOMANANA Hery Ny Aina	4156
+1634	ANDRIAMAHENINTSOA Mandresy Franckenstein	3880
+1635	ANDRIAMAHERIZO Natolotra Lucas	4333
+1636	ANDRIAMALALA Antsa Manoina	4035
+1637	ANDRIAMALALA Mialy Ny Anjatiana	2371
+1638	ANDRIAMAMPIANINA Mamy Tianiaina	4316
+1639	ANDRIAMAMPIHANTONA Manantenasoa Hiraina	4365
+1640	ANDRIAMANALINA Manantsoa Harinaivo	3946
+1641	ANDRIAMANANTENA NIA ITOKIANA	3925
+1642	ANDRIAMANANTENASOA Tsiory Niry-Avo	3957
+1643	Andriamarondraibe Sambatra Mickaella	4346
+1644	ANDRIAMAROSOA Raherinjato Ny Ando Linah	4147
+1645	ANDRIAMIARAMANANA Florencia Agnès Dalilah	3956
+1646	ANDRIAMIHAJANIAINA Rohan Johnson	3918
+1647	ANDRIAMITSINJO Maitso Fiavy Miroso	4373
+1648	ANDRIAMONTA Toavina	4235
+1649	ANDRIANANDRAINY Ny Avo Haja	4367
+1650	ANDRIANANTENAINA Noah	4326
+1651	andrianantenaina fitahiana tolojanahary	4111
+1652	ANDRIANARIJAONA Harry Jones Pascal	3922
+1653	ANDRIANASOA Aro Mamy Mitia Fandresena	4172
+1654	ANDRIANASOLO MAMINIAINA	4133
+1655	ANDRIANIRINA Anjara Nomen Iavo Hasimanjaka	4359
+1656	ANDRIANJAFINIAINA Mitty Ambinintsoa	3943
+1657	ANDRIANTSEHENO Anja Famenontsoa Claudia	4370
+1658	Andriantsiferana Ny Antsamalala Fitiavanasoa Nomena Sarobidy	4349
+1659	ANDRIANTSITOHAINA Voaratiana Mamode	4587
+1660	ANDRIANTSOA Irina	3885
+1661	ANDRIAVONONA Kanty Elnathan	4103
+1662	ANDRINIRIANA Tsiferana Fortune	4343
+1663	ANDRINIRINA Herimino	4362
+1664	ANJARA Nomena Idealy	4074
+1665	CHAN PONG MYE Nirina Stephanie	4374
+1666	CHARLES Amel Soanasy	3938
+1667	CHIU TIEN Mandresy Christian	3914
+1668	D ARVISENET Anjara Yrielle	4164
+1669	DUPONT HOUSSENA	4179
+1670	DUROC RAFARA Miora Mickaela	4231
+1671	FANEVA JEDIDIA	4042
+1672	FIDIMANANA Tsimbina Mitantsoa	3911
+1673	HAMIDULLAH Ayman Zara	4109
+1674	HARITIANA Bryano Yvan	4115
+1675	HERIMAHEFASOA Aina Mbolatiana Nasolo	3893
+1676	HERIMANANTSOA Ny Aina Rianala	3897
+1677	HERINIAINA Fiorenantsoa Mitia	4098
+1678	IONY Johnson	3939
+1679	Jaofera Reginaldo Johane	4162
+1680	LAM HINE YAN Randy Harry Narovana	4101
+1681	LOVASOA Celina	4372
+1682	MAHAZAKA Fanomezantsoa Christinova	3992
+1683	MAHEFA HARIVONY Andrisoa Francia	3119
+1684	MAMINIAVO Grace Tanteraka	4178
+1685	MAMISON Sanda Ny Ony	4353
+1686	MANJARISOA Solonirina Armella	3888
+1687	MANOVOSOA NEKENA BRUNELLA	4193
+1688	MASONDAHY Dolph Sandro	4168
+1689	MIALISOA TSIKY CHRISTELLE	4225
+1690	NATOLOTRINIAVO Fanasina arlin	4129
+1691	RABENARISON Andry Tsiresy	4119
+1692	RABOTOVAO Meltine Sundy	3912
+1693	RAFALIMANANTSOA Ranton Iony Nathanael	4242
+1694	RAFANOMEZANTSOA Funaki Live	4169
+1695	Rafanomezantsoa Jean Jacques Goldman	3926
+1696	RAHARIMIRANTY Gaelle Gilbertine Ben Ybe	4144
+1697	RAHARIN0SY Rindra Fitahiana	4329
+1698	RAHARISON Andrianina Omentsoa yoann	4136
+1699	RAHERINIAINA Fitahiana Nathie	4368
+1700	RAHOLISON Rayan	4073
+1701	RAJAOBELINA Andriatahinasoa	4547
+1702	RAJAONSON Ny Andry Miaro	4176
+1703	RAJOELISON Andriamaholy Aina Manoa	4079
+1704	RAKOTOARIDERA Randianina	4060
+1705	RAKOTOARIMANANA DAVIDA FIDERANA	4037
+1706	RAKOTOARINIA Miharivola Nomena Manou	3951
+1707	Rakotoarisoa Mihaja Mamy Sarobidy	4344
+1708	RAKOTOARIVAO Nambinintoky Yvon	4588
+1709	RAKOTOARIVELO Anjaraniavo Fiantso	4146
+1710	RAKOTOARIVONY Harena Natolotra Sarobidy	3940
+1711	RAKOTOMALALA Andriatsiory Alexandre	4339
+1712	RAKOTOMALALA Mamy Aiky	3936
+1713	RAKOTOMALALA Roberto Carlos	4124
+1714	RAKOTOMANANA Tojonirina Marofitahiana	3910
+1715	RAKOTOMANGA Mialy Steeven	4112
+1716	RAKOTOMILIARISON Ny Aina Lucas	3916
+1717	RAKOTONANDRASANA Mitiaray Mandresy	4149
+1718	Rakotondrafara Andrianintsoa Mahatoky	4241
+1719	RAKOTONDRANJATO tiana nandrandraina	3890
+1720	RAKOTONDRANONY Noah Mbolarivomanana	4351
+1721	RAKOTONDRINA Liantsoa	4318
+1722	RAKOTONIAINA Harison Mahery	4546
+1723	RAKOTONIAINA Miantra Vahatrasoa	3969
+1724	RAKOTONIRINA Mirado	3924
+1725	RAKOTONIRINA Misandrakasina Fiankinana	4608
+1726	RAKOTONIRINA Tokiniaina Fabrice	3991
+1727	RAKOTOZAFY Andriamirado Andy	4356
+1728	RAKOTOZAFY Andrianjatovo Mandanirina	4057
+1729	RALAIARIMANGA Tendrisoa Nantenaina	4029
+1730	RALAMBOHARISON Voa-Hary Andriantsoa	4320
+1731	Ralambotrimo Mirindra Princy	3927
+1732	RAMAHERISON Ikoriantsoa Tsiferana	4087
+1733	RAMANAMAHEFA Heritiana Finiavana	4218
+1734	RAMANANTSALAMA Dirk Tomefy	3948
+1735	RAMANANTSOA Antsompitahiana dave	4213
+1736	RAMARIJAONA Haja Sylva	4323
+1737	RAMAROHAJAINA Eddy Prosper Ammi	4095
+1738	RAMAROMANANA Tsanta Mahery Finaritra Ramarofaritra	4590
+1739	RAMBATOSON Giovanni	4055
+1740	RAMERISON Kiady Ny Avotra	4145
+1741	RANAIVOALISON Miangola Karen	4363
+1742	RANDRIAMAHEFA Jean Pierre	4085
+1743	randriamahefa jean jordie	4126
+1744	RANDRIAMANJATO Fidinirina Harenasoa Rosa	4335
+1745	RANDRIAMBOLA Itiela	3877
+1746	Randriamiadana Njivaniaina Miangola	4039
+1747	Randriamirado Alan Solofoniaina	3954
+1748	RANDRIAMPARANY Mihajatiana Bryan	3928
+1749	RANDRIANANTENAINA Sarobidy	3906
+1750	RANDRIANARIJAONA Sandih Finaritra	4174
+1751	RANDRIANARISOA Ivo Ianteherana	4360
+1752	RANDRIANASOLO Andrianaivo Princio	4239
+1753	RANDRIANASOLO ANDRIANIRINA NOMENA VALISOA	3949
+1754	RANDRIANASOLO Faniry Niaina	4152
+1755	RANDRIANTSEHENO Tokiniaina	4158
+1756	RANJOHANJATO Samuel Fortunat	3889
+1757	Ranomenjanahary Mandresy Ally	4342
+1758	RANTSOAVINA Tolotranasandratra Santatra Sarobidy	3993
+1759	RAOLIARISOA Hanitriniaina Larissa	4220
+1760	RASOAZANAMINO Saholy	3953
+1761	RASOLOFOMAROMALALA Mihaja Nasandratriniavo	4167
+1762	RASOLOFONIRINA Eric Steeven	4130
+1763	RATEFINJANAHARY Yves Nathan	3973
+1764	RATOVOHERINIAINA Ny Tiavina Nasandratriniavo	4203
+1765	RAVEHISON Tafita Mamiratra Prince Jordy	4366
+1766	RAVELOMANANTSOA Ny Sanda Itokiana	4364
+1767	RAVELONAHIANA Tiana Jeriniaina	4357
+1768	RAVOHITSOA Rinah Karl	4061
+1769	RAVONISON Mirado Herman Fidèle	4024
+1770	RAZAFINDRALAMBO Anjasoa Marcelle	4369
+1771	RAZAFINDRAMANANA Tendry Ny Avo Kevin	4170
+1772	Razafindrazaka Tiana Iavoniaina Nomenjanahary	4384
+1773	RAZAFITSALAMA Andry Ajaina	4371
+1774	RAZAKARIVELO Asandratriniavo Sharon	4080
+1775	ROVAFITIAVANA Diary	4296
+1776	TAMBY Juan Abertino	4094
+1777	TIANARIVO Ndroso Zanaky Ny Aina	4331
+1778	TIAVINA Anjaranomena	3955
+1779	Todisoa Sandria	4361
+1780	TOLOTRY Ny Avo Sedra Niaina	4141
+1781	TSARANDRO Hasinadrasana Nelly Mariano Maximusia	4052
+1782	TSARAZAKA Tsilavina Lorick	3892
+1783	VESTALYS Ialy	4096
+1784	VOHITRINIAVO Tommy Armel	3891
+1785	VONISAMISON Bryan	4198
+1786	AINA NEKENA Sarobidy lucas	4989
+1787	AINA NIRINA ny antsa vahina	5018
+1788	AINAMALALA Mamitiana Ryan Emmanuel Sébastien	5013
+1789	Ainanomenjanahary Ny Anjarasoa Rebecca	4930
+1790	ANDRIA PARSON Tsiory Nambinina	4939
+1791	ANDRIAFANOMEZANTSOA Judicael	4841
+1792	ANDRIAMAHEFARIVO Tiako Nirintsoa	4736
+1793	ANDRIAMANANTENA Nomena Herimiantsa	5041
+1794	ANDRIAMANANTENA Iry Mahatoky	4879
+1795	ANDRIAMANDIMBISOA Ny Hasambarana Milanto	4843
+1796	ANDRIAMBOAVY Liantsoa Magali Miyako	4753
+1797	ANDRIAMIHAJAVOLA elias mandresy	5056
+1798	ANDRIANAIVOSOLO Herindranto	5073
+1799	andrianandrasana henintsoa Kanto maevà	5074
+1800	ANDRIANANTENAINA Raiavo Johan	4969
+1801	ANDRIANARIMALALA Tsiky Fifaliana	4934
+1802	ANDRIANARINIAVO Tojotiana Idealinirina	5014
+1803	ANDRIANAVALONA Lucas Tahiry Hajaina	5079
+1804	ANDRIANIAINA NIANTSA MITIA	5046
+1805	ANDRIANIMEHY Ny Tahiana Anthony	4806
+1806	ANDRIANIRINA Miaratia Rian Iavo	4852
+1807	ANDRIANJAFY Tiavina Rayan Josefa	5020
+1808	ANDRIANJANAHARY Solomampionona Domoina	4855
+1809	ANDRIANKIRIJA Zo Noariantsoa	4705
+1810	ANDRIANOMEMBOAVONJY Harena Irintsoa	4886
+1811	ANDRIANOMENJANAHARY Nambinintsoa Herinandrasana	4868
+1812	ANDRIANOMENTSOA Tojo	5108
+1813	ANDRIANTSOLOFO Irina Jason	4976
+1814	DESY-Tam Martelin	5025
+1815	ERASOA MAHALIANA LIANTSOA	4920
+1816	HANTARISOA Tolotra Julie Priyambika	5062
+1817	HARISON Mitia Fifaliana	5067
+1818	HASIMBOLA AVOTRA Yoan Oswalds	4684
+1819	HASINOARISINA Nomen Ny Avo Fanilo Nandrandraina	5001
+1820	HERY-MAHEFA Mitia Valimbavaka	4744
+1821	IARITIANA Messi Dinou	4874
+1822	ILONIAINA Candy	5008
+1823	JAONA Mejaniavo Henikasina Sariaka	4764
+1824	LEPORAKA Leong Brian Fabrice	4768
+1825	MAMIZO Ida Riantsoa	4891
+1826	MORRIS Harry Loan	5049
+1827	NATOLOTRINIAINA ANADRAIBE Arissa Muryelle	4689
+1828	NDRANTOARINJARA Avotra Nirina	4799
+1829	NOMENA FITIA Fanojoniaina	5112
+1830	nomenjanahary tokiniaina andy	4907
+1831	NY TENDRY TIAVINA Rabetsivahiny Miranto olganah	4839
+1832	RABARINANTENAINA Fitahiantsoa Jonih	4682
+1833	RABEARINOSY Hery Ny Aina	5111
+1834	RABEARIVELOARISOA Ryan Onintsoa	4850
+1835	RABEMANAMBOLA Olivier Maholitiana	4845
+1836	RABEMANANJARA TANJONOMENA	5045
+1837	RABEMAROKOTO RABESON Kanto Milamina Miorantsoanirina	4708
+1838	RABENANAHARY Amintsoa Stecy	4997
+1839	RABENJA Ainan Itiana Kevin J	5109
+1840	RADIFERA ANDRIAMISEZA SOLO MIHAJA	4983
+1841	RAFALIARISOA Felaniaina Lucie	4911
+1842	RAHAINGOMALALA Fehy Garie	4913
+1843	RAHAMISON Raitra Lahatriniavo	4947
+1844	RAHELIMINO Mitia Helena Andriampeno	5080
+1845	RAJAMASON Hasimbola Nantenaina	4882
+1846	RAJAONAH Soa Fitia	5009
+1847	RAJAONAH Fenosoa Diamondra	4932
+1848	RAJAONAH-RATSIMISETRA Soatiana	4758
+1849	RAJAONARIVELO HASINA ROMAIN	4872
+1850	RAJAONSON Nomena Frederic	4866
+1851	RAKOTOARIMALALA Daniel Rovaniaina	4864
+1852	RAKOTOARISOA Aroniaina Riantsoa Julio	4919
+1853	RAKOTOARIVELO NIRINIAINA PATRICK	4781
+1854	RAKOTOMALALA Jedidia Hermia	5127
+1855	RAKOTOMALALA Fanomezana kanto cristelle	4924
+1856	RAKOTOMALALA Fernando Hubert	4849
+1857	RAKOTOMALALA Mihajavola Fitahiana	4648
+1858	RAKOTONAIVO Morel Haga	5003
+1859	RAKOTONANAHARY Joany Niaina	4903
+1860	RAKOTONANAHARY Herinirina Vanilla	4655
+1861	RAKOTONDRAZAFY Todisoa Stephan	4952
+1862	RAKOTONDRAZAKA Volatahiana	4876
+1863	RAKOTONINDRAINY Felanihaina Marinah	4822
+1864	RAKOTONIRINA Tianjanahary Narovana	5071
+1865	Rakotonirina Nanja	4805
+1866	RAKOTONJANAHARY Fenitra Nomena	4967
+1867	RAKOTOSON Kévin Styff	5078
+1868	RAKOTOSON Antsatiana Ambinintsoa Eddie	4818
+1869	RAKOTOZAFY Toky Harena Erwan	5087
+1870	RAKOTOZAFY Fiderana Elie	4993
+1871	RAKOTOZAFY Antso Tohan ny Aiko	4922
+1872	RALANTOMALALA Miantsa Sarobidy	4954
+1873	RAMAMPANDRISOA Santatra Ny Aina Johary	4942
+1874	RAMANANDRAIBE Mihoby Ny Avo	4652
+1875	RAMANANTOANINA Tahirintsoa	4955
+1876	RAMANANTSOA Harley-Ho	4719
+1877	RAMANANTSOA Glorisha	4665
+1878	RAMAROKOTO NIRINA Anthonie	4917
+1879	RAMBATOMANGA HARRY TIAKO TOM	4851
+1880	RAMIARISON Todisoa Navalona	5000
+1881	RANAIVO TIANA Riananiaina	4814
+1882	RANAIVONIRINA FITIAVANA	4865
+1883	RANAIVOSOA Tiana Fehizoro	4931
+1884	RANAIVOSOA Diamondra Fitia	4776
+1885	RANAIVOSON ANDRINIONY YOANN	4857
+1886	RANDRIAMAHAZOMANANA Harivelo Sarobidy Mialy	5084
+1887	RANDRIAMAMPIADANIRINA Ando Nantenaina	5033
+1888	RANDRIAMANANTENA Iriantsoa Diary	5088
+1889	RANDRIAMANANTSOA NAMPOINA SAROBIDY	4991
+1890	RANDRIAMBOLOLONA Tiana Mandresy	4977
+1891	RANDRIAMBOLOLONA Vahatra Sedera	4657
+1892	RANDRIAMIANDRASOA Carène Mielatiana	4769
+1893	RANDRIANANTOANDRO Ny Angola Frankiana	4988
+1894	RANDRIANARISON Aro Nandrandraina	5069
+1895	RANDRIANARIVONY Nomenjanahary Tsinjo	5089
+1896	Randrianjafy Tsirofy Tamby	4900
+1897	RANDRIANOELISOA Iavo Andrianina Malala	5085
+1898	RANDRIANTSOA Joharinirina	4686
+1899	Ranoharison Andoniaina Fanhelah	4888
+1900	RANTONOMENA Mahaliana Ny Aina Romeo	4884
+1901	RAOELISON RAMASINARIVO veronique	5126
+1902	RASOAFARAFENONIANTSA Judith Ideal	5051
+1903	RASOLOFO ANDRIANARY DIARY NY TOKIANA	4984
+1904	RATEFINANAHARY Manjaka Andrea	5086
+1905	RATOVONIAINA RINDRA VALISOA	4811
+1906	RATSIMBASON Tsiory Burleigh	5107
+1907	Ratsimbazafy Itiona Art Jess	4706
+1908	RAVALOMANANA Tony Harrys	4871
+1909	RAVAOARISOA Ranjanoro	4803
+1910	RAVELOARISON LUDOVIC	4765
+1911	RAVELOJAONA Narovana Andrandraina Françio	5110
+1912	RAVELOSON Glaieul Narimino	4968
+1913	RAZAFIMBELO Ryan	4678
+1914	RAZAFINDRABE Bam Tsiky My Tia	5006
+1915	RAZAFINDRAFIDY Fetraniaina Bryan	4918
+1916	razafindranaivo Andriamiranto navalona	4925
+1917	RAZAFINDRAVAHY Andry Ny Aina	4668
+1918	RAZAFINDRAZAKA Angolatiana Finoana	5077
+1919	RAZAFINDRAZAKA Tiana Finaritra	5070
+1920	RAZAFITANDRIFY JACQUES RANDY	4778
+1921	RAZANAKOLONIAINA Fenotiana Laurent	4959
+1922	RINDRASOA Nomenjanahary Lahatra	4742
+1923	SEDRANIAINA ELLA CRISTINO	4746
+1924	VALINELISOA Rojo Natolotriniavo	5066
+1925	Victor Edith Jean Charlie Nadege	5017
+1926	ANDRIABARIMANANA Tendry	3078
+1927	ANDRIAMAHENINARIFANDRANA Miahy Saha Finaritra	3079
+1928	ANDRIAMALALA Rivo Ny Aina Tojonirina	3080
+1929	ANDRIAMANAKASINA Kantomalala Fitiavana	3081
+1930	ANDRIAMANANTENA Falisoa Haris Ryan	3082
+1931	ANDRIAMARISON Fanilo Hasina	3083
+1932	ANDRIAMBOAVONJINIAINA Fanirintsoa Valeri	3084
+1933	ANDRIAMIHAJA Miahy Ny Avo	3085
+1934	ANDRIAMIHARISOA Aina Satamandresy	3106
+1935	ANDRIAMIHARIZO Tokifanomezantsoa Elise	3086
+1936	ANDRIAMITENOVOLA RAMANANJATO Miaritsoa Safidy	3087
+1937	ANDRIANAIVOSOA Riantsoa Oceane	3088
+1938	ANDRIANALIZAKA Aina Harilala	3090
+1939	ANDRIANARIJAONA Mihaja Anjaratiana	3654
+1940	ANDRIANARISON Mamitiana Kevin	3093
+1941	ANDRIANASOLO Kiady Vahatriniaina	3095
+1942	ANDRIANIAINA Diay Nathan	3097
+1943	ANDRIANIONY Nanto Nambinina	3098
+1944	ANDRIANIRINA Liana Gloria	3099
+1945	ANDRIANIRINARIMANANA Johary	3100
+1946	ANDRIANKIRIJA Aro Irintsoa	3101
+1947	ANDRIANTSOA Andrivola Manjaka	3102
+1948	ANDRIANTSOA Ranto Toniniaina	3103
+1949	ANDRINIRINA Kaloy Ny Nombana	3104
+1950	ARIVELO Aro Kennedy	3107
+1951	BELALAHY Ah-Thiong Adrian Augustin	3108
+1952	CHRISTODOULOU Princella Oceane	3109
+1953	FANDRESIMAHERY Tahirintsoa Luberri	3110
+1954	FITAHIANTSOA Adrianandraina Fanitsy	3111
+1955	HARDY RAKOTONDRALANONA Andry Nomeniavo	3112
+1956	HARINAMBININA Ranto Luciano	3113
+1957	HARINJATOMALALA Hainiavo Kassaina	3114
+1958	HASIMANDRANTO Avotsoa Najaina	3655
+1959	INALIARIJAONA Anjara Fyfaliana	3115
+1960	KOTONIRINA Hardy Fleurys	3117
+1961	LAUREANAH Mandresy Stanley	3118
+1962	MAHARAVO Kenzo	1783
+1963	MALALANARIVONY Miarintsoa Andie	3120
+1964	MANGALAHY Fenohasina	3059
+1965	MIANDRISON Hasinjo Toavina	1789
+1966	MILIARASON Harentsoa Michou	3122
+1967	NELY Hasiniaina Diary	3123
+1968	NIRIANTSOA Erica	3124
+1969	RABEARIVONY Tsiory Vahya	3125
+1970	RABENANAHARY Sandratra Hasinarivelo	3126
+1971	RABENARIVO Raja Mirado	3127
+1972	RABETRANO Endry Nasandratra	3129
+1973	RAFIDIMANANTENA Fanomezantsoa Tendriniavo	3131
+1974	RAHAJARIJAONA Mir	3132
+1975	RAHANITRINIAINA Anna Mirana	2717
+1976	RAHANTAMALALA Elyance	3133
+1977	RAHARIMANANA Manda Niavo	3134
+1978	RAJAONARISOA Soamihanta Ialy Jade	3137
+1979	RAJAONARIVELO Mihaja Noandrianina	3139
+1980	RAJAONARIVONY Toky Lionnel	3140
+1981	RAJAONERA Harinandrasana Steeve	3141
+1982	RAJERISON Tafita Ny Aina	3142
+1983	RAKOTO Benjatiana Harinambinintsoa	3143
+1984	RAKOTOARILOLONA Hasiniaina	3144
+1985	RAKOTOARINIVO Mitia Andrianasoa	3145
+1986	RAKOTOARISEDY Ambinintsoa Mickael	3303
+1987	RAKOTOARISOA Tsanta Ny Aina	3146
+1988	RAKOTOARISON Zonantenaina Princi	3147
+1989	RAKOTOARIVONY Fehizoro Loic Dylan	3305
+1990	RAKOTOBE Faniry Ntsoa Eva	3149
+1991	RAKOTOBE Tojonirina Ravanona	3150
+1992	RAKOTOHARISOA Zoara	3151
+1993	RAKOTOMALALA Andry Ny Aina Fehizoro	1003
+1994	RAKOTOMALALA Fanantenana Andrianahasetra	3152
+1995	RAKOTOMALALA Njaratiana Michael	3153
+1996	RAKOTOMANANANDRO Nambinina Bryan	3154
+1997	RAKOTONDRAMANANA Ny Avotiana Joanël	3155
+1998	RAKOTONIAINA Andomalala Erica	3156
+1999	RAKOTONIRINA Valimbavaka Ismaella	3157
+2000	RAKOTONIRINA RAMANANARIVO Ny Avo Matthieu Andriamahay	3158
+2001	RAKOTONOMENJANAHARY Rindranavalona Raphael	3159
+2002	RAKOTOVAO Anjaniaina	3160
+2003	RALIJAONA Harena Mihajasoa Tiana	3162
+2004	RALIJAONA Shania Karen	2530
+2005	RAMAHERY-JAONA Fitiavana Emmanuël	3163
+2006	RAMANAMIDONA Tsitohaina	3165
+2007	RAMANANKIRAHINA Tsitohaina Berthin	3166
+2008	RAMANANTSOA Nomenjanahary Salohy Nathalie	3167
+2009	RAMANGASON Andrianina Irintsoa	3168
+2010	RAMIARINARIVO Manohisoa Faniriana	3171
+2011	RAMORASATA Fifaliana Samiah	3798
+2012	RAMPANANA Tokiniaina Mamitiana	3172
+2013	RANAIVOSON Maza Faniriniaina	3173
+2014	RANARIVELO Miarisoa Fitahiana	3174
+2015	RANDREMANANA Joharivola Dylan	3175
+2016	RANDRIA Mirija Tsiresy	3176
+2017	RANDRIAMAHAZOMANANA Tanjona	3177
+2018	RANDRIAMAMONJY Riana Mitantsoa	3178
+2019	RANDRIAMAROLAZA Mamy Fenohasina	3180
+2020	RANDRIAMAROZAKA Mamy	3181
+2021	RANDRIAMIAJANIRINA Hery Sarobidy	3183
+2022	RANDRIAMIFIDISOA Rotsy Finaritra	3184
+2023	RANDRIAMIHAJARIVO Mahery Tiana	3185
+2024	RANDRIANANDRASANA Jackie Marina	3820
+2025	RANDRIANARISOA Tsirofotia Carole Michella	3186
+2026	RANDRIANARISON Tahiry Ny Aina Jerry	3187
+2027	RANDRIANARIVELO Andoniaina	3188
+2028	RANDRIANASOLO Mivimbintsoa Manitriniavo	3189
+2029	RANDRIANIAINAMALALA Hasina Princy	3190
+2030	RANDRIANJANAHARY Kantoniaina Andelà	3191
+2031	RANDRIANOELY RATISBONNE Ioty Fitahiana	3192
+2032	RANDRIANOROSON Mitanasoa Maharavo	3193
+2033	RANDRIATSIFERANA Fanomezantsoa	3194
+2034	RANDROSO Tsiory Nirina	3195
+2035	RASAMOELA Zoamboara Fy Volarivony	3197
+2036	RASOARIMALALA Antonia Bijou	3198
+2037	RASOLOARISON Tsioriniaina Nimaro Steven	3199
+2038	RASOLOFOHARILALA Sandaniaina Manoa	3200
+2039	RASOLOFONIAINA Safidy Patrick	3201
+2040	RATOVOARINIRINA Laingotiana Finoana	3203
+2041	RATOVONJOELY Ny Ando Irintsoa	3204
+2042	RATSIMBAZAFIMPANJATO Fandresena	3205
+2043	RATSIVA Rohintsoa Kiady	3206
+2044	RAVELOJAONA Ny Oty Lapatia	3207
+2045	RAVONINJATOVO Carolle	3208
+2046	RAZAFIARIMANJATO RANDRIAMBOLOLOMANANA Cindy Ophelia	3209
+2047	RAZAFIMAHALEO David Heriniaina	3210
+2048	RAZAFIMAHEFA Miantsa Malala	3211
+2049	RAZAFIMANANTSOA Kevin Cedric	3212
+2050	RAZAFIMANDIMBY Onimpifaliana Volamihaja Josoa	3213
+2051	RAZAFIMANJATO Mikajy Soaanjara	3214
+2052	RAZAFINDRABE Mirantsoa Safidy	3215
+2053	RAZAFINDRALAMBO Izakatsimba Herana	3216
+2054	RAZAFINDRAMANANA Njaraniaina	3838
+2055	RAZAFINDRATSIMA Ambinintsoa Tahiananirina	3218
+2056	RAZAKAMAHEFA ANDRIANTSOA Ny Antsa	3220
+2057	RAZAKAMBOLY Manjaka Lysa	3222
+2058	RAZAKARIA Diary Fitahiana	3221
+2059	RAZANADRAKOTO Mino Hariniaina Patrick	3223
+2060	RAZANAKOTO Miharisoa Hasimanitriniaina	3224
+2061	RAZANATSIMBA Dimbimpitia Antonio	3225
+2062	ROBINSON Solomampionona Randy	3227
+2063	TINANIAINA Mario	3229
+2064	TOLOJANAHARY Elia Nantenaina	3230
+2065	TOVOARIVELO Nalitiana	2647
+2066	TSARATSIRY Nekena Juliano Gabri	3231
+2067	TSIALONINA Herin Iavo Fitahiana	3232
+2068	TSIRISOA Dinah Valerie	3233
+2069	VONIARINTSOA Mirana Anjara	3234
+2070	ANDERSON Soamiavaka Vanille	3235
+2071	ANDRIAMALALA RABENAHY Toky Ny Aina	3238
+2072	ANDRIAMANAMBINA Fenitra Tenimamy	3239
+2073	ANDRIAMANANTSOA Vaosariaka Arisolo Elina	3240
+2074	ANDRIAMAROZAKA Lovaniaina Nathanael	3241
+2075	ANDRIAMIHAJA Rojo Nandrianina Olivia	3243
+2076	ANDRIAMIHASINA Kiady Ny Ambinintsoa	3244
+2077	ANDRIAMORIA Jennifer Kanto	1532
+2078	ANDRIANAIVO Harijaona Fenitra	3245
+2079	ANDRIANAIVOSON Hary Sanda	3246
+2080	ANDRIANAJA Onja Fanilo	3247
+2081	ANDRIANAMBAHY Voharimpitia Andreas	3248
+2082	ANDRIANARIJAONA Fiaro Loyola	3249
+2083	ANDRIANARISON Randy Herinala Matia	3250
+2084	ANDRIANARIVELO Nasandratra	1937
+2085	ANDRIANARIVELO Ny Aina Michael	3251
+2086	ANDRIANASOLO Diarintsoa Natiora	3252
+2087	ANDRIANATOANDRO Jaona	3253
+2088	ANDRIANAVALONJANAHARY Lovasoa Victorien	3254
+2089	ANDRIANIAINA Fanjatiana Anita	3255
+2090	ANDRIANIRIANTSOA Fetraniaina Tinah	3256
+2091	ANDRIANJATOVO Tsiky Manankasina	3258
+2092	ANDRIANTAOLO Tsilavonarivo Milofo Itokiana	3525
+2093	ANDRIANTSIETENA Miharinavalontsoa	2660
+2094	ANDRIANTSOA Manoa Andy Gaellane	3260
+2095	ANDRIATSARA Iratra Fernand	3264
+2096	ANJARAMANDRESIARISOA Fiononana Mitia	3263
+2097	ANJARANANTENAINA Kantonjoary Zava Fifaliana	3777
+2098	BAKOMALALA Fenitra Nomena Sarobidy	3265
+2099	BETSISON Jhoanito Gilbert	3266
+2100	FANIRIANTSOA Harena Natolotriniavo	3268
+2101	HANTANIRINA Velo Mbolatiana	3269
+2102	HARINIAINA Mohamed Tanioh Steven	3271
+2103	HARSON Josia	3272
+2104	HENINTSOA Rivoherimanitra Anicha	2719
+2105	JAONOSY Ornella Marion	3273
+2106	JEAN FRANCOIS Manakasina Judicael	3274
+2107	LALANIAINA Manampisoa Mahavonjy	3275
+2108	LOYENS KANTY Brialy	1241
+2109	MAC SUN LINE Nomena Mickaella	3276
+2110	MITANTSOA Notiavina Mandaniaina	3280
+2111	NAMBININJANAHARY Herinirina Judicael	1968
+2112	NIAINA FITIA Lambert Francky	3281
+2113	RABENANDRASANA Niriana Valisoa Romuald	3284
+2114	RABENDRAZANA Ismail Edouardo	3285
+2115	RABETOKOTANY Yvan Noah	3286
+2116	RABEZANDRINA Soary Mbolatiana Rahamefy	3556
+2117	RAFALIARIVELO Ihobiana	1978
+2118	RAFANOMEZANTSOA Ambininiavo Kasaina Alvinah	3287
+2119	RAHAJANIAINA Miojoro	3289
+2120	RAHAMELOSON Kiady Ifaliana	3290
+2121	RAHARIJAONA Tehina Fanekena	3291
+2122	RAHERIMANDIMBY Ny Voary Tolojanahary	3657
+2123	RAINIZAFINDRAKOTO Ray Bryan Sarobidy	3293
+2124	RAJAONARIMANANA Dera Harifidy	3294
+2125	RAJAONARIVELO Amboara Rohy Fifaliana	3295
+2126	RAJAONARIVO RAVELONJATO Tsiry Hasina	3297
+2127	RAJAONARIVONY Tandrifiniaina Dylan	3298
+2128	RAJERIARIMANANA Rojovola Francklin	3299
+2129	RAJOELIJAO Dimbiarifetra	3300
+2130	RAKOTO ANDRIANOHAVY Myah Ny Aintso	3301
+2131	RAKOTOARISOA Andy Patrick	3658
+2132	RAKOTOARISOA Miarintsoa Fitia Arindranjanahary	3575
+2133	RAKOTOARIVONY Fenitra Luca	3660
+2134	RAKOTOBE Alexandra Kathleen Bienheureux	3306
+2135	RAKOTOMALALA Andrinomentsoa Emmanuel	3309
+2136	RAKOTOMALALA Fifaliana Mamilalaina	3310
+2137	RAKOTOMALALA Stevens Daniel Fanambinana	3861
+2138	RAKOTOMANANA Maminiarivo Manoa	3311
+2139	RAKOTOMANDIMBY Miarimanda Fehizoro	3312
+2140	RAKOTONDRASOA Nofin Aina Isla Arnaud	3313
+2141	RAKOTONIRINA Nandrianina Fitahiana Joachim	3314
+2142	RAKOTONIRINA Tsiky	3315
+2143	RAKOTOSON RAMPANARIVO Tsilavo Fitiavana Harinavalona	3317
+2144	RALAIVAO Tsilavo Jedidia	1612
+2145	RALEVAZAHA Vonjiniaina Emilson	3319
+2146	RAMAKABOANA Toky Fitiavana	3321
+2147	RAMANAMILANDY Niaina Steven	2537
+2148	RAMANANIRINA Harijaona Daniel	3323
+2149	RAMANANKORAISINA Harenkanto Mitia	3324
+2150	RAMAROSON Ankasitrahana Mitondra Fanambinana Blessed Of God	3326
+2151	RAMBELOSON Antsaniony Michael	3327
+2152	RAMIANDRISOA Lalao Haritina	3328
+2153	RAMIELSON Elie Dino	3329
+2154	RANADISON Tantely Niaina Vatosoa	3330
+2155	RANAIVOSON Miora Randie	3331
+2156	RANDRIAMAHATRATRA Tolotra Gino	3334
+2157	RANDRIAMAHEFA Liantsoa Alicia	3335
+2158	RANDRIAMAMPIANINA Harimanana Fitia Valencia	3336
+2159	RANDRIAMANANJARA Mamisoa Laurent	3337
+2160	RANDRIAMANANTSOA Christian	3659
+2161	RANDRIAMAROMANANA Herinotiavina Fenosaotra	3338
+2162	RANDRIAMBOLOLONA Nomena Christian	3340
+2163	RANDRIAMIARIJAONA Alan	3341
+2164	RANDRIAMIHAJA Luc Antonio	3342
+2165	RANDRIANAH Noah Michaël	3614
+2166	RANDRIANANTENAINA Sedera Valisoa	3343
+2167	RANDRIANARISON Miary Lovatiana Eddou	3344
+2168	RANDRIANARISON Tony Mampihavana	3345
+2169	RANDRIANASOLO Anja Itokiana	3346
+2170	RANDRIANASOLO Valisoa Fanilo	3347
+2171	RANDRIANASOLO Tafita Fitia	3332
+2172	RANDRIANIRINA Niriela Andraina	3348
+2173	RANDRIANJARA Maherisoa Zo	3349
+2174	RANDRIANOMENA Harimalala Erika	3350
+2175	RANDRIARIMALALA Jordino Tantely Niaina	3351
+2176	RANJATOSON Herindray Mihary Mandresy	3353
+2177	RANTHOLY Kamel Tommy	3354
+2178	RASOL0FOSON Benjanirina Kiady	3356
+2179	RASOLOFONIAINA Nomenjanahary Fandresena	3358
+2180	RATOLOJANAHARY Didier	3360
+2181	RATOVONJANAHARY Gaylor	3361
+2182	RATSIMBARISON Tojo Aina Mahasetra	3362
+2183	RATSITO Mitia	3363
+2184	RAVAHINIRINA Manoa	3364
+2185	RAVOMANANA Sylvio Andriakoto	3365
+2186	RAVONISON Vatosoa Wanda	3366
+2187	RAZAFIARISOA Faraniaina Clarita	3367
+2188	RAZAFIMAHATRATRA Hariliva Angenie	3368
+2189	RAZAFIMAHEFA Ny Liana Mioty	3369
+2190	RAZAFIMANDIMBY Harisoa Jemima	3370
+2191	RAZAFIMANJATO Lanja Marie Carène	3371
+2192	RAZAFIMBELO Andriatiavina Sariaka	3372
+2193	RAZAFINDRALAMBO Nahary Finaritra Kevin	3373
+2194	RAZAFINDRATOVONIRINA Antsa Sarobidy Mélodie	3375
+2195	RAZAFINJATOVO Mialy Soa Lucia	3377
+2196	RAZAKANDISA Sariaka Niaina	3378
+2197	RAZAKASOA Njiva Ambinintsoa Panoel	3379
+2198	RAZANAKOLONA Tolojanahary	3381
+2199	RAZANATSIMBA Ny Eja Asaramanitra	3383
+2200	ROBEL Tsilavina Andrianivoson	3384
+2201	TAFITAMANDRANTO Judicael Nick Kenny	3385
+2202	THIERRY Iriela Marie France	3386
+2203	TOVOLALA RAKOTOARISOA Njaka	3388
+2204	TSARAZAKA Ewan Judio	3389
+2205	TSIMANDRESY Lanjaniaina Miranto	3390
+2206	ZAFISON Coriolane	3392
+2207	ANDRIAHARIELINA Rojovalisoa Fanasina	4863
+2208	ANDRIAHERINIRINA Aina Fiarovana	4970
+2209	ANDRIALALAINA Mendrika Stephanie	4731
+2210	ANDRIAMALALA Magy Tsitoha	4735
+2211	ANDRIAMAMPANDRY Tsiky Oceane	4904
+2212	ANDRIAMANALINA Solofonirina Fitahiana	5022
+2213	ANDRIAMANEHOHAJA HENINTSOA JOHAN	5050
+2214	ANDRIAMAROMANANA Miora	4695
+2215	ANDRIAMBELOMA Mendrika Andrew	4702
+2216	ANDRIAMBELOMAHEFA MAMINIRINTSOA TINO	5037
+2217	ANDRIAMIHARISOA Riana Ezekiel	4738
+2218	ANDRIAMITANTSOA Ny Arotia Matthew	4663
+2219	ANDRIANAIVONIRINA Ny Tia Brad Oceann	4978
+2220	ANDRIANANDRASANA Mihajatiana Sylvana	4901
+2221	ANDRIANARIMBOLA Mitaritsoa Mpanjato	4692
+2222	Andrianarisandy Haritiana Manjaka	4649
+2223	ANDRIANARIVONY Diamondra Mishaela	4714
+2224	ANDRIANIRINA Valisoaniavo Johary Sarobidy	4816
+2225	ANDRIANJATOVO Tolojanahary Andoniaina	5026
+2226	ANDRIANOMENJANAHARY Anjarasoa Sandra	5034
+2227	ANDRIANTOAVINA Fanilo Kennedy	4937
+2228	ANDRIANTSILAVINA Fanilosoa Camille	4661
+2229	ANDRIANTSILAVO Fenosoa Raissa	4963
+2230	ANDRIANTSOA Elvino Slash	5019
+2231	ANDRIATAHINA Yotifahasoavana Ilo Fitia Michael	5052
+2232	ANDRIATAHINA Fiderana Ny Avo josephson Rajaonasivony	5005
+2233	ANDRIATSIHANAKA Myamina	5044
+2234	ASANDRATRINIAVO MAHATEHOTIA Joyo Praise	4725
+2235	AVIMANA Brechard Neil Ismael	4629
+2236	DJAMBA Joshua	4704
+2237	FETRA FIANKINANA Ericka	4986
+2238	FIONONANTSOA Sarobidy Daniela	4999
+2239	HAINGOTIANA Stéphanie	4626
+2240	HERINIRINA Adelphe	4690
+2241	JAON ARY Adeodat Xerxes	4696
+2242	JOELINIRINA Ny Santatra Dylan	4870
+2243	LAIHAMBANA ANDRIANAMBININTSOA Jeremie	4750
+2244	LANJASOA Vola Fitiavana	4741
+2245	MAMIHARILAZA Sitrakiniavo	5054
+2246	MANAGNAZY Soaraza	5029
+2247	MANANTSOA Riana Andrianjaka	4869
+2248	MANDIMBISOA Judry	5027
+2249	MARIVOLA Judith Marie	4647
+2250	NOMENA FITIA Famonjena	4964
+2251	RABAKOSON Jedidia Harentsoa	4895
+2252	RABARIJAONA Andrianjo Fanaja	4632
+2253	RABARISON Iary-Ntsu Cristah	5011
+2254	RABEARISOA Querido Alejandrino Hans	4995
+2255	RABEMANAMBINTSOA Mamy Elyor	4743
+2256	RABEMANANJARA Soafara Johanna	4748
+2257	RABEMANANJARA Fifaliana Fanjaniaina	4672
+2258	RABENANDRASANA lalaina Andrianina	4796
+2259	RABENASOLO Voary Hasina	4633
+2260	RABETRANO Loic Andriatiana	5030
+2261	RABETSIMIALONA Anjaraniaina	4740
+2262	RAFALIARIMANANA Tsiky Santatriniaina	4944
+2263	RAFALIMANANA Nasandratra Fetraniaina	4729
+2264	RAFANOMEZANTSOA Antonio Cyprien	4966
+2265	RAHANITRINIARIVO VALIHA ANDREA	4761
+2266	RAHARINANDRIANINA Njara Hafaliana Marinah	5028
+2267	RAHARISOA Ny Aiko Micha Amy	4998
+2268	RAHELISON Nambinintsoa Nicolas	4996
+2269	RAHERIMALALA Mitia Anyah	4756
+2270	RAHERIMANDIMBY Jonathan Joseph	4693
+2271	RAJAONARISON Timoty Alexy Hoerson	5016
+2272	RAJAONARIVELO MINOSOA	5055
+2273	RAJARISON ELY VINEL	5040
+2274	RAKOTOARINORO Maeva Sarah	4793
+2275	RAKOTOARISEDY Elisoa Andrea	4698
+2276	RAKOTOARISOA MICHEL FINOANA ANTONIO FREDERIC	4788
+2277	Rakotoarison Miarizo Celario	4726
+2278	RAKOTOARISON Ideally Harena Mahaenindaza	4688
+2279	RAKOTOMAHANDRY Joellara	4980
+2280	RAKOTOMALALA Mitia Nampionona	5012
+2281	RAKOTOMALALA Henintsoa Kevin	4982
+2282	RAKOTOMALALA Itso Hasiniavo Miriaka	4751
+2283	RAKOTOMALALA Nampoina Faniry Ulrich	4734
+2284	RAKOTOMANALINA Mija	4675
+2285	RAKOTONANAHARY SHAINA LALAO	4733
+2286	RAKOTONDRAFARA Mihajatiana Ny Aina	4923
+2287	RAKOTONDRAFARA Fanirisoa Fandresena	4660
+2288	RAKOTONDRANIVO Lahatra	4915
+2289	RAKOTONDRASOA Anjaranirina Kanto Princia	4662
+2290	RAKOTONDRASOA RAZANADAHY Tendriniavo Isaia	4627
+2291	RAKOTONDRAZAKA Miahy Mishael	5032
+2292	RAKOTONIAINA Mirantsoa Nanah	4949
+2293	RAKOTONIRIANA Tanjona	4645
+2294	RAKOTONIRINA Valisoa	4739
+2295	RAKOTONIRINA Aurore Teniary	4707
+2296	RAKOTONIRINA Nomenjanahary Jessica	4703
+2297	RAKOTOSON Rovaniaina Harena	4958
+2298	RAKOTOVAO Joyce Ritchy Armel	4658
+2299	RALAINONY Ny Sariaka Mathieu	5039
+2300	RALAIVAO Aro Mickaelo	4727
+2301	RALISON Mamitiana Kenza	4646
+2302	RAMANANTSOA Tokiniaina Eric Samoelinna	4956
+2303	RAMANANTSOA ELINAH FITIAVANA	4737
+2304	RAMANITRA Ny Ony Harenaniaina	4802
+2305	ramarolahinirina emma julien vaninat	4654
+2306	Ramiandrasoa Balita Itokiana	4643
+2307	RAMILIJAONA Harindranto Koloina	5031
+2308	RAMILINANDRASANA HASINIAINA LUCAS	4628
+2309	RAMINOARINJAKA Tsiky Nanie	4985
+2310	RANAIVOARISOA Sandambola Christian	4798
+2311	RANAIVOMAMPIANINA Mitantsoa Harison	4635
+2312	RANARIHARITSIMBA Tiavina Ronny Mathis	4728
+2313	RANDIMBIARIMANANA Toky	4965
+2314	RANDRIAMBOLOLONA Andianintsoa Solofo Hantatiana	5060
+2315	RANDRIAMIANDRISOA Andy Roan	4979
+2316	RANDRIAMIARANTSOA Tiavina Riccardo	5047
+2317	Randriamiharinjara sanda	4730
+2318	RANDRIAMIHARISOA Heriniaina	4943
+2319	RANDRIAMIHARISOA Mitoky	4669
+2320	RANDRIAMITSIRY Sombiniaina Steven	4630
+2321	RANDRIANARISOA Iarena Mishael	5010
+2322	RANDRIANARISON Nomentsoa Edwin	5048
+2323	RANDRIANARIVO Diary Nirina Andriano	5015
+2324	RANDRIANIAINA Harena Sarobidy	4699
+2325	RANDRIANIRINA Mandroso Jean Robertho	4994
+2326	RANDRIANJAKAFEHENONTSOA Aro Ny Aina Manda Faneva Anderson	4972
+2327	RANDRIANOELINARIVO Anderson Fanaja	5021
+2328	RANDRIANTSIFERANA Faniry Nathanael	4749
+2329	RANDRIARIMANGA Anjaratiana Nathanael	4697
+2330	RANOASY Safidimanjaka Dina	4898
+2331	RANOASY Safidimahafaka Antonio	4897
+2332	RARIVOSOA Lala Ny Aro	5038
+2333	RASOAMANANA Toky Lovatiana Manoa	5106
+2334	ratefiharison hasinarivo	4745
+2335	RATIANJANAHARY Lauren Juni	5024
+2336	RATOBIMIARANA Steven Henintsoa	5036
+2337	RATOVONOMENJANAHARY SANDANTSOA	4974
+2338	RATSIHOARANA Andy Mahery	4691
+2339	RATSITO Oelirivo Mirado	4892
+2340	RATSITOHARA Adael Eralio	4754
+2341	RATSIVAHINY Hery Iarotiana	5053
+2342	RAVALISOA Dolly Tsiaro	5023
+2343	RAVALOMANANA Famenontsoa Tokiniaina	4935
+2344	RAVONANTENAINA NASANDRATRINIAVO NOELLA	4700
+2345	RAVONJINJANAHARY Sandiniaina Hasintsoa	4981
+2346	RAZAFIMAHATRATRA Riana	4971
+2347	RAZAFIMANANTSOA Harimalala Christinah Minosoa	5004
+2348	RAZAFIMBELO Anjarasoa Johan	5042
+2349	RAZAFINANJA MAEVA IARANTSOA	4711
+2350	RAZAFINDRAIBE Tsilavina Mendrika Fanantenana	4634
+2351	RAZAFINDRAINIBE Elisa Ivohasina	5007
+2352	RAZAFINDRAMANITRA Rovamihaja Fitahiana	4960
+2353	Razanajatovo Raveloarison Aina Miranto	4676
+2354	RAZANAKOLONA Jastel Mika Kevin	5043
+2355	SAFIDINOMENIAINA Alexandria Jeanine De Rauzier	4987
+2356	SAM TSIERENA Zarlin	4973
+2357	SANDRATAMIHAMINA Fanomezantsoa Lovatiana Herscheil	4724
+2358	SHAUCATALY NAZIR Imraan	4681
+2359	SOLOFONIRINA Sitraka Ny Aina Fitia	4685
+2360	SOZA Sombiniaina Andry Sarobidy	4680
+2361	STEVE-MICHEL Ny Kiady Mahery Jason	4666
+2362	TSEHENONIAVO Fitia Arintsoa	4710
+2363	TUVERSON NIRINA Stephanie	4694
+2364	VAHATRINIAINA Tiavo	4921
+2365	VELONJARA Mohadjy Joevin	4683
+2366	ZAFIMANJAKA Biza Francie	4990
+2367	ANAMAHEFA Toky Ny Aina Fahasoavana Stephanie	4722
+2368	ANDRIAMANAMPISOA Ifaliana Daniel	4709
+2369	ANDRIAMANANIRINA Iavotina Ny Soa Rollandia	4899
+2370	ANDRIAMANANTSOA RAMANITRA Mikajy Fifaliana	4674
+2371	ANDRIAMANDIMBY Manevasoa	4786
+2372	ANDRIAMAROMANANA Valisoa saotra Fiderana	4824
+2373	ANDRIAMAROSOA Harena Fanamby Martchella	4854
+2374	ANDRIAMAROSOA Haj Aina	4831
+2375	ANDRIAMBAHINY Kanto Ny Fitiavana Raveloson	4787
+2376	ANDRIANAINA Niriantsoa Mickael	4938
+2377	ANDRIANAIVO Yona Miangola	4889
+2378	ANDRIANAIVO Sambatriniaina Shania	4844
+2379	ANDRIANAIVO Mihaja Miarisoa	4701
+2380	ANDRIANARIMALALA Manjakaniaina Ismael	4775
+2381	ANDRIANARIMALALA Tiaviniaina Francky	4774
+2382	Andrianarivony Tsanta Toavina	4929
+2383	ANDRIANIRINA Mikajy Valiiniavo	4910
+2384	ANDRIANIRINA Toavina Philippe	4783
+2385	ANDRIANJAFITREMA MAZAVA Dylan Isaia	4894
+2386	ANDRIANOELISOA Sandaniaina Finiavana	4717
+2387	ANDRIANTSEHENO AINA ASHLEY	4861
+2388	ANDRIATSILAVO Mijoro N Yavo	4933
+2389	ANDRIATSILAVO Laingotiana Ny Andry Fitiavana Elia	4832
+2390	ANDRINIAINA Tiarison Anthonio	4780
+2391	ANDRYRAKOTO Diary Messi	5068
+2392	ANGELO JOY Nazir El Jonathan	4928
+2393	AVOTRASOANOMENJANAHARY Ismael	4773
+2394	BAKO Nomenjanahary Harena Angelo	4962
+2395	DARIUS RAMBAHANORO Miotisoa	4712
+2396	FANOMEZANARINETY Ny Aina Nambinina	4679
+2397	HASINJAKA JEAN SAMUEL	4795
+2398	HERIMANANTSOA NANDRIANINA RANTO	4893
+2399	HERY ZO Valimbavaka Fandresena	4846
+2400	LAZA Idriss	4853
+2401	MAMISOA Christian Franck	4763
+2402	MIALISOA Andrianina Tsanta Christina	4721
+2403	MIJORO Antsa Nomena	4800
+2404	NJATOSOA Abrahama Mavana	4792
+2405	NOHASOAVINA Anay Brown Joseph	4784
+2406	NOMENJANAHARY Kiady Eddy	4936
+2407	NOMENJANAHARY Antonio Diary Elinoh	4808
+2408	NY HAINGONAMBININTSOA Amboara Fehizoro	4842
+2409	RABARIJAONA Harena Arimalala	4887
+2410	RABARISON Tsiky Fameno	5057
+2411	RABARISON Mamitiana Joella	4687
+2412	RABENANDRASANA FENOSOA HANIEL	4837
+2413	RABEVASON Kanto Sahaza	4946
+2414	RABIBISON Nambinintsoa Tsiky Mihajatiana Candy	5076
+2415	RABIBISON Liantsoa Nancia Elodie	5075
+2416	RAFIDIARISON Mitantsoa Ianja Fitahiana	4815
+2417	RAHAJARISON Diego Miharisoa	4779
+2418	Raharijaona Valimbavaka Herilalaina	4950
+2419	RAHERINANTENAINA Brichardjioh	4926
+2420	RAJAOHERINDRANTO Hasin-Andriana Fanomezana	4914
+2421	RAJAONA Malala Miorasoa	4771
+2422	RAJAONARISOA Lucien Mahefa	4757
+2423	RAJAONARISON Fanomezana Brian	4877
+2424	RAJERY Karl Michaël Théodore	4720
+2425	RAJO Vonimbola Claudin	4875
+2426	RAJOHNSON Udo	4840
+2427	RAKOTOARIDERA Andraina	4838
+2428	RAKOTOARINOSY FANILOMIARINJIVA ROBINSON SYLVAIN ANTHONY	4941
+2429	RAKOTOARISOA zo sitraka Ny Aina	5061
+2430	RAKOTOARISOA Diarilaza Idealy Miora	4951
+2431	RAKOTOARISOA ANDRIATAHNA Iris	4867
+2432	RAKOTOHARINAIVO Iriantsoa Princis Prudence	4653
+2433	RAKOTOMAHARO Andriamahefa Rabenja	4732
+2434	RAKOTOMALALA Haridimby Fortunat	4957
+2435	RAKOTOMALALA RIVA CAEL	4953
+2436	RAKOTONANAHARY Hasina Barijaona	4902
+2437	RAKOTONDRAINIBE Nampoina Fy Faliana	4794
+2438	RAKOTONDRASOA Rivomahefa Jessy	4817
+2439	RAKOTONDRASOA Hasina Andrianina	4752
+2440	RAKOTONDRATOVO Mihajamampionona Koloina Valimbavaka	4767
+2441	RAKOTONDRAVAO Sitraka Adriano	4673
+2442	RAKOTONDRAVELO Tsiaro Ny Aina	4836
+2443	RAKOTONDRAZAKA Orima Mijoro	4862
+2444	RAKOTONIAINA Narindra Ilohasina	4827
+2445	RAKOTONIERANA Irinah Erasmo	4883
+2446	RAKOTONIRINA Vahatra Ny Aina	4833
+2447	RAKOTONIRINA FINOANA	4819
+2448	RAKOTONIRINA Harin I Fitia Adriano	4760
+2449	RAKOTONIRINA KANTO Jean Simeo	4801
+2450	RAKOTOSOLONIRINA Tendry Toavinaina Fanomezantsoa	4782
+2451	RAKOTOSON HAJAZO Johan	4826
+2452	RAKOTOVAO Anjamahefa	4821
+2453	RAKOTO-ZAFIMANANJAKA Ryan	4825
+2454	RALISON Valimbavaka Hyacinth	4881
+2455	RALISON Anthoniaut Kalvarida	4631
+2456	RAMANAMBAHINY Natanaela	5058
+2457	RAMANJATOMANITRA Ando Heritiana	4807
+2458	RAMARISON Stephanie Miangolaniaina	4656
+2459	RAMAROLAHY Olivatina Fanantenana	4810
+2460	RAMAROSON Zo Arotiana	4905
+2461	RAMAROSON Aaron Daniel	4723
+2462	RANAIVO RAJAONARISOA Tombo	4813
+2463	RANDRIAMAMONJIARITIANA Steven	4835
+2464	Randriamanana Tsiky Manovontsoa	4847
+2465	RANDRIAMANANJARA Dimbiniavo Fahendrena	4856
+2466	RANDRIAMANANTENA Rijasoa Princy	4785
+2467	RANDRIAMANGA Toky Amin	4860
+2468	RANDRIAMANIVO Andriamahaleo Miarosoa	4747
+2469	RANDRIAMBELOMANANA Lafatra Henintsoa Elinah Arthure	4858
+2470	RANDRIAMBOLOLONA ANDRY TAFITA	5072
+2471	RANDRIAMBOLOLONA Fitahiana	4812
+2472	RANDRIAMIHARISON Hasina	5083
+2473	RANDRIANAIVO Lucas	4809
+2474	RANDRIANAIVOSOA Safidiniaina	4945
+2475	RANDRIANALIJAONA Miora Hanitra	4896
+2476	RANDRIANANDRASANA ANTSANIAINA PRISCILLA	4664
+2477	RANDRIANARIFERAHAJA Njehy Mitony Valiantsoa Emilhillary	4880
+2478	RANDRIANARISOA Ny Aina Johann	4772
+2479	RANDRIANARISOA ANDRIAMPANIRY AMBOARA MANUEL	4755
+2480	RANDRIANARISON Ilan Tsiory Iherinjaka	5064
+2481	RANDRIANARIVAO Tiasoa Lahatra	4927
+2482	RANDRIANARIVELO Manda Narovana	4713
+2483	RANDRIANARIVO Solofonofinidy Johary Stefanho	4823
+2484	RANDRIANIMANANA Fanilo Marinah	4909
+2485	RANDRIANOMENJANAHARY Sitrakiniaina Miary Nasandratra	4859
+2486	RANDRO SELISON MIRADO	4667
+2487	RANJANAVALONA Miangola Natty	4834
+2488	RAPARIMANANA Herilanja Marino	4916
+2489	RASAMISON Misaina Tia Fahendrena	4820
+2490	RASAMOELISON Solotiana Andrianina	4830
+2491	Rasamoelson Mickael	4940
+2492	RASOAMANANA Aiky Avisoa	5063
+2493	RASOAMANANA Toavinirina Harivel	4906
+2494	RASOANAIVO RADONIRINA PARFAIT	5081
+2495	RASOANAIVO Toni Mathieu	4912
+2496	RASOLOFONTSALAMA ZO Mihary fitia	4791
+2497	RASOLONJATOVO Ny Avoharena Tiantsoa	4873
+2498	RATOVOARIMONJA Manase	4650
+2499	RATOVONIRINA Soahary Mihaja	4828
+2500	Ratsimanarisoa Fenohasina	4715
+2501	RATSIMBAZAFY Lala Aina Mianontsoa	4766
+2502	RATSIRESY Aromitia Fandresena	4790
+2503	RAVAKINIAINA Mampiandrarivelo Landry	4890
+2504	RAVALISAONA Hendry Heriantso	4777
+2505	RAVELOJAONA Liantsoa Cedric	4718
+2506	RAVELOMANANTSOA Manda Andrianina	5065
+2507	RAZAFIMAHALEO PETER PRECIEUX NETANYAHOU	5002
+2508	RAZAFIMAMPIANDRA Nirihasina Erico	4829
+2509	RAZAFIMANDIMBY Ny Fitiavanarimanana	4885
+2510	RAZAFIMANDIMBY Walker	4789
+2511	RAZAFINDRABE FENOHASINA	4762
+2512	RAZAFINDRALAMBO Andy Ambinintsoa	4759
+2513	RAZAFINDRAZAKA Sitraka Ramasitera	4908
+2514	RAZAFINIMANANA Mirija Rolandinho	4716
+2515	RAZAFITSALAMA FITAHIANTSOA FABIEN	5035
+2516	RAZAKAMALALA HARENA TIANA MURIEL	5082
+2517	RAZAKAMALANTO Niavotiana Hambinintsoa	4878
+2518	RAZAKARISOA RABARIVELO Ranto Mirado	4797
+2519	RAZAKATSARA Heritia Camille Rasoamaromaka	4671
+2520	RAZANAJATOVO Antsaniaina Ruddy	4659
+2521	RAZANAMPARANY Aina Maharisoa	4948
+2522	REEVE Irina Aritina	4961
+2523	ROBSON RADO Henintsoa Misaina	4848
+2524	T.J MANAMASINIAINA	4975
+2525	TSIMAHAFOTSY Dera Andriantsiresy	4770
+2526	VETSO NAFINDRA Iderana	5059
+2527	Ainjanahary Liantsoa Fehizoro Emmanuela	3535
+2528	ANDRIAHARIMANANA Maminiaina Fitahiana	3502
+2529	ANDRIALIARIVONY Lanto Ny Aina Safidy	3503
+2530	ANDRIAMAHARO Nirina Fiderana	3504
+2531	ANDRIAMAHATANA Mihajaniaina Andy Ryan	3505
+2532	ANDRIAMAHENINARIVO MIRADO NIAINA ANTHONIO	3506
+2533	ANDRIAMALAZA JONSON Aina Fenosoa	3507
+2534	ANDRIAMANAMPIHERY Henintsoa	3508
+2535	ANDRIAMANANA Tiffany Sharone	3509
+2536	ANDRIAMARO Tendriniaina Tafita Erica	3510
+2537	ANDRIAMBOLA Tsiky Malala	3511
+2538	ANDRIAMBOLOLONA Irinasoa Tiffren	3512
+2539	ANDRIAMIHAINGO Mabo Femidah	3513
+2540	ANDRIAMIHAJA NIRINA Stib Mathieu Morgan	3514
+2541	ANDRIANARIJAONA Efa Nombana	3515
+2542	Andrianarivelo Mirado Emmeric	3536
+2543	ANDRIANARIVO Hasina Nomena	3516
+2544	ANDRIANASOLO Harena Nomenjanahary	3517
+2545	ANDRIANASOLO Andy Hery Ny Avo	3664
+2546	ANDRIANAVALONA RINA HASINA MICHELLE	3518
+2547	ANDRIANIRINA HASINA jean lucas	3519
+2548	ANDRIANJAFIMAHENINA Sharon	3520
+2549	ANDRIANJAFY Manohisia Sibellia	3521
+2550	ANDRIANJAKAMANANTSOA Toky Maharo	3522
+2551	ANDRIANJATOVO Aina Myriah	3523
+2552	ANDRIANOROTIANA Mikanto Fanilo	3524
+2553	ANDRIANTIANA Tia Francia	3526
+2554	ANDRIANTSIFERANA Jeanne Finoana Emmanuella	3527
+2555	ANDRIANTSOA Léon franky	3528
+2556	ANDRIANTSOA NY Tia Manuelo	3661
+2557	ANDRIARINIVOMANANA Faly	3529
+2558	ANDRIATIANA Miary Nathanael	3530
+2559	ANDRINAVONY Henimamy	3531
+2560	ANDRIRAVAKAMAHOLY Fiderena Eliah	3532
+2561	ANDRY Andrianina Antsa	3533
+2562	ANJANIARIVO Fitianatolotra Dylan	3534
+2563	BAKOLIMALALA ERICA	3537
+2564	FANIRINIAINA Jerson Clarck Dieudonne	3538
+2565	FATIMA Nousrad	3539
+2566	HAJARISON Elina	3540
+2567	HANTARISOA Tolotra Julie Priscilla	3541
+2568	IANTSANIAINA Tsinjo Henintsoa	3542
+2569	IAVOTIANA Sharron Lauren	3543
+2570	Jaona Ny Hasiniavo Tsiresy	3544
+2571	MANANIVONJATO Hanitranahary Rica	3545
+2572	MIHAJATIANA NAMBININTSOA Nancia	3546
+2573	Mortel Ranaivoson Liantsoa Sarobidy	3547
+2574	nabil chakil	3653
+2575	NOMENJANAHARY Andoniaina	3548
+2576	NY ANDRY Paul Ferdinah	3549
+2577	RABE Harena Sandra	3550
+2578	RABEARISAINA SARIAKA EMILIE	3551
+2579	RABEHAJA Toky Nomena Toavina	3552
+2580	RABENILAINA Tahiana Sandy	3553
+2581	RABERANTO Hariniaina Dylan	3554
+2582	RABESON Yako Heritiana	3555
+2583	RADAODY RABIAZAMAHOLY Mihary Vonisoa	3557
+2584	RADERT SANDRATANA Faly Arlho	3558
+2585	RAFALIMANANTSOA Marc Laurent Joseph	3559
+2586	RAFAMATANANTSOA Fifaliana Izaia	3560
+2587	RAFANOMEZANTSOA Rotsiniaina Nandrasana	3561
+2588	RAHARIMALALA Narindrasoa Eveline	3562
+2589	RAHARISON Harena Nathanaël Sylvano	3563
+2590	RAHERIZAKAMANANA Noroarisoa Jean Dieu Donnald	3564
+2591	RAHOELIARIMANANA Faramalala Jelia	3565
+2592	RAHOLDINA Fanou Finoana	3566
+2593	RAHOLDINA-FIARA Fihamina Mamiratra	3567
+2594	RAJAOFERA Maheritiana Cedric	3568
+2595	RAJAONARIMANANA Finaritriniaina Tiffany	3569
+2596	RAJAONARISON Ken Eddie	3570
+2597	RAJAONARIVELO Harivony	3571
+2598	RAJAONIMARIA Ny Irintsoa Sarobidy	3572
+2599	RAJOHARIMANANA Fanomezantsoa Robin	3573
+2600	RAJOSOA TOJOTIANA IFALIANA ANDY	3574
+2601	RAKOTOARISOA Razafindradama Jonathan Brian	3576
+2602	RAKOTOARISON Fenitra Ny Aratra	3577
+2603	RAKOTOARISON Rojotiana Julia	3578
+2604	RAKOTOARITSEHENO Raritsoavina Jonathan	3579
+2605	RAKOTOMALALA Rivomandresy Manohihasina	3580
+2606	RAKOTOMANANDRAY Mahery Fy Tia Sambatra	3581
+2607	RAKOTONDRAINY tahiana michael	3582
+2608	RAKOTONDRAMANANA Lalanirina NANCY	3583
+2609	RAKOTONDRAMANANA Tsiky Laetitia	3584
+2610	RAKOTONDRAMIADANA Zohina Myrsha Akbar	3585
+2611	RAKOTONDRAVELO Liantsoa Bakotiana	3586
+2612	RAKOTONIAINA Nierenantsoa Tsilavina	3587
+2613	RAKOTOVAHINY Narindra Manantsoa	3588
+2614	RAKOTOVELO Hary Tendry Gracio	3589
+2615	RAKOUTH Joiadah Ny Fahendrena	3590
+2616	RALAMBOARISOA Lalaina Fitahiana	3591
+2617	RALAMBOMANANA Andrianilana Lohan	3592
+2618	RALIJAONA Mitia Henika Ny Soa	3593
+2619	RALIJAONA Rota	3594
+2620	RAMALANJAONA Andritiana Noelimijoro	3595
+2621	RAMANANARIVO Leong Wai Evan Tack	3596
+2622	RAMAROKOTO Itoavina	3597
+2623	RAMAROSANDRATANA Mialisoa Habby	3598
+2624	RAMAROSON Razanatsiatosika Hadassa Cynthia	3599
+2625	RAMAROSON SETH Lily Todihasina	3600
+2626	RAMASOMANANA Andry MAHARO	3601
+2627	RAMBELOSON Gaël Nico	3663
+2628	RAMILISON Nomenjanahary Anjara Fanantenana	3667
+2629	Raminosoa Mikoloniirna mahatony	3645
+2630	RAMPARISON Aina Anais	3602
+2631	RANAIVOSOLOFO Enrick	3603
+2632	RANAIVOSOLOHERY NY ANTEMA	3604
+2633	RANDRIA Michael Miotisoa	3605
+2634	Randriamamonjy Ny Aina Mahery	3646
+2635	RANDRIAMAMPIANINA Tokiniaina Nomenjanahary	3606
+2636	RANDRIAMAMPIANINA MANANA THONIE	3607
+2637	RANDRIAMAMPIONONA Tiavina Nancie	3608
+2638	RANDRIAMAMPIONONA Tsiory Mickas Andrianina	3609
+2639	RANDRIAMAZAVA Nomena Ny Aina Marc	3610
+2640	RANDRIAMBAHOAKA HARENA FINARITRA	3611
+2641	RANDRIAMBOLOLONA Kaliana	3612
+2642	RANDRIAMIHAJA Aina Ken Johan	3613
+2643	RANDRIAMIHAJA Fanomezantsoa Landrie	3665
+2644	RANDRIANARISON Fahasoavana Ravomandresy	3615
+2645	Randrianarivo Lova Ny Aina Colombe	3647
+2646	RANDRIANJATOVO Tahiry Manantsiory	3616
+2647	RAPHEHISON Famonjena Gihovanni Mickael	3617
+2648	RASAHIVELO Hasina Fitia	3618
+2649	RASAMOELINA Kaliana	3619
+2650	RASOAMAHARO Ony Manjaka Oliver	3620
+2651	RASOAMANAMBOLA Tefinirina Nadia Erika	3621
+2652	RASOLO Oelintsoa Kaliana	3622
+2653	RASOLONDALAO Nohary Ny Tian ha Liantsoa	3623
+2654	RASOLONJATOVO Riantsoa Faniry	3624
+2655	RASOLONJATOVO Ruddie Arianala Christella	3625
+2656	RATSIMBA Miharizo Christian Michael	3626
+2657	Ravalitera Ny Anjarasoa Fidèle	3648
+2658	RAVELOARISON Tendrimamy Mathieu	3627
+2659	RAZAFIARIMANANA ANDRIMANARIO Mathieu	3628
+2660	RAZAFIHARIMALALA Mialisoa Hasiniaina	3629
+2661	RAZAFIMAHEFA Mitia Liantsoa	3630
+2662	RAZAFIMAHEFA Tahiry Avotriniaina	3631
+2663	RAZAFIMANANTSOA Hanitra	3632
+2664	RAZAFIMANITRA Mannouay Elmerano	3633
+2665	RAZAFINDRAIBE TIAVINA ARIFY ESTELLA	3634
+2666	Razafindrakoto Nomenjanahary Tiavina	3649
+2667	RAZAFINDRAMANANA Tahinaniaina Angela	3635
+2668	RAZAFINDRAZAKA Rohy Nohariana	3636
+2669	RAZAFINJOELINA Mialy Finaritra	3662
+2670	RAZAKAMBOLOLONA Tsiky Ny Aina	3637
+2671	RAZANADRAKOTO Michael Andrianina	3638
+2672	RAZANAKOLONA Fandresena Jessy Nathalie	3639
+2673	RAZANAMANDROSO Marie Francia	3640
+2674	RAZANATEFY MIAINA MIANGOTY STACY	3641
+2675	REBOZA Miantsa Angola	3642
+2676	RIJAHARIMANANA Sunny Rynot	3643
+2677	RIVONEKENA Maminiaina Nofidiana	3644
+2678	TAHIANARISON MANAMBINA ABEL	3650
+2679	TOLOJANAHARY Tsilaviniaina Nancia	3651
+2680	ZAKANDRIATSIMARIKA Ambinintsoa Velonarivo	3652
+2681	RAHARIMALALA Hanitriniaina	3678
+2682	ANDINIRINAMALALA Anjara Tinatia	3501
+2683	RAKOTONDRAINIBE Mendrika Denis	4064
+2684	randrianarivony tsilavina tojonirina	4433
+2685	RABEKOTO Tojo Harinjaka	4289
+2686	RAVELO Miahaja	4327
+2687	RAHERIMIHAMINA SARIAKA	4207
+2688	ANDRIANJATOVO Kiady Fanilo	4383
+2689	RAKOTOBE Joshua Riki	4155
+2690	ANDRIAMIHARISOA Mihaja Irina	4016
+2691	Ramparaoelina Nasolosedra Finoana Fabrice	4251
+2692	ANDRIAMAMY Andoniaina Zo Harinala	4263
+2693	THAINA Morgan Antsaniaina	4236
+2694	RABARIJOHN Sandro Andrianina	4110
+2695	RALAIADA Fanomezantsoa Miotifitia	4232
+2696	RANAIVOSON ANDRIATAHINA Jonathan Fifaliana	4392
+2697	RAKOTONDRATSIMBA Iraka Nomen Andresy	4194
+2698	RASAMOELIARISON Nambinina Harentsoa	4390
+2699	FANOMEZANJATOVO Andrianampoina Fiaiky Mandresy	4228
+2700	randrianambinina kanto ny avo faniaha	4345
+2701	EMILE ANDRIANJATOVO Roddick Livio	4306
+2702	RASAMIZAFY Milanto Fitahiana	4066
+2703	RANDIMBIALISON Andry Tsy Rava Nandrianina	4165
+2704	RANDRIAMAMONJISOA Tahiriniaina Aritratiana	4030
+2705	RAMANDROSOMANANA Ny Andry Mahery	4082
+2706	MANALINTSEHENO Tsara	4274
+2707	RAKOTONOMENJANAHARY Mioty Ny Soa Serginio	4380
+2708	ANDRIANTSARAFARA Ny Vahatra Lucas	4376
+2709	RABEMANANJARA Andrinirina Elias Frédéric	4019
+2710	Andriamalazaony Dahmyan	4138
+2711	HARISON Fetra Landry	4209
+2712	RAKOTOMALALA Tiary Andraina	4254
+2713	RAZAFINDRABE Norosoa Laureen	4012
+2714	RANDRIAMBOLOLONA Riana Miangaly	4230
+2715	RAVONISON Rinah Ny Aina Antonio	4324
+2716	ANDRIAMAMONJY Kaliana Maria	4056
+2717	ANDRIAMANJATOMANANA Mahefasoa Ianteherana	4391
+2718	RALAIVAO Tiantsoa Melissa	4191
+2719	ANDRIANOARIMANANA Youssi	4387
+2720	RANDRIAMANDIMBY Herizo Leonard	4341
+2721	RAVELOMANANTSOA Tony Mahefa	4054
+2722	ANDRIAMALALA Tsioriniaina Jessica	4315
+2723	Rakotonarivo alintsoa Hanitriniaina	4222
+2724	Razonarison Maneva Elitiana	4106
+2725	RASAMIZAFY Hotiana Manoela	4132
+2726	RAZAKAVOLA Onisoa Fy	4189
+2727	RAVELONIRINA Melodia Yollande	4313
+2728	RATSIRAHONANA Fifaliana Romeo	4382
+2729	RAKOTOARISON Tendry Ny Aina	4247
+2730	ANDRIAMIHAINGO Harena Valisoa	4192
+2731	ANDRIATIANA Mohajy Tsiresy Arnaut	4385
+2732	RAZAFIMANDIMBY Andriantsoa Arifitia	4197
+2733	RAZAFIMAMONJY Frank Nirina	4223
+2734	RASAMIARISON Soatiana Ny Safidinay	4107
+2735	RAZAFIARISON Rajo Ny Aina	4294
+2736	RATSIMBAZAFY Ny Hanitrinifitya	4211
+2737	RABEMANJATO Eraina Nieferana	4284
+2738	RAJAONARISON Leila Soraya	4159
+2739	RAZAFINDRATSIFA Tsitohaina	4188
+2740	RAZAFINDRAKOTO Maminirina Hasina	4131
+2741	RAKOTOARISOA Tantananiavo Anjara Fanouellah	4328
+2742	RANDRIANASOLO Mihajatiana Elie Stephane	4381
+2743	razafimamonjy angolatiana randianina	4154
+2744	RATSIMBAHARISON Brandy Allan	4201
+2745	ANDRIRAVAKAMAHOLY Antema Fihobiana	4099
+2746	RANDRIAMIHAJA Herivoninahitra Honore	4090
+2747	NANDRIMAMPIONONA Ida Elodie	4350
+2748	RAMAROKOTO Ivohary Mandrindra	4377
+2749	RAZAFIMAHATRATRA Andhy Matteo Andrianina	4097
+2750	ANJARA FITIA Nomena	4330
+2751	RABARILALA Tolotsoa	4217
+2752	ANDRIANTSIMANIRY Ny Onifitia Iarantsoa	4238
+2753	RAKOTONDRABE Magy Rasoanavony	4338
+2754	MAHELAH René Wesley	4334
+2755	RAFALIARISOA Solonirina Fanomezantsoa Fitiavana	4321
+2756	ANDRIAMANAMPISOA KOLOINA	4078
+2757	Rafitoson Ramanantsoavina Mammy Princy	4216
+2758	ANDRIAMIHAJA Mialisoa Patricia	4317
+2759	RAMAHATAFANDRY ANDRIANONY Maminiaina Adrien	4122
+2760	RAKOTONIAINA Tahiana Arison Sarobidy	4256
+2761	FANDRESENA Miora Angela	4022
+2762	SAMPILAHY APINGA	4214
+2763	razafimahandry annick andraina	4163
+2764	CHAN KWOWN Johano	4121
+2765	RAZAKASOA Herman Lova Aristide	4336
+2766	RAFENOMANANA Mamitiana Cédric	4208
+2767	RABEARIVELO Soaaranty Paolah	4259
+2768	CLAREL Joda Verone	4049
+2769	RAKOTOARINOSY Mioty Lazafenomanjaka Yoan	4257
+2770	RASAMOELY Joshua Hernandez	4027
+2771	MIARISAFIDY Liantsoa	4266
+2772	RASOLOHARIJAONAH Lovarivola Fabio	4309
+2773	ARIMANANA Ny Aiko Roimpitia	4072
+2774	Rabezakaina Solofoniaina Harentsoa	4021
+2775	RAKOTONDRASOA Rajolalaina Fabien	4114
+2776	RANDRIANIAINA Nirintsoa Marino	4322
+2777	ANDRIARIMALALA finaritra carine	2804
+2778	Andrianjohary Ny Sahy Desmarcs	4210
+2779	Rabarison Lovatiana Mickael	4084
+2780	RAKOTONDRAZANAJATOVO Mandresy Marc Carlos	4051
+2781	RATSIHOARANA Voahary Miarina	4140
+2782	RASOLONANDRASANA Antenaina Dylane	4267
+2783	RANDRIAMANANTSOA Antsa Fitia	4270
+2784	RAMENASON Tsitohaina Bryan	4036
+2785	RAJAONARIVELO Mihantsa Koloina Fitia	4252
+2786	Rakotoarisoa Thonny yves	4389
+2787	ANDRIAMAMONJISOA Miariniaina Nomena	4041
+2788	RAOBADIA RAMBOLAMANANA Andritiana Lucas	4394
+2789	RAMAROSON MIKANTONIAINANDRAIBE Samoelina	4134
+2790	RABEMANANTSOA Aydane Daniella	4212
+2791	KOJA RAZAFITSAOTRA Aliah Sakina	4352
+2792	ANDRIAMANGA Sharone	4221
+2793	RANDRIANARISON DO VAN KHAC Koly	4127
+2794	RANDRIANOMENJANAHARY Toky Sitrakiniaina	4332
+2795	SITRAKINIAINA Mickael	4224
+2796	ANDRIAMAHATONY Tsilavina Tovoniaina	4354
+2797	RAKOTOARIMALALA Lofoniaina	4071
+2798	RANDRIAMANANTENA Iriantsoa Diary	4393
+2799	RAMAMONJITIANAHARIJAONA Tahiana Christian	4287
+2800	RAKOTOZAFY Fiderana Elie	4125
+2801	RALAMBOARIVELO Andie	4040
+2802	ANDRIANARIJAONA Kajy Raissa	4033
+2803	RAJAONERA Mitantsoa Tsiresy Ryan	1988
+2804	RAZAFINDRALAMBO Tafita Helinombana Mahay	4651
+2805	GARIELLE Keira Mitiah Sam	4670
+2806	RAFANOMEZANTSOA Lalaina Akashia	3130
+2807	Lory Squilacci	3105
+2808	RAHERIMANANA Anjomara Fiderana Didi Alpha	4395
+2809	RAZAFINDRAKOTO Voara Finaritra	4244
+2810	ANDRY Nambinina Manda	4195
+2811	TIANJANAHARY Ando Nathan	4177
+2812	ANDREAMBELOSON Zakaria Mendrika Nehemiah	4182
+2813	RAZAFINJOELINA Fifaliana	3903
+2814	RAKOTOARISOA Navalona Sarobidy	2491
+2815	RAKOTOSANDRATANA Herizo	4288
+2816	ANDRIANOROAVONIAINA Tendry	4186
+\.
+
+
+--
+-- Data for Name: machine; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.machine (id, mac, etu, hostname, mdp, type_user) FROM stdin;
+4285	f2:13:31:cb:8e:9d	4285	aropih_4285	e874c180	1
+4045	c0:d9:62:4d:f7:2e	4045	Nomena_4045	76e67448	1
+4153	a0:d3:65:a1:2d:f9	4153	rovatians_4153	99a8e555	1
+4059	04:ed:33:3c:13:d8	4059	Mino_4059	1ef13c1a	1
+4248	C0:D9:62:36:EA:4F	4248	vinod_4248	1318dc21	1
+3900	40:74:E0:38:4A:AF	3900	Itokiana_3900	ba53efae	1
+3339	64:80:99:C8:39:CB	3339	Mamy_3339	d53d5e11	1
+4279	c8:cb:9e:12:1f:d8	4279	jeannie_4279	375c7489	1
+4038	36:f9:51:05:c9:9e	4038	Nasm_4038	90285b5e	1
+3901	6c:94:66:20:5c:79	3901	Windy_3901	4950b8cc	1
+3902	b8:76:3f:d1:5d:cc	3902	Jonathan_3902	8513f75c	1
+4379	5C:3A:45:4D:F8:BD	4379	Itokiana_4379	0c0c7910	1
+4160	F0:57:A6:F3:EB:F2	4160	Doneli_4160	4653b273	1
+4286	84:14:4d:b8:7c:34	4286	Alberto_4286	b67726bf	1
+3919	b8:76:3f:d1:5d:bf	3919	faniry32_3919	e20649ba	1
+4240	28:9F:04:BC:F2:37	4240	fandresena_4240	d4009cf3	1
+4117	b4:ee:b4:82:f5:51	4117	maevartmbts_4117	19128ba0	1
+4157	18:67:ef:b1:b0:1e	4157	Olivier_4157	31958e3a	1
+4013	48:87:59:12:fa:82	4013	Kenny_4013	e2f7710c	1
+3920	28:C2:DD:D2:46:35	3920	Tendry_3920	56c3860e	1
+4311	F4:7B:09:53:BA:E2	4311	6lovatiana_4311	8269799a	1
+4086	b8:86:87:ed:b0:de	4086	Indra_4086	f3af5858	1
+4017	00:ad:a7:00:81:42	4017	haha_4017	2ad27e17	1
+4199	14:13:33:ad:2f:c9	4199	Liantsoa_4199	4c757116	1
+4092	84:14:4d:d1:73:2e	4092	Nekss_4092	e6af15e2	1
+4378	C0:35:32:E0:42:E1	4378	Rary_4378	4511176f	1
+4137	40:e2:30:ad:a1:6d	4137	Olivier_4137	f741a6cc	1
+4200	a4:c3:f0:ac:1a:34	4200	Rindra_4200	0d4aedcf	1
+3966	28:c2:dd:d2:09:b7	3966	Njary02_3966	84981cff	1
+4312	04:33:c2:89:a3:0a	4312	Alan_4312	d210b242	1
+3932	4C:79:6E:B4:B1:3F	3932	Mickaelah_3932	c7093468	1
+3952	14:7f:ce:ca:4e:95	3952	dylan_3952	e2bc7413	1
+4128	98:fe:3e:7f:d0:05	4128	AinaMahay_4128	628a5ccd	1
+3882	b0:a4:60:82:3d:d6	3882	Ryan_3882	2d16e334	1
+4034	30:10:b3:db:46:0d	4034	TokinNyAina_4034	e9b8413c	1
+4083	50:bb:b5:e7:cb:9a	4083	Giovan_4083	cd7f11ac	1
+4175	e0:9d:31:86:7f:74	4175	bryan_4175	019f6935	1
+4025	80:19:34:ea:d9:a4	4025	ajr_4025	35bf6eed	1
+3923	80:C5:F2:D1:5C:B1	3923	MIKOJA_3923	ad26dafb	1
+4310	f0:20:ff:ee:2e:24	4310	Kaim_4310	97ee5fe9	1
+4282	c8:cb:9e:10:a7:3e	4282	johnyolivier_4282	a99b303f	1
+4264	1e:cc:db:5a:30:f4	4264	Mihamintsoa_4264	098b0381	1
+4307	0c:96:e6:bc:14:63	4307	toky_4307	2b5ccc7c	1
+4148	10:c3:7b:19:1c:f7	4148	Rolphharimahefa_4148	b30d12f1	1
+3895	3c:f0:11:23:1e:19	3895	ElieNomena_3895	fcd6f639	1
+3881	04:33:C2:B9:0A:EB	3881	luciano_3881	984c33bf	1
+4173	9c:30:5b:de:ad:05	4173	Mahenitsoa_4173	449d622d	1
+3929	d0:ae:05:cf:9d:0b	3929	Annabelle_3929	fbc3561c	1
+4280	c8:cb:9e:13:96:ba	4280	Edinah_4280	0503054c	1
+3970	3c:9c:0f:a5:7d:a5	3970	Iantra_3970	ea857b22	1
+4100	f8:28:19:19:c8:e2	4100	Elia_4100	ff58c657	1
+4184	3c:a0:67:07:94:3a	4184	Tsiory_4184	8282ca4c	1
+4102	00:1a:6b:0d:5a:db	4102	Jonathan_4102	5270b45a	1
+3958	F4:7B:09:4F:8E:09	3958	Harenarak_3958	62ba8e76	1
+3905	4C:1D:96:22:6D:A7	3905	Tsilavo_3905	c00a6917	1
+4018	48:e2:44:e2:64:d9	4018	Bryan_4018	c401268c	1
+4180	24:ee:9a:23:a4:1a	4180	manda_4180	403f5959	1
+4171	96:9f:aa:f0:37:84	4171	uchifiti_4171	8cb69b8c	1
+3277	B6:69:21:C3:93:F8	3277	Tsiky_3277	d4a995e0	1
+4215	3C:F0:11:C0:59:A4	4215	RAVELONALIMANANAAriniainaAlexiaReyas_4215	a55109b8	1
+3967	58:6c:25:80:1d:5d	3967	Salomon48_3967	4cc7b4c3	1
+4190	70:18:8b:38:5b:0c	4190	Mariah_4190	37450167	1
+4120	3C:A0:67:28:D2:82	4120	Nofy_4120	3c418a2d	1
+4302	80:C5:F2:D1:84:87	4302	TiavinaIsmael_4302	5718ce78	1
+3913	88:AE:35:E2:CB:0d	3913	miaronr_3913	4b61d214	1
+4044	80:c5:f2:d1:56:03	4044	Zax_4044	fff946bc	1
+3883	AC:D1:B8:FF:DB:89	3883	Rova_3883	ebed1de4	1
+4196	90:e8:68:41:16:a7	4196	Armando_4196	27090def	1
+4026	80:a5:89:d5:40:7f	4026	nyaina_4026	24ba4cb8	1
+4135	5C:BA:EF:92:AB:5A	4135	Vanella_4135	921df9ba	1
+4293	d0:3c:1f:12:38:c4	4293	Harena_4293	8dcafd29	1
+4386	9C:92:4F:F3:98:8A	4386	Maeva_4386	431bed24	1
+4011	7c:b7:33:e4:fb:e5	4011	Ianjara_4011	81ebb014	1
+4269	b4:ee:b4:76:3d:96	4269	Idealy_4269	d254f301	1
+4015	2c:1b:3a:4a:3d:71	4015	NomeNyAvo_4015	fb4bc028	1
+3950	00:72:ee:48:5c:24	3950	Andrianina_3950	e8fe53f4	1
+4246	80:19:34:01:94:2e	4246	Faneva_4246	7014e0eb	1
+4526	f8:75:a4:60:1e:3a	4526	LOVASOA_4526	6bfe2633	1
+4108	b0:35:9f:ad:22:36	4108	Anthony_4108	77d8eea0	1
+3917	3c:a0:67:08:49:39	3917	sanda_3917	cd9a029b	1
+4068	04:ec:d8:68:b1:d6	4068	jimmy_4068	ee357c56	1
+3886	C0:35:32:78:C3:15	3886	NoRaA_3886	83b90536	1
+4304	50:76:af:e3:59:ea	4304	Miaro_4304	bd1d9811	1
+4276	ac:49:DB:09:96:52	4276	Yhdna_4276	821691ba	1
+3962	28:0c:50:1b:36:7c	3962	Hasina_3962	622d7db0	1
+3944	e8:98:47:7d:4e:d4	3944	Davida_3944	0632a3bd	1
+3959	94:E6:F7:F6:9D:61	3959	elitejojo_3959	a5f843e6	1
+4075	d8:fc:93:34:e9:af	4075	Fabrice_4075	49763485	1
+4281	2C:7C:F2:B3:3B:6D	4281	Midera_4281	3ed5ec5d	1
+4091	bc:a8:a6:ab:e3:2f	4091	Fenosoa_4091	d6e126d8	1
+3930	24:41:8C:FB:9A:8D	3930	Miarantsoa_3930	40f407ff	1
+4139	9A:AF:65:C1:5E:3F	4139	Tsiky_4139	c2125710	1
+4067	f0:e9:4a:41:ea:1a	4067	Sariaka_4067	1f11f7de	1
+3896	C0:B8:83:AA:4B:BE	3896	Danimanjato_3896	e80113b3	1
+4123	D0:C5:D3:8C:09:1D	4123	HARIMALALA_4123	35f40355	1
+4295	50:3d:c6:0b:2b:f6	4295	Narindra_4295	eda4e185	1
+4300	7c:7a:91:af:45:6a	4300	NyHanja_4300	5a0aa0fd	1
+3972	A8:41:F4:AD:B8:DB	3972	h_3972	e6393ced	1
+3960	a0:02:a5:78:db:9c	3960	Maude_3960	d02f0cb2	1
+4104	dc:45:46:98:d9:d3	4104	josurama606_4104	8352e1b3	1
+3935	94:E7:0B:03:B6:F0	3935	Daniella_3935	15af5002	1
+3994	ac:e0:10:e1:46:84	3994	mandresyFitia_3994	e726ebe9	1
+4203	f8:28:19:71:30:e1	4203	Tiavina001_4203	1d060c31	1
+4349	DC:71:96:F0:1D:06	4349	Sarobidy_4349	59c3f201	1
+5080	0c:c4:13:ea:6a:e9	5080	MitiaAndria23_5080	fef4e73a	1
+4129	3c:13:5a:e7:4e:48	4129	Fana51N4_4129	ed7a2fbc	1
+5077	68:a3:c4:c9:a8:a0	5077	Angolatiana_5077	fa095c17	1
+5025	00:e0:4d:1d:01:2e	5025	Tam0724_5025	5de45ca9	1
+4920	00:e0:4d:3d:06:e8	4920	Mahaliana18_4920	c1a8024b	1
+4776	30:10:B3:49:70:8e	4776	FitiaRan_4776	94df9d8d	1
+4736	e0:9d:31:2d:3a:40	4736	Tiako_4736	acdfc957	1
+4934	68:54:5A:8B:3E:3B	4934	misoa_4934	e7bdbb4f	1
+4847	d0:f5:20:05:d7:bd	4847	TsikyManou_4847	18a2223f	1
+4896	b8:86:87:ed:b2:37	4896	Miora_4896	862962a0	1
+4763	24:68:B0:F4:A9:E6	4763	Christian_4763	4f23fa92	1
+4846	e0:9d:31:8a:9c:94	4846	Vali_4846	27f7fc45	1
+4772	88:6c:60:e7:a0:bc	4772	nyainajohann_4772	d594a850	1
+4830	9c:d2:1e:d0:86:ff	4830	Andrianina_4830	b1e3b39d	1
+4842	b8:86:87:e6:3c:88	4842	Amboara_4842	afe22a5a	1
+4848	8c:8b:5b:9b:d3:44	4848	Misaina_4848	faf887fb	1
+4687	58:24:29:e4:d0:c2	4687	Joella_4687	3da2385f	1
+4784	9c:30:5b:8a:26:8f	4784	Anayhnhsn_4784	903ddfa5	1
+4890	64:a2:00:fe:3f:3a	4890	LandryxGGxD_4890	60c5fb8b	1
+5075	40:f0:2f:6d:8c:17	5075	elodie_5075	9a23cfe6	1
+4815	d4:3a:2c:83:5a:6a	4815	Mitantsoa_4815	e382a548	1
+4972	20:25:cc:0a:80:7e	4972	Faneva_4972	07fba093	1
+4809	bc:52:d9:27:7d:d2	4809	Lucas_4809	9d3efbef	1
+4752	ac:fd:ce:47:ad:60	4752	hasinaandrianina_4752	3c5f8539	1
+4812	a8:e2:91:0b:c4:50	4812	Fita_4812	d7c79566	1
+4786	e4:5e:37:ff:52:f3	4786	Manevasoa_4786	0798dd64	1
+4880	3c:95:09:33:62:8f	4880	HyperBrokenDOTA_4880	635520e8	1
+4817	08:11:96:42:21:18	4817	Jessy_4817	d4dd3d54	1
+5127	80:c5:f2:d1:55:1f	5127	moiquandjemereincarneenslime_5127	2f6b230c	1
+4819	2c:4d:54:3e:fc:fd	4819	finoana_4819	079a0290	1
+4893	7c:b7:33:e4:f8:33	4893	Rantokely_4893	e8a197ef	1
+4908	D4:62:EA:95:9C:1A	4908	SitrakaRam1326_4908	3e6ed30d	1
+4777	90:cc:df:f7:68:95	4777	Antso_4777	01d2943a	1
+4862	e4:0c:fd:e9:1c:c3	4862	Orima_4862	92014959	1
+4785	00:e0:4d:1d:09:71	4785	Princy_4785	f7aef6b2	1
+4774	84:3a:4b:77:56:b0	4774	Tiavina_4774	59b63574	1
+4801	b8:86:87:ed:b8:3c	4801	Simeo_4801	c9c1e1be	1
+4873	A8:DB:03:7E:7E:0F	4873	Nyavo_4873	e76c7ffd	1
+4933	08:C7:B5:77:20:60	4933	Niavo_4933	b383f37a	1
+4823	ac:7b:a1:65:5a:0e	4823	Joh_4823	6bb528b6	1
+4824	58:D5:0A:FA:66:FC	4824	Valsoa_4824	26ba8e38	1
+4653	d4:25:8b:31:61:7c	4653	princis_4653	08dfd4a7	1
+4667	9C:92:4F:1D:1A:6A	4667	Mirado_4667	762f82f2	1
+4914	a0:a8:cd:2c:62:8f	4914	Fanomezana_4914	a2635233	1
+4916	E4:10:88:C3:21:7C	4916	OniramSC_4916	1d798997	1
+4789	8c:8b:5b:8c:02:45	4789	Walker_4789	6d4c76c0	1
+4945	f8:16:54:ad:ee:f9	4945	Safidy_4945	fa05e185	1
+4767	a4:45:19:2c:22:c6	4767	Mihaja_4767	f3df43e0	1
+4795	20:7c:8f:96:9e:7b	4795	Njaka_4795	e5cb632a	1
+4844	ac:7b:a1:65:7d:f4	4844	Shania_4844	2ee51d35	1
+4905	58:02:05:a0:76:44	4905	arotiana08_4905	9d39a301	1
+4835	44:55:C4:23:38:26	4835	nyavo_4835	fdaaf286	1
+4797	94:8b:93:f4:b5:74	4797	Kyoi_4797	f984ef32	1
+4859	3c:13:5a:aa:9c:7c	4859	Nasandratra_4859	8ae01fa5	1
+4808	70:21:7f:ff:ad:ee	4808	Elinoh_4808	e16d23b8	1
+4679	e4:bc:aa:0d:c6:fd	4679	NyID_4679	41540044	1
+4790	0c:c6:fd:b7:f0:62	4790	Mitia_4790	070ef845	1
+4912	c8:58:95:91:26:9d	4912	ToniStone_4912	cbefad36	1
+4948	7c:3d:09:50:0a:69	4948	Aina_4948	c6a21a0f	1
+4856	b4:c4:fc:f1:65:0b	4856	Dimbiniavo_4856	2ca2bbc0	1
+4701	48:51:b7:11:4a:d6	4701	Mihaja_4701	07f5cd6d	1
+4941	74:42:8B:8A:93:C0	4941	Anthony_4941	b6363285	1
+4936	0C:19:F8:4D:24:3A	4936	Kiady_4936	c09c4e51	1
+4650	56:d4:d8:3d:74:a5	4650	Manase_4650	68b2d47d	1
+4889	F0:05:1B:15:E7:BB	4889	Yona_4889	bf6d0161	1
+4732	68:83:CB:46:0B:B3	4732	Andry_4732	34a2630c	1
+3235	18:47:3d:b9:ad:19	3235	VanilleFE_3235	6e55c654	1
+3244	90:e8:68:a6:af:4f	3244	KiadyNyAmbinintsoa_3244	d81fc1fa	1
+4693	44:D7:91:13:26:34	4693	JonathanJoseph_4693	78b636ea	1
+5010	d0:ae:05:91:0b:ca	5010	IarenaMishael42_5010	2f8ef966	1
+5048	28:16:7f:8e:a0:b5	5048	Aost369_5048	0ef1a244	1
+4663	98:5f:41:34:25:6a	4663	NyArotia_4663	a3e6aa1c	1
+4632	C8:90:8A:3F:FB:BF	4632	Fanaja09_4632	145d7e6d	1
+3241	F4:D1:08:52:27:35	3241	lovan_3241	a8c8e0af	1
+4915	b8:94:e7:ff:4e:30	4915	MEREO_4915	d78f5b63	1
+4973	60:3A:AF:B5:88:BA	4973	SamTsierena_4973	d132c4f1	1
+3260	d0:c5:d3:55:e2:e3	3260	gaellane3260_3260	9636d557	1
+3317	80:A5:89:AC:A4:4F	3317	MrTsila_3317	493d2ef4	1
+5060	98:FB:27:75:58:A3	5060	AntsoRD01_5060	1dda7b1f	1
+3298	D4:F3:2D:26:A9:12	3298	Dylan3_3298	c30695f0	1
+4944	04:01:bb:ea:4f:db	4944	Santatriniainaa_4944	b1b4df66	1
+3363	74:4C:A1:D4:F8:D5	3363	OelMitia_3363	3b2a3a2f	1
+3361	e8:88:43:6c:a3:bb	3361	Gaylor_3361	19666d2f	1
+4699	f4:DB:E3:78:3D:84	4699	HarenaBe_4699	c7640e4c	1
+3133	14:13:33:26:7b:91	3133	PCElyanceITU_3133	cf2ff1ca	1
+4816	74:c6:3b:12:46:89	4816	Johary_4816	674e9e12	1
+3335	94:65:9C:FC:1C:55	3335	LiantsoaAlicia_3335	4acd0e2a	1
+4980	a4:5e:60:d8:61:f1	4980	Joellara_4980	2f15dd2c	1
+5005	80:C5:F2:FA:66:E7	5005	Nyavo02_5005	3967bf6e	1
+3293	F8:DA:0C:20:98:B9	3293	sarobidy_3293	a74d18bd	1
+4731	a4:50:46:c2:c4:32	4731	MendrikaSte_4731	97f0a2b7	1
+4737	94:5c:9A:C6:1D:88	4737	16Ramelify01_4737	503a71f4	1
+4796	b0:dc:ef:bf:ad:b0	4796	Lalaina_4796	72f157d6	1
+4982	08:f9:7e:bd:f8:8d	4982	KevinH_4982	3cd02336	1
+4710	00:15:5d:86:0e:4b	4710	itso_4710	6de0d928	1
+4995	F4:7B:09:4D:EF:77	4995	Hans1933_4995	de9d6429	1
+3198	A8:41:F4:52:1F:05	3198	AntoniaBijou_3198	0eb6be18	1
+3103	94:08:53:BB:68:17	3103	Ranto_3103	6cfc20c6	1
+4743	40:c7:3c:0e:37:b0	4743	Sweet_4743	d538127c	1
+4870	28:e3:47:de:62:93	4870	KingD_4870	9d39bb7a	1
+4958	F8:3D:C6:AD:2B:A6	4958	HarenaBouboule_4958	11faa758	1
+4964	e8:98:47:e3:32:3c	4964	Famonjena_4964	5e29e258	1
+4669	34:f3:9a:99:53:90	4669	mitoky_4669	f890a0eb	1
+3392	e8:88:43:38:59:74	3392	Corie_3392	dd8c4151	1
+5021	58:02:05:a0:8b:0c	5021	Anderson_5021	ef7eecdf	1
+4662	5c:40:71:5b:6a:ec	4662	Kanteerix_4662	104f40b1	1
+5061	00:0a:f5:d5:24:2c	5061	ZoGabriel_5061	12666c4d	1
+4748	60:6e:e8:bd:32:64	4748	johanna_4748	310ad204	1
+3386	C8:8A:9A:CC:D7:74	3386	MarieFranceMF_3386	7f836ee2	1
+4660	04:33:C2:7B:79:87	4660	FandresenaDesta_4660	ee4ff987	1
+5023	58:02:05:9f:57:92	5023	Dolly_5023	0e81f182	1
+3248	3C:A0:67:0C:FE:04	3248	Voary030_3248	3812fd3e	1
+3777	D4:54:8B:5A:78:F0	3777	Zava07_3777	671a009b	1
+4751	DC:71:96:18:68:D4	4751	moonyyy_4751	2b550258	1
+4078	B0:A4:60:85:2F:E6	4078	Koloina_4078	5eec85d7	1
+3123	3C:A0:67:17:E7:21	3123	Diary_3123	4079ec2c	1
+3348	4c:d5:77:a2:34:99	3348	Niriela_3348	74f77340	1
+5050	c0:cb:38:3f:dd:4e	5050	Henintsoa_5050	59467121	1
+4672	98:09:cf:4c:68:7d	4672	Fifachan_4672	a77a04bf	1
+4892	9c:bc:f0:78:72:ba	4892	Mirado_4892	14c42c9c	1
+4963	74:e6:0f:f1:c0:32	4963	Fenosoa16_4963	8b2a0123	1
+3252	40:23:43:C9:46:03	3252	DiarintsoaNatiora_3252	4b3bb555	1
+4726	e0:09:bf:84:e9:54	4726	Miarizo_4726	a9713a68	1
+4978	B6:98:CA:9E:E2:37	4978	Noober_4978	ac07ad81	1
+4646	78:B6:FE:12:3F:A9	4646	Kenza_4646	7a2138f8	1
+3142	D0:C5:D3:56:A6:C7	3142	Tafita_3142	f1d2acff	1
+3313	C4:8e:8f:2d:99:3b	3313	Nofinaina17_3313	c1cc3e3c	1
+4956	90:A2:5B:7D:5B:F8	4956	Tokiniaina_4956	9907f320	1
+4974	3c:13:5a:3c:6f:ab	4974	Sandantsoa_4974	d58d2309	1
+3327	7C:67:A2:E2:73:4A	3327	MikeRmb_3327	94ece5f7	1
+3291	2c:fe:4f:80:52:44	3291	Tehina_3291	3c5b668c	1
+5054	54:21:a9:e7:d2:67	5054	Mamiarilaza_5054	2159160d	1
+4201	e0:2e:0b:45:1e:10	4201	Brandy_4201	cd522e4a	1
+4628	14:99:3e:03:7a:fa	4628	Lucaschan_4628	6fa829e3	1
+5022	b8:6b:23:5e:c8:22	5022	Badraxx_5022	ce4f2e4d	1
+4054	04:68:74:77:C8:F7	4054	Dahimatsu_4054	b1a7e3e9	1
+5039	d8:32:e3:0b:39:d8	5039	MadnessBB_5039	97f34dd1	1
+3370	E0:C2:64:04:DE:2C	3370	JemimaArisoa_3370	c97b0651	1
+4209	98:BD:80:6A:FD:51	4209	HarisonLandry_4209	ce39a926	1
+4208	78:2B:46:3D:E5:FF	4208	MamitianaCedric_4208	62ee4e58	1
+3580	DC:21:5C:2E:99:60	3580	Manohihasina_3580	7cfbb223	1
+3188	E0:2B:E9:BC:1E:2F	3188	AndoRavelo93_3188	a65eb1c5	1
+4217	28:7f:cf:e6:04:6f	4217	Tolotsoa_4217	edef5123	1
+4270	24:fd:52:79:5f:cb	4270	Antsa_4270	a045d20d	1
+3571	D4:3B:04:E9:C6:18	3571	Harivony_3571	95fba400	1
+3577	5C:3A:45:4D:ED:C5	3577	Fenitra_3577	2979cea7	1
+4696	94:B8:6D:89:0F:45	4696	Xerxes12edunom_4696	d36eda3c	1
+4901	70:31:7F:3B:62:F7	4901	Sylvana_4901	ac7c7602	1
+4321	70:D8:23:1A:17:92	4321	FanomezantsoaFitiavana_4321	feaede9d	1
+4965	22:f5:08:27:e2:14	4965	Toky_4965	849826e8	1
+3295	74:97:79:79:7C:43	3295	rohy_3295	005cdfb6	1
+4943	c0:cb:38:98:9b:b1	4943	Heriniaina_4943	7e7ad228	1
+3246	14:5A:FC:70:8F:0F	3246	PhantomAmbassador_3246	90c35b9f	1
+3331	60:FF:9E:FB:1C:20	3331	RandieRan_3331	08d1ac5f	1
+4391	04:EC:D8:8A:5B:79	4391	IANTEHERANA_4391	9c433667	1
+4194	a0:af:bd:f3:26:7c	4194	RINA_4194	9c372890	1
+4197	74:70:FD:D6:00:9C	4197	Arifitia_4197	ce06e345	1
+4188	ec:2e:98:84:62:39	4188	Tsitohaina_4188	674bd36b	1
+4645	18:56:80:25:72:68	4645	Tanjona_4645	41bdc4f2	1
+3280	3C:6A:A7:12:08:5E	3280	Mandaniaina_3280	1d3876d0	1
+3330	00:db:df:1e:98:6c	3330	Vats_3330	83d21c22	1
+5016	90:4c:e5:c8:3c:13	5016	Timoty2809_5016	9aae1da1	1
+4770	e8:5F:02:BB:2D:63	4770	Dera_4770	c1d577b2	1
+3356	40:D1:33:BC:05:AC	3356	KiadyRasolofoson_3356	d54aba02	1
+3216	44:38:e8:0a:39:cb	3216	razherana_3216	9da2b767	1
+3336	70:CF:49:EE:4F:35	3336	FitiaValencia_3336	c04426a5	1
+3181	9A:54:1B:7C:15:A5	3181	mamyR5_3181	a181c1f9	1
+4673	f4:DB:E3:69:A7:90	4673	Adriano_4673	162fd284	1
+4807	dc:0b:34:ff:f0:2b	4807	Rasyy_4807	9b34811e	1
+5057	44:4a:37:56:a7:26	5057	Tsiky_5057	bbb1fff0	1
+3368	74:29:AF:34:85:1D	3368	ange34_3368	3144afd1	1
+4929	98:f6:21:e2:91:2d	4929	Tsanta_4929	bbf75e77	1
+4800	0c:c6:fd:4b:d4:06	4800	Antsa_4800	a0c6f890	1
+4926	4c:f2:02:17:e4:0c	4926	Jioh_4926	397fe8ab	1
+5035	04:e5:98:da:79:03	5035	Fabien_5035	5a3f2da7	1
+4966	2c:d0:66:ee:a3:44	4966	NoSystem_4966	2e44b74d	1
+4750	8c:7a:3d:bf:cb:2a	4750	Jeremie_4750	017ee370	1
+5011	00:0a:eb:40:24:18	5011	Iary_5011	e4bce5a4	1
+4664	00:12:0e:b2:66:d9	4664	Priscilla_4664	1a76a6b9	1
+5081	00:78:4c:4c:56:59	5081	parfaitSoan_5081	f856219e	1
+5031	00:e0:4d:3d:32:87	5031	koloina07_5031	8114a3b8	1
+5028	00:4c:4b:01:b0:c8	5028	Marinah2007_5028	75b984de	1
+4909	7c:b7:33:e4:e0:a5	4909	Fanilo_4909	c215837e	1
+3122	A8:64:F1:EE:3A:BD	3122	harentsoaMichou_3122	ee7244f3	1
+4788	e0:9d:31:9a:39:a8	4788	Eren_4788	c91952a0	1
+4957	90:56:fc:79:1d:95	4957	Fortunat_4957	f157700a	1
+4910	e4:84:d3:25:70:9c	4910	Mikajy_4910	836ef2e2	1
+4904	28:e3:47:ac:e5:99	4904	Oceane77_4904	c2ab5c48	1
+4352	24:fd:52:43:3d:98	4352	Aliah_4352	19355252	1
+1988	2C:DB:07:13:F9:C0	1988	JohnnySilverhandMitantsoa_1988	cd87da53	1
+4140	28:e3:47:d5:68:dd	4140	Voahary_4140	b84402dc	1
+4994	98:f6:21:64:b6:17	4994	Mandroso_4994	79360694	1
+4875	0c:70:4a:7f:71:50	4875	Rajo_4875	deb3af16	1
+4987	64:63:06:33:9d:ed	4987	Alexandria_4987	b3195e76	1
+4283	c8:cb:9e:11:3b:0e	4283	Raffan_4283	362f75df	1
+4949	88:A4:79:46:92:C3	4949	Mirantsoa_4949	7fb56fb6	1
+4998	a2:f7:0d:01:c8:81	4998	Amy_4998	757356c5	1
+4692	d0:ce:c0:aa:a4:08	4692	Mitaritsoa_4692	bf9ecfa7	1
+4985	3e:54:e9:05:f7:63	4985	Tsiky_4985	e3cff968	1
+4863	64:a2:00:53:72:5e	4863	Rojovalisovalisoafanasina_4863	35d35a20	1
+4688	A0:4F:85:B2:DB:B5	4688	IdeAlly08_4688	eb4c32c6	1
+5063	E4:B3:18:70:6F:98	5063	Aiky12Rsa_5063	fbf77067	1
+4700	14:F2:87:60:F1:12	4700	Noella_4700	430f0856	1
+4895	80:75:BF:41:F6:2F	4895	Jedidia_4895	d4d2a050	1
+4630	30:83:d2:89:2f:72	4630	Na3romi_4630	feede667	1
+4754	58:02:05:60:12:d2	4754	Eralio_4754	03ad1598	1
+4741	F0:CD:31:41:63:22	4741	Vola_4741	a66857e9	1
+4986	48:02:86:71:53:3d	4986	FetraFiankinana_4986	f4062ac8	1
+4658	fa:92:b8:69:a7:6f	4658	Njoyce_4658	49316800	1
+4798	5C:87:30:11:93:60	4798	rscsanda_4798	9db5ca55	1
+4698	cc:2f:71:57:e8:56	4698	ElisoaAndrea_4698	79f1b061	1
+4981	bc:85:56:f3:6d:6f	4981	Hasintsoa_4981	0c94c346	1
+4745	3c:28:6d:cd:7b:c7	4745	Hasinarivo_4745	ab0b6568	1
+4661	14:22:3b:ea:9e:7b	4661	camille05af_4661	29ed6bf8	1
+4675	28:D0:EA:25:39:F1	4675	Mija_4675	b6209772	1
+4629	D8:C0:A6:70:6B:B7	4629	Nel_4629	b633c489	1
+4654	04:d3:95:75:28:27	4654	Vans1029_4654	d317b28a	1
+5042	a0:66:10:bb:ee:9f	5042	JohanRaz11_5042	12ab9b34	1
+4336	d8:43:ae:30:f3:50	4336	haruuuu_4336	47fa3a2c	1
+4320	08:02:3C:21:37:60	4320	Tsoa_4320	6f494e8c	1
+4121	84:FD:D1:0E:95:16	4121	Johano04_4121	e94e48ec	1
+4284	38:8A:06:AA:7E:08	4284	Eraina47_4284	010fa085	1
+4385	44:e5:17:c6:95:bc	4385	Mohajy_4385	089a6365	1
+4971	28:C2:dd:28:77:bd	4971	RianaLittle07_4971	81f65325	1
+4703	30:09:c0:80:e9:92	4703	Jessica_4703	84437519	1
+4690	e8:7e:ef:76:4c:dc	4690	Adelphe07_4690	27959e41	1
+4897	f0:a6:54:8a:b5:77	4897	TonioNoasy_4897	e89ef056	1
+3205	3C:A0:67:08:48:44	3205	Fandresena_3205	4d2fbb2c	1
+4898	40:1c:83:e0:3f:3a	4898	Noasy_4898	980fb428	1
+3229	F2:FE:4A:B7:9E:F5	3229	mario_3229	343289ad	1
+4714	20:bd:1d:53:ea:b7	4714	diams15_4714	34abe0c3	1
+3079	2C:33:58:42:47:A3	3079	MiahyAndria_3079	87b323e3	1
+5026	c0:d9:62:4d:f0:d1	5026	Andoniaina_5026	f6f4ad22	1
+3199	F4:7B:09:51:0E:E1	3199	SteveArison_3199	5e36f9cd	1
+4333	80:C5:F2:B9:E8:F5	4333	Lucas07_4333	9cd17e19	1
+4328	04:10:6b:7a:2a:56	4328	anja09_4328	e6df9665	1
+3126	34:f3:9a:c3:10:31	3126	SandratraRaben_3126	f594d079	1
+4111	D0:57:7E:77:29:D2	4111	Fitahiana_4111	db10d090	1
+3286	3c:ca:61:85:18:17	3286	gigasss_3286	4c6af8ec	1
+4174	18:5E:0F:92:4B:22	4174	Sandih_4174	5153019c	1
+3087	14:13:33:59:04:c7	3087	miaritsoa24_3087	45114509	1
+4735	D0:C6:37:3A:FD:E0	4735	kurama_4735	edf423ef	1
+3375	d8:fc:93:13:68:a2	3375	SarobidyRasm_3375	1d094387	1
+3240	74:e5:f9:83:d3:35	3240	Vaosariaka_3240	f26361fe	1
+4156	00:1e:64:f4:e4:7b	4156	HeryNyAina454_4156	4abf3826	1
+4106	30:f6:ef:87:f7:58	4106	manevaEli_4106	63f46ab8	1
+3390	50:BB:B5:FB:03:54	3390	Miranto05_3390	87f2dc76	1
+3158	68:3E:26:10:19:09	3158	nyavomatthieu_3158	1113ea1e	1
+4132	f8:54:f6:78:50:4e	4132	Hotiana09_4132	2b91c2cc	1
+3287	96:E8:68:90:51:3F	3287	kasainaalvinah_3287	8634685d	1
+3193	40:23:43:3c:e1:89	3193	maharavo1rdn_3193	33b5d61f	1
+3373	7C:B5:66:3B:32:29	3373	Nahary_3373	05a08afd	1
+3969	80:a5:89:e0:31:41	3969	Miantra_3969	8689be9b	1
+4643	28:d0:43:68:0f:9d	4643	BalitaItokiana06_4643	2bb0a450	1
+3146	B4:8C:9D:A3:26:09	3146	tsanta_3146	cfcaaf63	1
+3378	14:f6:d8:63:7c:34	3378	sariakaraza_3378	2e146611	1
+3104	00:45:e2:82:44:91	3104	kaloy_3104	9fe0a251	1
+3660	F8:54:F6:B2:09:49	3660	Fenitra12_3660	34308340	1
+3166	F0:9E:4A:59:85:D5	3166	Berthin01_3166	f714738f	1
+3178	70:66:55:a1:ad:9d	3178	riana004_3178	3578ffe3	1
+3184	8C:F8:C5:63:16:27	3184	Livaixxx_3184	a8c71d69	1
+3101	50:2F:9B:06:41:04	3101	IRINTSOA_3101	cb6a0550	1
+3992	fc:77:74:5d:b0:42	3992	mahazaka_3992	bba09c36	1
+3290	D4:25:8B:55:28:05	3290	kiadydev_3290	e97fb844	1
+3658	00:41:0E:2A:98:F5	3658	oxipat_3658	c2fa5314	1
+3209	70:B3:06:0E:4C:CF	3209	Cindykkkk_3209	12c3a131	1
+3203	58:6c:25:16:77:36	3203	Finoana_3203	d6fa157b	1
+4039	80:A5:89:D5:8C:89	4039	Mia_4039	ee800e5b	1
+5084	f8:1a:2b:f4:61:0e	5084	Mialy22_5084	1d6cfc02	1
+3102	d2:3f:78:2c:ce:47	3102	Manjaka_3102	9465614c	1
+3145	A4:B1:C1:CF:75:FB	3145	Mitia_3145	b9882639	1
+4168	90:78:41:2C:4A:4D	4168	Sandro0612_4168	c7f32cbe	1
+3276	C0:E4:34:65:1B:1F	3276	MickaElla_3276	c2e1abe8	1
+4019	24:41:8C:26:11:F0	4019	eliasrabemananjara_4019	bb96bf6f	1
+3201	18:1d:ea:e6:2d:2d	3201	SAFIDY09_3201	a821930b	1
+4220	6A:1E:1E:74:02:7A	4220	Larii_4220	09e2b8d9	1
+3160	70:C9:4E:2C:DF:4C	3160	anjaniaina_3160	5217f488	1
+3225	48:A4:72:EF:E9:7B	3225	Rouzole6905_3225	1c862dbe	1
+4144	64:6e:e0:97:54:ff	4144	Gaelle_4144	bf933a6f	1
+3085	D4:6D:6D:C7:4C:3C	3085	miahynyavo_3085	cd8851d2	1
+3916	D8:F3:BC:74:19:4D	3916	KrtLcs_3916	9cbd0626	1
+3927	2c:3b:70:d8:7e:75	3927	Mirindra_3927	cd71c7ae	1
+3233	40:1A:58:51:8D:76	3233	tsirisoa_3233	20306f2a	1
+3289	98:0D:AF:2F:4E:82	3289	Miojoro45_3289	b1f5648b	1
+3120	B0:68:E6:56:80:CB	3120	Andie3120_3120	cd4eda8d	1
+4152	90:4C:C5:91:2A:04	4152	faniryniaina_4152	3f04d40e	1
+3337	44:A3:BB:83:4E:F6	3337	Laurent02_3337	31acbd49	1
+3221	40:a3:cc:ba:0a:9f	3221	DD_3221	cd7ffddf	1
+3358	94:BB:43:A0:0E:A7	3358	Fandresena3358_3358	12315e52	1
+4170	58:00:E3:08:73:AA	4170	kevinrst_4170	a831f789	1
+4041	54:27:1e:a3:3a:bf	4041	Miariniaina04_4041	09139735	1
+3379	14:5A:FC:26:65:17	3379	Njiva_3379	c7e12f29	1
+4079	B4:8C:9D:6E:2B:27	4079	ainamanoa_4079	fbf4aa42	1
+3144	f8:fe:5e:16:f5:ee	3144	rakotoarilolona_3144	ea8e696c	1
+3367	ac:DF:A1:36:61:DF	3367	Claritaraz_3367	a0837ed4	1
+5043	00:5a:6d:c1:d8:34	5043	Kevin_5043	10402c99	1
+4069	08:11:96:12:49:0c	4069	Tsiky_4069	d8e4f613	1
+3220	B8:1E:A4:DA:40:9F	3220	zaka_3220	6e43cd3e	1
+3110	84:A9:3E:12:82:3C	3110	Luberri_3110	2344062d	1
+3113	08:5B:D6:B4:2F:A8	3113	RantoLuciano_3113	795bc049	1
+3247	E4:42:A6:00:20:67	3247	Poyziol_3247	7b29cd1c	1
+3180	20:c1:9b:a4:25:d6	3180	Feno13_3180	372722ea	1
+3838	94:BB:43:23:8B:5F	3838	Njara_3838	78754d8c	1
+3152	00:FF:BF:5A:4C:A8	3152	Fanantenana_3152	774d9452	1
+3107	22:2B:20:CC:AA:89	3107	kennedy_3107	8ab8dde5	1
+3185	2C:98:11:96:93:87	3185	MXRnd_3185	7405857e	1
+3212	c0:d9:62:56:50:74	3212	RKC_3212	a646b54e	1
+3251	E8:84:A5:FE:38:96	3251	NyAinaMickael_3251	2a538467	1
+3255	10:b1:df:57:35:ef	3255	Anita_3255	22385916	1
+3211	28:2E:89:BB:CA:16	3211	Miantsa24_3211	05aca54f	1
+3132	C4:3D:1A:CE:B8:87	3132	MirT34050D_3132	bd6cbff1	1
+4361	9C:29:76:54:C3:EC	4361	Sandrhia_4361	98f2d6d5	1
+3341	60:F2:62:12:D3:33	3341	AlanRC_3341	52bf64df	1
+3191	94:BB:43:26:B8:FE	3191	Dil_3191	4099a67d	1
+3321	48:AD:9A:76:99:EF	3321	toky2662_3321	52238258	1
+3086	F8:54:F6:48:B4:AF	3086	Elyse0707_3086	30594e7f	1
+3140	14:13:33:9E:0B:27	3140	lionnel_3140	4512775a	1
+3119	c8:58:95:e6:60:cb	3119	AndrisoaFrancia_3119	7f14339c	1
+4071	80:19:34:03:80:22	4071	Lofo_4071	530e3829	1
+3243	3C:A0:67:37:C1:D0	3243	olivia06_3243	3ef69e27	1
+5027	28:39:26:d7:a4:e1	5027	judry_5027	b17aa363	1
+3173	54:35:30:85:43:4B	3173	faniryranaivoson1403itu_3173	4869bf5f	1
+3389	14:4F:8A:BF:9B:63	3389	Ewan_3389	a523ee8c	1
+4254	F4:96:34:2D:30:16	4254	Tiary34_4254	ba554eb3	1
+3151	A8:41:F4:F1:47:C4	3151	zoaramas_3151	a533461b	1
+4322	24:0a:64:b0:33:ce	4322	Marino_4322	85b5b683	1
+4119	b8:86:87:ed:b0:df	4119	Tsiresy2151n_4119	7fde52f4	1
+3111	94:B8:6D:09:EE:7B	3111	Fitahiana26_3111	e1d93f99	1
+4802	A4:9F:E7:31:56:EF	4802	Harenaniaina_4802	b16c2f90	1
+4080	40:ec:99:8e:05:a3	4080	Sharon08_4080	b34073c5	1
+3342	0c:7d:b0:c8:e2:91	3342	TonioLuc_3342	0ff1c340	1
+3285	f8:1a:2b:33:81:76	3285	EdouardoRabe_3285	2c0496e3	1
+3147	AC:12:03:EE:53:B8	3147	Princi_3147	a25dfb48	1
+3131	B4:8C:9D:D6:3A:2B	3131	Tendriniavo_3131	0e0af63c	1
+3354	04:ed:33:7b:68:e4	3354	Tommy_3354	3259a6a4	1
+3332	3c:28:6d:fa:0e:11	3332	Tafitia_3332	2d6e3ed6	1
+3369	94:65:9c:1e:7c:60	3369	NyLianaMioty_3369	8e8ed7be	1
+3345	00:08:22:1c:37:fc	3345	TonyRandrian_3345	bc84cd14	1
+3294	d8:fc:93:6b:f2:dd	3294	Dera3294_3294	d61e28f0	1
+4674	04:d3:b0:ab:70:ac	4674	Mikajy_4674	c061e692	1
+4887	d0:53:49:87:92:4c	4887	Harena_4887	8771c7a2	1
+4858	30:52:cb:f3:5a:73	4858	Lafatra08_4858	a4fd4a52	1
+4828	d8:fc:93:50:f0:64	4828	Mihaja_4828	45c01171	1
+4779	24:A4:52:99:6B:78	4779	Diego_4779	e28aa9c4	1
+3632	08:BF:B8:5C:20:2F	3632	Hanitra_3632	4f4dbf93	1
+4716	28:8E:EC:E4:8A:82	4716	KIRIKOUthebest_4716	3778e0e5	1
+3230	88:25:2C:46:D0:89	3230	eliaNantenaina05_3230	8dd5a62c	1
+4821	b8:86:87:ed:b6:32	4821	Anja_4821	c8a53d5c	1
+4773	8c:b8:7e:8f:38:c9	4773	Ismael14_4773	22c4b3b0	1
+3197	80:A5:89:86:F8:91	3197	amboara13_3197	c022e080	1
+3315	00:f4:8d:6f:bf:59	3315	Tsiky078_3315	5df92e49	1
+4831	4C:E0:DB:08:8C:24	4831	haj_4831	63216ebf	1
+4728	ec:8e:77:d0:4d:73	4728	Mathis_4728	3895d22e	1
+4867	d0:c6:37:1d:69:b5	4867	iris_4867	223737cf	1
+4161	80:A5:89:78:E3:A5	4161	Harena_4161	24f66e91	1
+3125	2C:4D:54:32:36:98	3125	Vahya_3125	33bf14d8	1
+3388	58:ce:2a:4b:20:17	3388	Njaka88_3388	f160ffc6	1
+3088	1C:4D:70:A3:32:A2	3088	Ocyyy_3088	b5f87319	1
+4755	b0:6e:72:7a:15:2f	4755	Amboara09_4755	4fec31e6	1
+3204	2c:3b:70:0d:25:a9	3204	nanando04_3204	948eed95	1
+3264	18:87:40:da:40:b8	3264	Iratra_3264	650389d6	1
+4861	78:24:af:c6:39:2d	4861	Ashley_4861	dac7dec4	1
+4666	5C:70:17:56:6B:4C	4666	jasonbogosy_4666	f1716752	1
+4709	60:6e:e8:96:cb:96	4709	Daniel_4709	61718584	1
+3078	BC:03:58:DF:4D:E7	3078	Tendry_3078	689b3809	1
+4894	30:f7:72:41:32:39	4894	Dylan_4894	246e85e2	1
+3192	E4:F8:9C:B3:10:19	3192	Ioty_3192	259770a0	1
+4838	62:f8:53:14:f5:4f	4838	Arydera_4838	34d63735	1
+4762	d4:7b:b0:2c:0c:34	4762	Fenohasina_4762	a52de5cd	1
+4927	4c:6f:9c:60:2e:83	4927	Odilon33_4927	13a6b946	1
+4829	28:a4:4a:ae:22:9d	4829	Nirihasina_4829	60caa5c5	1
+3234	B4:8C:9D:00:BE:A9	3234	Mirana3234_3234	979534c7	1
+4825	f4:BE:EC:22:94:E8	4825	RyanRak_4825	5ca49c66	1
+3647	fc:5b:8c:b1:07:fe	3647	nyaina23_3647	e83be0c9	1
+4715	18:cf:5e:44:3a:18	4715	Fenohasina_4715	267411f3	1
+3171	00:15:5D:4B:01:03	3171	Manohisoa_3171	3a26b3c4	1
+5068	d0:c5:d3:41:7c:61	5068	Diary_5068	171a1490	1
+3515	50:5A:65:7D:0D:87	3515	EfaNombana_3515	46009057	1
+5002	bc:2f:cb:84:93:8c	5002	Netanyahou_5002	36499973	1
+4631	84:c5:a6:6d:8f:e9	4631	Anthoniaut_4631	c8a878c7	1
+4659	b8:6b:23:05:d2:be	4659	Antsaniaina_4659	0ee127ce	1
+4713	80:19:34:01:a5:86	4713	Manda_4713	38cc00ae	1
+3114	46:AF:28:0C:AD:E1	3114	HainiavoKassaina_3114	3a55e31a	1
+3541	f0:62:5a:90:f5:4a	3541	Priscilla_3541	bf6b060b	1
+4766	b0:9c:63:21:00:aa	4766	Mianontsoa_4766	c7bf024e	1
+3326	80:a5:89:85:b6:81	3326	blessedramaroson_3326	3009ac98	1
+4720	b8:86:87:ed:ba:75	4720	Karl298_4720	43a6d166	1
+4671	ac:00:7A:83:C9:41	4671	Camille_4671	8970baee	1
+3303	C0:35:32:0F:4F:F5	3303	Ambinintsoa_3303	ea0b1fb2	1
+4953	3c:a0:67:1a:57:36	4953	riva_4953	097b4699	1
+4791	90:cc:df:da:ed:91	4791	Mihary_4791	fbb33d25	1
+3129	F4:CE:23:70:FB:5C	3129	Nasandratra_3129	8ecc2ed0	1
+3134	2C:F0:5D:65:A9:09	3134	Manda08_3134	ae4df040	1
+3384	D0:AB:D5:E9:EE:A9	3384	Tsila3384_3384	65e7f027	1
+4881	d4:6d:6d:63:e8:2c	4881	Hyacinth_4881	81bd1673	1
+4877	34:e6:d7:27:6b:80	4877	Brian_4877	80df36f8	1
+4906	20:7c:8f:9b:99:e3	4906	Toavina0110_4906	9bd65a1e	1
+4902	80:00:0b:43:f9:13	4902	Hasina_4902	edec7987	1
+3265	64:17:cd:df:d3:62	3265	Fenitra_3265	e3a0f278	1
+3059	d4:6d:6d:ba:1a:6c	3059	Fenohasina90_3059	980db900	1
+3215	3C:A0:67:38:D7:0D	3215	Fify_3215	0793c745	1
+3206	58:02:05:F9:E7:A2	3206	Kiady_3206	a918d099	1
+3271	74:C6:3B:38:AD:3F	3271	Steven_3271	e1da77c0	1
+3174	30:03:C8:36:FE:E5	3174	Miarisoa10_3174	1dbdeaa7	1
+4961	5C:ED:F4:13:5B:54	4961	Aritina_4961	59fab569	1
+3177	3C:A0:67:41:96:E0	3177	Tanjona_3177	11afed10	1
+3618	30:74:67:C0:65:B7	3618	Hasina_3618	2c382aa8	1
+3798	48:89:E7:9A:F4:B1	3798	Fifaliana_3798	9ed1b704	1
+4718	00:ad:a7:11:66:b8	4718	Cedric_4718	99cec308	1
+2647	C8:94:02:47:66:97	2647	Nalitiana_2647	b322e9c1	1
+3385	40:A3:CC:20:6E:12	3385	KennyJudicael_3385	fcce8d1a	1
+3187	E0:C2:64:FF:83:B3	3187	Jerry_3187	8fe36c8f	1
+3364	0C:7A:15:F7:BA:20	3364	Manoa_3364	2cf9b1e9	1
+3218	B8:82:F2:59:30:34	3218	Ambinintsoa20_3218	4481caee	1
+4656	40:f0:2f:83:c3:e0	4656	Miah_4656	e538c1e0	1
+3157	14:13:33:D9:A0:6D	3157	Valimbavaka_3157	45331308	1
+4143	00:F4:8D:F1:38:40	4143	Aris_4143	4fc291ad	1
+3641	14:2D:4D:B9:F9:3B	3641	Stacy_3641	8867f227	1
+3651	00:E1:8C:A0:CC:CE	3651	Nancia_3651	a1eca424	1
+4940	f8:16:54:60:d0:24	4940	Luc_4940	ae5bb1e8	1
+3608	80:A5:89:8A:26:AF	3608	Nancie_3608	372522ae	1
+3254	D8:FC:93:6B:EA:18	3254	Vicky_3254	b6ae26cc	1
+3310	D0:C5:D3:8C:79:29	3310	NokiaMax_3310	726a2968	1
+3273	F6:34:8B:ED:01:69	3273	marionn_3273	ac9d2486	1
+3127	F4:6D:3F:BD:26:BC	3127	Raja3127_3127	c160fe3c	1
+5083	2C:D4:44:AF:A3:92	5083	Myharison_5083	d49b995e	1
+3381	D0:C5:D3:29:B3:A1	3381	TolotraRaz_3381	e46846e5	1
+2530	92:04:0C:67:F6:C2	2530	shaniaKaren_2530	ee754737	1
+3231	28:7F:CF:87:DF:75	3231	nekena54_3231	0e128783	1
+4760	D0:39:FA:30:D8:2E	4760	FitiaAdriano_4760	eac7629b	1
+3093	98:22:EF:A1:AB:DF	3093	MamitianaKevin_3093	c4e7de84	1
+3137	00:21:6A:E6:A5:C8	3137	Soamihanta_3137	6905eb43	1
+3284	80:19:34:1c:b3:49	3284	Valisoaromuald_3284	21bd5ea7	1
+3207	DC:53:92:16:2A:09	3207	Lapatia_3207	970f28fe	1
+3371	c8:e1:93:4e:86:04	3371	Carene_3371	a3d39c6a	1
+3162	C8:FF:28:F5:8A:1B	3162	harenamihaja_3162	140d0b5b	1
+3195	E4:AA:EA:6E:8F:D1	3195	7Siory76_3195	79cd06b1	1
+4775	58:6C:25:7F:FF:80	4775	Manjaka_4775	5961c17f	1
+3098	10:6F:D9:63:C4:3B	3098	Nanto_3098	7d7d1733	1
+3109	fc:e2:6c:23:5c:f4	3109	oce123_3109	f5a90b00	1
+3210	D8:FC:93:76:B1:E1	3210	Davs3210_3210	98c6078b	1
+3506	36:6f:24:57:3c:ad	3506	AnthonioAndriah_3506	4b550630	1
+3309	3C:21:9C:FF:AE:79	3309	Emmanuel_3309	7466f509	1
+3349	84:14:4D:2F:9D:EC	3349	GouzGouz_3349	becc6930	1
+3099	F0:20:FF:99:D0:2C	3099	LianaGloria_3099	bbfb3f9b	1
+3338	78:33:C6:53:42:7A	3338	Notiavina_3338	0b824e69	1
+3263	48:A4:72:1F:F9:A5	3263	Mitia_3263	0e7e3f5c	1
+3149	5c:9b:a6:5c:ad:6b	3149	faniry_3149	e4663f55	1
+3208	94:BB:43:76:55:17	3208	Carolle3208_3208	9ab96184	1
+4783	c8:1F:E8:24:DC:BE	4783	TOAVINA_4783	9d10c87f	1
+4840	70:9c:d1:38:9a:96	4840	Udo_4840	ff504320	1
+3239	88:78:73:54:C9:55	3239	fenitra_3239	502a663a	1
+3667	7C:5C:F8:82:32:3B	3667	Hope_3667	4ebc0948	1
+3281	E8:2A:44:D5:AB:A1	3281	Francky10_3281	66bdb0e0	1
+3222	9C:30:5B:A3:A7:63	3222	Lysa3222_3222	55b866a6	1
+3511	AE:E2:91:0B:83:9A	3511	Eonnie_3511	c6aa346a	1
+3502	98:22:EF:74:3C:95	3502	Fitahiana_3502	8807d7d5	1
+3377	4e:a5:86:92:6e:a3	3377	Mialy_3377	ae705356	1
+4297	2c:d2:6b:c0:82:93	4297	Eric_4297	439afde4	1
+3249	70:c9:4e:56:77:e7	3249	Fiaro_3249	cd341f1c	1
+3329	70:CF:49:34:78:B7	3329	DinoRamielson_3329	12104e57	1
+3081	14:13:33:26:7F:DB	3081	Kanto_3081	35f50670	1
+3520	16:13:33:b9:8d:35	3520	Sharon15_3520	61ca4858	1
+3167	C6:AD:68:15:9E:6F	3167	Salohy_3167	789420fc	1
+3095	DC:B7:2E:C8:0D:62	3095	Vagy3095_3095	021368ac	1
+3224	F8:B5:4D:69:61:FD	3224	Miharisoa_3224	3f107a2b	1
+4089	80:A5:89:3E:D1:52	4089	herzRz26_4089	6a3e872a	1
+4950	8e:8e:99:46:bb:0d	4950	Hery_4950	a73c608b	1
+3353	da:34:f3:b8:7e:04	3353	Mihary_3353	80537a18	1
+3518	F8:AC:65:7B:E6:20	3518	hasina18_3518	6425f25d	1
+3637	1C:71:25:47:05:98	3637	Tsiky_3637	1af4664c	1
+3106	f4:d1:08:73:dd:0e	3106	Aina3106_3106	550df14e	1
+3272	10:02:B5:ED:28:C6	3272	Asus_3272	89ffa4bb	1
+3227	00:e0:4d:0d:01:4c	3227	Randy_3227	39f322ad	1
+5051	58:cb:52:79:e7:a1	5051	Judith5051_5051	6d225d10	1
+5062	74:30:9d:c4:c6:fd	5062	Priyambika_5062	43b45e67	1
+3311	30:10:B3:25:F2:E3	3311	Manoa_3311	6476375c	1
+3600	34:E1:2D:B5:57:F2	3600	Seth_3600	54cbc026	1
+4799	e4:9C:67:A8:2A:79	4799	Avotra_4799	d3b5ee00	1
+3606	62:05:6D:C0:D5:41	3606	Toky_3606	d239aba6	1
+4813	34:e1:2d:f0:09:24	4813	Tombo_4813	87b3315c	1
+4093	e8:5a:8b:45:71:61	4093	Kamel_4093	c51e820d	1
+3328	D8:3B:BF:F2:C5:F1	3328	Tina_3328	95d61231	1
+3186	c8:ff:28:22:12:11	3186	CaroleMichella_3186	65f6cf8b	1
+3245	28:B2:BD:6B:0D:73	3245	FenitraAH_3245	fd7d8e1f	1
+3082	C8:09:A8:72:42:5A	3082	snowly_3082	b40308c0	1
+4759	f4:60:e2:f4:2d:84	4759	Didy_4759	3cf2d28f	1
+3572	E8:2A:44:D5:D9:F7	3572	Irintsoa_3572	5e290a72	1
+3183	E8:C8:29:42:B7:01	3183	Herisarobidy_3183	6fe9a868	1
+3084	FC:34:97:94:7E:67	3084	Faniry_3084	c69a30b2	1
+4691	DC:56:7B:D3:9F:CB	4691	Dix_4691	2c1f9118	1
+5009	94:ee:9f:1b:b7:da	5009	SueeFitia22_5009	3f7270ca	1
+3139	70:C9:4E:4B:07:C2	3139	MihajaNoandrianina_3139	ba30aec5	1
+3090	30:F6:EF:7D:38:D1	3090	Aina_3090	6835d2c4	1
+4991	28:16:AD:3D:51:26	4991	Sarobidy_4991	9df80dac	1
+3256	02:73:46:43:34:53	3256	Fetraniaina_3256	0cc3b83f	1
+3593	08:D4:0C:78:3D:09	3593	Mitia_3593	b9b0f2f2	1
+4744	00:2B:70:E7:EC:CD	4744	Mahefa_4744	4d9f3bb0	1
+5018	b4:ee:b4:76:14:a9	5018	Vahina11_5018	567413b8	1
+5109	10:EC:81:49:6E:E4	5109	Joker_5109	709057a2	1
+3556	E4:5E:37:D1:88:B9	3556	soary_3556	33de4e32	1
+4951	18:cf:5e:47:18:3c	4951	Kiwi_4951	9593c66c	1
+3189	8C:8D:28:D9:E9:0A	3189	Manitra_3189	12670168	1
+4655	48:51:C5:00:FF:E6	4655	Vanilla_4655	63e79554	1
+4836	a0:af:bd:15:1d:7d	4836	Tsiaro_4836	5d0c337b	1
+3213	2C:56:DC:08:79:8C	3213	Josoa_3213	9a161255	1
+3614	28:d0:43:13:d7:d7	3614	noahMichael_3614	90655af9	1
+3112	50:eb:71:a7:86:86	3112	andryhardy_3112	293762e8	1
+3300	F4:7B:09:72:0B:FA	3300	dimby_3300	f57c14ac	1
+3620	A6:D9:0D:00:D2:BE	3620	Manjaka_3620	aa2a8cce	1
+5079	30:E3:7A:6C:3D:51	5079	Lucas_5079	a63d269e	1
+3521	BC:FC:E7:D4:F2:ED	3521	Manohisoa_3521	8b1219ba	1
+4805	50:FE:0C:15:55:6E	4805	nanja_4805	5fae39b2	1
+4278	3c:35:76:11:f5:39	4278	Carole_4278	2ef24c35	1
+3360	E8:B1:FC:0D:37:48	3360	RDiR_3360	f4ebc49c	1
+5076	CC:20:E8:10:05:0D	5076	Candy_5076	a0e5b260	1
+3612	10:9f:41:b3:a7:c2	3612	Kaliana_3612	04e78770	1
+3168	58:02:05:D8:CE:26	3168	Michou25_3168	ebba713f	1
+3306	74:C6:3B:2D:EA:2F	3306	alexakath_3306	b60b9391	1
+4747	bc:09:eb:4f:31:9d	4747	LadyMiaroIntsoha_4747	9b78c5be	1
+3176	80:a9:97:12:6a:03	3176	MirijaRandria_3176	0ffd7a37	1
+3324	66:D9:73:09:BF:81	3324	Harenkanto_3324	a76f30ec	1
+4970	48:3F:E9:5D:E5:F8	4970	Fiarovana_4970	07961b4f	1
+4183	a4:c4:94:40:26:21	4183	AINA_4183	319f3e60	1
+3638	14:F6:D8:91:41:E1	3638	Michael_3638	b45f4b43	1
+3141	e4:a7:a0:55:9a:f1	3141	HarySteeve_3141	e5ce3f57	1
+4803	28:e3:47:8a:ec:54	4803	Anjart10_4803	14aa97fa	1
+3526	0C:54:15:34:A8:50	3526	Tia_3526	ade3dafa	1
+3563	10:68:38:DD:15:7C	3563	Nathanael_3563	198b73a0	1
+3372	CC:2F:71:0E:53:17	3372	TIAVINA_3372	12cff45a	1
+3530	50:28:4A:01:9D:2A	3530	MiaryAndriatiana_3530	7fd842e7	1
+3596	F0:9E:4A:AA:DD:4F	3596	TACK_3596	80c31869	1
+3576	28:C2:DD:42:31:23	3576	JO_3576	e2b77d32	1
+3568	9C:2F:9D:60:EB:5F	3568	Cedric_3568	e8f96111	1
+4852	38:ba:f8:1b:39:7e	4852	mi_4852	75053bc6	1
+4989	7c:03:ab:18:12:2b	4989	Aina102_4989	ab197bf8	1
+4668	10:5b:ad:91:c1:81	4668	NyAina_4668	9346ad33	1
+3588	7C:2A:31:C6:E1:B1	3588	Narindra_3588	87547bd0	1
+3514	12:4c:cf:89:ff:2d	3514	Stib_3514	40c2a1aa	1
+3551	54:8C:A0:34:C2:46	3551	RabearisainaEmilie_3551	44faa577	1
+5041	b8:86:87:ed:b6:2a	5041	Herimiantsa01_5041	19cd436b	1
+4277	7c:5c:f8:82:20:ad	4277	Owan_4277	eb8659a3	1
+4255	9E:4E:36:BD:0E:08	4255	Brandon_4255	bebdccc8	1
+3598	D0:57:7B:EE:88:AA	3598	Mialisoa_3598	15d5461a	1
+4977	04:10:6b:49:60:5d	4977	GatOr_4977	486faa6a	1
+4626	e8:65:38:0d:34:5d	4626	haingotianastephanie12_4626	d8a1448e	1
+4911	28:16:7f:8b:36:04	4911	Felanarf13_4911	97e92c83	1
+4891	14:D1:9E:B1:BB:4D	4891	Manjakely07_4891	e78f92b8	1
+4919	c4:71:0f:4e:51:a5	4919	Julio_4919	c17da102	1
+5074	88:19:08:0D:12:1D	5074	Kanto_5074	af0b3dcd	1
+4947	d8:c0:a6:44:4c:41	4947	Raitra_4947	4e294186	1
+4924	3a:1c:67:ab:91:CB	4924	Cristelle_4924	ce8fdba4	1
+5000	b8:6b:23:a1:d2:be	5000	AinaNaval_5000	07431a84	1
+4866	00:ad:a7:01:3d:b2	4866	Nomena67_4866	3e98aa6f	1
+3344	d8:fc:93:28:5d:43	3344	eddou_3344	c926bccb	1
+5017	c0:d9:62:46:66:cc	5017	VictorEdith00_5017	c55508c7	1
+4988	00:ad:a7:11:66:5c	4988	NyAng03_4988	eef0548c	1
+3517	D0:39:57:38:AA:A9	3517	Harena_3517	18ab419b	1
+4678	18:1d:ea:d6:3c:8d	4678	Ruan6767_4678	589ab764	1
+4792	90:61:ae:aa:28:dc	4792	mavana_4792	f0aaa8d3	1
+4651	5c:ac:4c:16:99:f3	4651	Helinombana_4651	6d39829f	1
+3510	B2:22:9A:6B:54:E8	3510	Tendry_3510	0253b9b6	1
+5014	b8:86:87:ed:b4:90	5014	IdealyNiavo07_5014	059e6b68	1
+5110	00:e0:4d:3d:07:dc	5110	Narovanatwain005_5110	e852baa3	1
+4879	C8:A3:E8:28:E0:6D	4879	1ryyy_4879	9c77d173	1
+4850	0c:07:df:12:27:af	4850	Ryan_4850	a9db00f2	1
+4185	00:1A:2B:3C:4D:5C	4185	Estelle_4185	f913e972	1
+3549	e4:bc:aa:0b:d8:0a	3549	nyandry_3549	7048e737	1
+4932	b4:ee:b4:82:f4:21	4932	DidxXD_4932	71c0eba7	1
+5112	e8:88:43:13:82:3a	5112	FanojoMalik_5112	49c467ce	1
+4725	9c:6b:72:f0:80:c1	4725	Joyo_4725	50ff51f0	1
+4939	d0:c6:37:5c:13:0e	4939	TsioryNamb_4939	3285a632	1
+3351	48:E2:44:21:E6:7D	3351	Jordi_3351	bc0accab	1
+3366	F8:16:54:50:CB:CF	3366	Wanda_3366	e05eb3b3	1
+5033	cc:0d:f2:44:c3:94	5033	AndoRandria05_5033	5efc793c	1
+3861	3C:A0:67:0A:35:C1	3861	steve_3861	fd4dc6b7	1
+5044	58:24:29:d7:00:61	5044	LeMybg_5044	19813658	1
+5056	20:39:56:f5:58:bf	5056	Elias_5056	f84b578c	1
+3175	1C:CE:51:49:72:87	3175	dylan_3175	0acb62f7	1
+5020	24:B2:B9:C0:14:53	5020	RayanAndrf12_5020	c7f5a14c	1
+3334	B4:69:21:78:E6:EB	3334	gino09_3334	6d5b9b6c	1
+3547	40:E2:30:AD:3C:61	3547	KILARI_3547	fa57afff	1
+4913	00:e0:4d:0d:00:52	4913	Garie_4913	d574f64b	1
+3654	34:6F:24:E4:31:65	3654	anjaratiana07_3654	5aeb85b1	1
+3362	58:96:1D:D8:5F:2C	3362	therealtojo4real_3362	f8075972	1
+4962	2c:d0:5a:2e:2b:96	4962	Angelo_4962	cacd1897	1
+4871	F4:7B:09:44:43:79	4871	tonito_4871	b5dea541	1
+4742	20:7c:8f:97:66:78	4742	LahatraNo04_4742	e93ebed3	1
+4843	fc:61:98:89:f2:f1	4843	nyhasam1L_4843	25def181	1
+4990	40:8c:1f:8b:29:cf	4990	bizaFrancie05_4990	5e3fb838	1
+3214	D8:C0:A6:42:B8:E9	3214	Mikajy93_3214	a213d4a5	1
+4723	60:6e:e8:4d:b9:6d	4723	KingLeonidas_4723	83e1656c	1
+4758	a0:a4:c5:a7:94:0a	4758	soatiana_4758	22ab9bfb	1
+3165	00:41:0E:ED:11:03	3165	Tsitohaina_3165	beeeeb6d	1
+4883	e8:88:43:04:3d:0c	4883	Erasmo_4883	3bcf0d94	1
+3579	18:26:49:EB:DB:B5	3579	Raritsoavina0904_3579	526ce4da	1
+4793	3c:a9:f4:62:c6:48	4793	Evans17_4793	ee1a8ed7	1
+3297	B4:CE:40:37:F5:44	3297	tsiry_3297	0bc682e6	1
+4814	34:7d:f6:72:c9:69	4814	riananiaina_4814	a17bb785	1
+3581	bc:09:63:13:B2:A3	3581	Mahery_3581	bb1ffcd7	1
+4997	b8:86:87:ed:b0:da	4997	stecyRabe6_4997	90dce932	1
+1968	60:F2:62:FA:04:65	1968	Judi_1968	dec97655	1
+5078	2c:fd:a1:41:53:06	5078	Styff18_5078	4894c934	1
+3200	90:78:41:81:69:88	3200	MUnderscore_3200	e16a429d	1
+4719	b8:6b:23:dc:76:1b	4719	h4rley_4719	62fb5bc4	1
+5059	d0:39:57:39:0e:1f	5059	Iderana_5059	2f26b44f	1
+5106	F0:04:E1:AF:60:72	5106	mxnoaa_5106	c234f3c4	1
+4711	f8:38:80:6C:E3:9F	4711	MaevaIarantsoa_4711	c88c828f	1
+4959	98:f6:21:59:0e:6b	4959	Fenotiana007_4959	f55ff7e9	1
+4704	5C:3E:1B:CE:DE:4A	4704	Joshua_4704	00215694	1
+4218	94:BB:43:67:B6:90	4218	Finiavana_4218	b567eda0	1
+3365	74:e5:43:db:91:66	3365	sylvio3365_3365	4b22d6ec	1
+1944	20:0B:74:2B:52:DA	1944	JohnHasner_1944	fbc2a59a	1
+3993	D0:C5:D3:5E:FC:DB	3993	SarubidyRT_3993	f096fbcf	1
+4694	18:69:D4:F8:59:8D	4694	Stephanie_4694	686e934c	1
+4146	D8:B3:2F:3B:5A:6F	4146	Fiantso_4146	1ccf5306	1
+3347	64:48:42:93:AA:5D	3347	fanilo7_3347	296811d5	1
+4925	74:04:F1:16:E3:38	4925	Miranto6340_4925	0cae876d	1
+4876	48:5F:99:D6:8D:4F	4876	volatahiana_4876	d58e44a6	1
+5013	28:34:FF:9A:1C:E2	5013	Ryan_5013	f60f3c17	1
+3918	20:0d:b0:c1:89:6f	3918	rohan_3918	7cebd294	1
+4868	34:12:F9:4D:67:34	4868	Nambinina_4868	848913d1	1
+4706	0C:9A:3C:DF:34:6E	4706	ItionaR08_4706	91c769f6	1
+3238	7C:70:DB:2F:47:25	3238	aina1052_3238	1702cde5	1
+3343	f4:4e:e3:6b:7e:de	3343	Sedera3343_3343	0ff69d52	1
+4101	E4:5E:37:90:A7:F4	4101	randy_4101	21fe4630	1
+3948	8e:1a:de:ef:ee:a5	3948	DirkTomefy_3948	32dbe2e1	1
+4587	DC:F5:05:15:B5:2B	4587	USER_4587	47190396	1
+3964	30:05:05:C5:EA:3B	3964	angeli_3964	ef9ad8d8	1
+3150	7C:B7:33:E4:EE:6E	3150	Tojooooo_3150	16f3e5c0	1
+3312	2C:7B:A0:D1:98:D6	3312	Manda_3312	9f2fb281	1
+4647	D0:13:FD:53:5F:E8	4647	Judith_4647	f1b8e0ed	1
+5019	4c:d3:af:04:ed:17	5019	Shadow_5019	c1c2900a	1
+3889	A0:A8:CD:9D:CB:A5	3889	Samboss_3889	a68b14de	1
+5067	74:e5:43:f5:2e:5f	5067	fifaliana7_5067	a062b4de	1
+4749	04:B1:A1:DC:AB:47	4749	faniryNathanael_4749	1a1f89fb	1
+3659	58:24:29:80:c5:ea	3659	rachriss_3659	04dea59a	1
+4886	0c:c4:13:49:37:79	4886	Tonpsy27_4886	7d389dc5	1
+4860	e8:5a:8b:f9:de:6f	4860	Toky_4860	392c87cf	1
+4968	24:95:2f:70:f1:f3	4968	GlaieulNars7_4968	2235ca18	1
+4764	74:F6:7A:B8:93:E0	4764	Sariaka_4764	e3a7666a	1
+3115	B4:8C:9D:65:0B:05	3115	InsAnjara_3115	bd3bb472	1
+4708	fc:43:45:cc:89:a8	4708	Kanto_4708	9af735ed	1
+3155	3C:21:9C:C8:01:90	3155	JoanelRak_3155	4245b2f6	1
+4955	64:C7:53:18:C7:E8	4955	itu_4955	f00b3fed	1
+5087	9C:73:B1:D7:66:9D	5087	Grizz18_5087	e2383e13	1
+4922	b8:86:87:ed:b9:41	4922	AntsoTohan_4922	ea823e55	1
+3124	D8:9C:67:B0:2A:71	3124	Erica_3124	707e108a	1
+3159	70:4d:e7:7c:71:55	3159	rapha234_3159	d48db95a	1
+3639	40:A3:CC:1D:B9:D8	3639	Jessy_3639	4b4d3715	1
+4090	E0:C2:64:64:3D:04	4090	Honore_4090	c00b2c27	1
+3631	FC:F8:AE:EF:BE:E3	3631	Avotra_3631	bed25e46	1
+3543	02:50:A6:BF:42:12	3543	Sharron_3543	a6a1ce5f	1
+4837	64:79:F0:3E:AB:F7	4837	Petitkokosy_4837	3bbd1a14	1
+4633	18:CF:5E:4A:38:30	4633	VoaryHasina_4633	ca48d285	1
+4738	60:f6:77:e3:cd:8a	4738	RianaEzekiel_4738	063361c1	1
+4114	e0:9d:31:98:fa:9c	4114	Rajo_4114	4f0a4b37	1
+3172	50:C2:E8:6B:CE:CD	3172	Mamitiana_3172	9d1f4b20	1
+4733	00:e0:4d:2D:03:72	4733	Shaina_4733	c0ec8869	1
+4707	7c:2a:db:3f:f4:e9	4707	Aurore_4707	5f6a7ef6	1
+4126	dc:e5:5b:0b:87:5a	4126	Jordie_4126	2da47a35	1
+3653	B0:68:E6:88:A9:93	3653	chakil_3653	062a3c7a	1
+4214	02:33:d2:d6:f5:17	4214	Apinga_4214	c0ba2771	1
+3118	40:E2:30:DF:DD:0D	3118	stan05_3118	504eb35d	1
+4695	c0:6b:55:e6:a2:95	4695	MioraAndria_4695	984f98b9	1
+4864	f0:C3:71:1F:F6:D5	4864	Potato_4864	3e9a8494	1
+3097	2c:4d:54:25:4f:4a	3097	nathanDrake_3097	1c0bdff7	1
+3268	00:42:38:0C:1B:FB	3268	Harena_3268	01ddfea1	1
+3232	28:0C:50:15:83:0D	3232	HerinIavo_3232	9d0752ad	1
+3636	28:C2:DD:1D:81:AD	3636	Rohy_3636	a7dd0a2b	1
+3340	A0:A8:CD:2A:97:02	3340	noms86_3340	4ec54361	1
+3305	B8:86:87:ED:D0:2D	3305	LoicDylan_3305	52d35ac9	1
+3083	f6:95:d1:2c:18:6f	3083	FaniloHasina_3083	81ad84c2	1
+3301	80:19:34:03:3B:EE	3301	Aintso_3301	8a1ac942	1
+3508	e4:0d:36:e4:cd:6b	3508	Henintsoa_3508	084bbca5	1
+4769	a4:42:3b:2b:e5:8a	4769	Miela_4769	178c3b4c	1
+4845	00:93:37:fe:32:a1	4845	Maholitiana_4845	7a223c14	1
+3540	D0:C5:D3:71:9D:87	3540	elina2_3540	402eaa41	1
+4154	1a:86:87:ed:ab:99	4154	Angolatiana_4154	c2afd0e3	1
+3269	90:48:9a:69:63:7d	3269	Velo_3269	cb4c34a3	1
+3644	10:A5:1D:43:D9:1F	3644	Nekenaaa_3644	0389ce0a	1
+4433	c0:d9:62:56:4b:1d	4433	Tsilavina_4433	95b60de5	1
+3557	F8:54:F6:B9:33:65	3557	Mihary25_3557	7e48452f	1
+4394	F8:34:41:77:78:38	4394	Lucas_4394	4a432900	1
+4740	2C:DA:46:D3:4E:9C	4740	Anjara_4740	c94a784d	1
+4082	D0:C5:D3:5E:D4:F9	4082	Mahery_4082	2f8f4350	1
+3623	BC:03:58:C2:63:AC	3623	Liantsoa_3623	06dfe12b	1
+4366	BC:54:2F:63:88:F0	4366	TafitaJordy_4366	37be73eb	1
+3657	AC:12:03:8E:3F:AF	3657	NyVoary_3657	1808f582	1
+3383	50:5A:65:C9:69:D5	3383	NyEja_3383	12192cb7	1
+2719	88:6c:60:57:30:e6	2719	HenintsoaAnicha_2719	3e690919	1
+4252	e8:b1:fc:27:20:3b	4252	Mihantsa_4252	273f9f5d	1
+3314	F8:54:F6:BB:A8:E2	3314	nandrianina_3314	a6f0ef49	1
+3117	54:6C:EB:88:F3:15	3117	Hardev_3117	33d53e5c	1
+4727	B8:A8:25:85:C9:92	4727	Aro_4727	ddefac05	1
+5029	e0:9d:31:9b:5b:dc	5029	soaraza1_5029	21f96f66	1
+5007	d0:c6:37:c5:2f:f1	5007	elisa_5007	91e4f8cc	1
+3154	dc:fb:48:51:3c:04	3154	nam_3154	3366d6c6	1
+3610	B6:84:B3:91:FE:02	3610	Ranoms_3610	57debd16	1
+4169	8C:55:4A:4D:B8:4F	4169	Funaki_4169	1d5aba69	1
+4734	e8:6f:38:c5:96:d3	4734	Faniry_4734	cd84c91f	1
+3319	26:33:87:1a:59:8f	3319	vonjy_3319	90cdda50	1
+3346	58:96:1D:D6:9E:FD	3346	AnjaItokiana_3346	35effd30	1
+5004	28:59:23:c6:fa:d6	5004	Minosoa_5004	6d915f87	1
+5037	f4:30:8b:0d:68:2b	5037	Tino_5037	a0ddd1d9	1
+4761	9c:2f:9d:56:3f:23	4761	Valiha11_4761	67aeca5b	1
+3820	CC:47:40:B8:4C:2C	3820	Marina_3820	b1aab703	1
+4021	dc:f5:05:d0:f0:9d	4021	Harentsoa_4021	8d4626ea	1
+4052	7c:67:a2:5e:37:7e	4052	Musia_4052	de6a811d	1
+3108	80:c5:f2:d2:64:51	3108	Adrian07_3108	a3820116	1
+3156	5A:6D:5C:8A:ED:AB	3156	AndoRE_3156	f4b5eb8b	1
+4717	9c:bc:f0:e7:6c:fa	4717	susMAD4RA_4717	fc284ff2	1
+4724	e8:88:43:88:56:be	4724	Fanouzero_4724	51fa8c51	1
+4722	94:b8:6d:6f:bf:bc	4722	Stephasoa_4722	9349e29b	1
+4680	ac:7b:a1:66:ac:ec	4680	belzebyd_4680	7177c8f0	1
+4697	2c:db:07:15:55:13	4697	Nathanael_4697	a479e6f9	1
+4635	38:8D:3D:1E:91:AE	4635	RanaivomampianinaMitantsoa_4635	4226eb38	1
+4854	44:af:28:b2:33:f1	4854	Marchella_4854	d1e06ea2	1
+3250	34:cf:f6:a5:c4:ef	3250	AndMatia_3250	2e3431e4	1
+3533	F8:34:41:C0:82:FD	3533	Antsa_3533	e0f024c8	1
+4996	24:fd:52:43:62:ef	4996	Nico07_4996	dee99ed4	1
+4634	c0:d9:62:4d:f5:4b	4634	Tsitsi06_4634	ff7137f4	1
+5085	e0:9d:31:5f:f7:f4	5085	Iavo_5085	9ae4572b	1
+4832	54:10:4F:8E:5E:AE	4832	Fitiavana_4832	e5b8b16e	1
+5045	44:af:28:c0:ad:2d	5045	Tanjonomena_5045	a8f3f805	1
+4878	c0:d9:62:ae:b9:a8	4878	Niavotiana_4878	29f9c7ba	1
+4810	9C:50:D1:9D:E3:D3	4810	Oliva_4810	5710e659	1
+5072	d8:32:e3:84:c4:7c	5072	Flash_5072	4baff3fd	1
+4241	40:e2:30:f3:e3:4f	4241	Mahatoky_4241	2e590aad	1
+4231	b0:a4:60:54:83:e6	4231	mioraduroc_4231	601a749d	1
+3885	2c:6d:c1:52:f0:94	3885	IrinaAndriantsoa_3885	16449ff2	1
+4918	48:35:2B:D5:A8:45	4918	Bryan_4918	2d142b16	1
+4900	00:B3:62:50:20:18	4900	Tsirofy_4900	0ef09a9c	1
+5069	f4:21:CA:16:60:C6	5069	Aro_5069	447c7130	1
+4256	BC:7A:BF:D7:97:0C	4256	Karl12_4256	21db01f2	1
+5073	1C:36:BB:A2:C8:35	5073	Ndranto6790_5073	4882a139	1
+4781	30:10:B3:30:40:E1	4781	Patrick_4781	60ff0f05	1
+4753	04:e5:98:76:7b:e8	4753	Magali01_4753	ccff3cc1	1
+4346	50:FE:0C:03:81:7F	4346	MickaellaSambatra_4346	b31723e1	1
+4387	B0:3C:DC:9E:6A:56	4387	Youssi_4387	ab6f6c5f	1
+4074	28:D0:43:37:26:B3	4074	NomenaIdealy_4074	49ae30b9	1
+4682	A4:9F:E7:1D:0B:5B	4682	Jonih_4682	b8062007	1
+4365	9c:fc:e8:21:20:c8	4365	hiraina_4365	1ec6de3f	1
+5001	ba:47:2a:27:e3:53	5001	Fanilo08_5001	68eed539	1
+4818	28:16:7f:3e:4f:4e	4818	sheldon2206_4818	98b0fbbd	1
+5070	d0:6B:78:02:4F:ED	5070	Finaritra_5070	9d8380a6	1
+2804	3c:38:24:1a:ef:10	2804	Carine_2804	59cddff3	1
+5006	9C:50:D1:78:D1:75	5006	Mytia_5006	b23aacef	1
+3615	74:C6:3B:04:04:87	3615	Fahasoavana_3615	4e8395b9	1
+5111	60:6e:e8:59:18:c1	5111	nyaina10_5111	8f3af5ac	1
+4648	e8:5f:b4:0d:39:9d	4648	Mihajavola_4648	830278bb	1
+4235	F8:AC:65:23:80:25	4235	toavinaAndriamonta_4235	5bcfd466	1
+3163	C0:B6:F9:93:0D:EB	3163	Simply77Chef_3163	e4e058f3	1
+4942	80:5F:C5:A2:6A:B2	4942	Johary_4942	1150e541	1
+5071	58:D5:0A:4E:E1:F3	5071	NarovanaRh05_5071	f88fee3b	1
+5024	06:39:2c:13:7e:b7	5024	Juni_5024	b9db5652	1
+4975	7C:50:49:36:06:6E	4975	TJ_4975	265d5cc2	1
+4833	5c:ac:4c:35:f7:d6	4833	Vahatra_4833	37e84e01	1
+4115	a8:9c:ed:d9:af:80	4115	Bryano310506_4115	8e208111	1
+5108	e0:9d:31:88:06:ac	5108	Tojoo_5108	f9fc4958	1
+3926	7c:5c:f8:82:31:fb	3926	goldman_3926	9ca43f25	1
+4768	5C:3E:1B:5B:BB:C8	4768	Brian_4768	46370cad	1
+4193	b8:76:3f:d1:61:f3	4193	Nekena_4193	38ceea75	1
+3973	dc:21:48:cb:2a:32	3973	YvNathan_3973	c4b7c063	1
+3626	B4:8C:9D:D4:BA:95	3626	Miharizo_3626	2c3f73b2	1
+4232	A4:02:B9:43:72:45	4232	miotifitia_4232	17d74ec2	1
+4035	40:f0:2f:3b:9e:fc	4035	Mansmccall_4035	b03acf15	1
+5008	a0:d3:7a:f3:63:12	5008	Candy09_5008	5e0cabd9	1
+4872	74:ef:4b:2a:99:a1	4872	Hasina_4872	96759536	1
+4141	74:c6:3b:54:d6:c9	4141	Sedra_4141	74e9948a	1
+4030	2A:42:28:79:5F:36	4030	Tahiry_4030	cfce2f6a	1
+4841	00:15:5d:95:1c:b7	4841	Judicael_4841	70a7131a	1
+4851	d8:32:e3:0e:fb:03	4851	Tom_4851	9f03421a	1
+3554	3C:A0:67:26:13:D5	3554	dylan_3554	72a70b50	1
+3558	40:1C:83:7B:EA:62	3558	Arlho_3558	58ccbcab	1
+3661	F8:94:C2:49:29:A1	3661	Manuelo_3661	c6f4eee3	1
+4705	34:f3:9a:ed:ab:b1	4705	andriankirija_4705	cc3d2afe	1
+4136	b8:7e:39:c0:ff:fc	4136	RAOYo_4136	02b453c1	1
+4364	d0:c5:d3:71:ee:ef	4364	itokiana_4364	f5965050	1
+4608	b8:1e:a4:38:5a:73	4608	fii_4608	b7c3bb51	1
+4822	94:BB:43:43:25:DF	4822	Marinah_4822	25b67ea5	1
+4954	4c:e0:db:7c:ba:3a	4954	Miantsa_4954	1cee08a3	1
+4166	A0:29:42:8D:54:FA	4166	Tiavina_4166	60c9fdbb	1
+4338	f8:34:41:f6:53:83	4338	Magy_4338	e92b9982	1
+4885	0C:19:F8:76:F9:53	4885	NFR_4885	a10a2b0b	1
+3877	D4:6D:6D:C6:24:F1	3877	Itiela_3877	28ed5a51	1
+4176	d4:a3:65:f3:65:06	4176	Miaro_4176	ea98ccb4	1
+4344	38:c6:bd:69:cc:ae	4344	Mihaja_4344	b1499aec	1
+4130	2c:d0:5a:72:0e:6d	4130	Steeve_4130	544667c5	1
+3924	f8:ac:65:13:29:c8	3924	MiradoRKT_3924	21e2151d	1
+3640	50:5A:65:C2:29:ED	3640	Francia_3640	942aa750	1
+4179	80:91:33:c0:7b:f9	4179	Houssena_4179	f092ea21	1
+4158	00:72:ee:77:65:e1	4158	rokito15915_4158	1b0f9956	1
+3890	d8:12:65:52:3d:49	3890	Nandrandraina_3890	60fa79d9	1
+4331	28:7f:cf:bd:2d:1f	4331	Raptors_4331	b64323fa	1
+4983	e4:7f:b2:14:e6:dc	4983	Mihaja123_4983	250d62ee	1
+3933	68:7a:64:c7:36:2f	3933	rivaldo_3933	39ecb876	1
+4686	2c:3b:70:f6:7f:85	4686	johariinrn_4686	c4b87ccf	1
+4353	30:3A:64:96:7A:A8	4353	Sanda_4353	8d159827	1
+4027	50:E0:85:C2:9A:25	4027	Joshua_4027	9414d5ab	1
+4042	C8:21:58:4C:B5:53	4042	Jedidia_4042	14fc7254	1
+3940	e4:70:b8:c9:2b:10	3940	Harena_3940	c351e0aa	1
+3583	38:63:BB:BA:E7:0D	3583	Nancy_3583	df742951	1
+4242	f8:94:c2:1d:a3:8f	4242	Ranton17_4242	1265f44d	1
+3880	28:c2:dd:23:6d:51	3880	Mandresy_3880	b26373bb	1
+4060	04:6c:59:34:b4:71	4060	randi07_4060	9a897e50	1
+3893	58:a0:23:66:e5:1d	3893	aina1415_3893	01091748	1
+4771	c0:d9:62:ae:b8:ff	4771	Miora_4771	72f87f46	1
+3678	06:7b:62:39:4c:fa	3678	aina04_3678	ebc752da	1
+4085	98:29:a6:59:4a:8c	4085	MAHEFA_4085	4ff7eab2	1
+4359	04:01:bb:9e:5c:87	4359	Hasimanjaka_4359	fdfb4e97	1
+4058	3c:f0:11:17:c1:d6	4058	Manohisoa_4058	e4f1b815	1
+4546	A4:C6:9A:8D:5F:5F	4546	Mahery_4546	3686bd0a	1
+3597	F6:4E:B4:1A:3C:CF	3597	Itoavina_3597	ff165e5f	1
+4721	7c:b7:33:e4:fa:2a	4721	Christina_4721	e4dd0bff	1
+4820	b4:ee:b4:82:f4:28	4820	Misaina_4820	21d3637f	1
+3915	e8:4e:06:b0:d1:81	3915	Noah_3915	34f7e189	1
+4051	82:34:94:06:39:ba	4051	Mandresy_4051	59410cee	1
+4155	26:86:C4:D6:3D:A5	4155	JoshuaRiki_4155	221a015e	1
+4395	90:de:80:4a:10:32	4395	Elatra_4395	8c0ea82e	1
+4230	96:77:0f:51:01:05	4230	Miangaly_4230	d6cc84e6	1
+4216	A0:AF:BD:39:8D:E8	4216	Princy_4216	ac17fbc9	1
+4131	38:00:25:95:6B:EF	4131	Hasina_4131	994e8841	1
+4324	10:02:b5:e5:42:d7	4324	Rinah_4324	7e9137db	1
+4330	f8:da:0c:67:1a:a7	4330	Nomena_4330	740df09f	1
+4244	F6:FB:8C:7C:F6:AD	4244	Finaritra07_4244	af67be75	1
+4274	BC:03:58:2D:F8:25	4274	Tsara_4274	c7e05631	1
+4259	28:E3:47:00:91:C1	4259	Paolah_4259	76cf6ebe	1
+4189	38:B1:DB:7B:78:A3	4189	Fy_4189	1629c4ee	1
+4095	4C:D5:77:2F:39:0B	4095	eddy_4095	8bcf4e06	1
+4033	50:E0:85:F8:E3:BE	4033	Kajy_4033	4535fe54	1
+4257	F8:28:19:0C:71:A8	4257	Mioty_4257	63e62d07	1
+4072	D8:FC:93:1F:E5:0A	4072	NyAiko_4072	5a1cc2d6	1
+4159	E2:FA:09:5E:BD:90	4159	Leila_4159	9173c099	1
+4676	c0:d9:62:4d:f6:38	4676	Aina_4676	b29ba83c	1
+3567	18:CF:5E:47:28:56	3567	Fihamina_3567	35d23989	1
+4040	B4:69:21:4A:C1:A8	4040	Andie_4040	1d85a984	1
+4317	D0:C5:D3:03:08:A3	4317	Mialy_4317	409cb09c	1
+4869	b0:35:9f:a0:ac:7b	4869	Riana_4869	b8652e76	1
+4289	e0:9d:31:86:51:3c	4289	TojoHarinjakaCelorea_4289	332f3b3d	1
+3566	38:8A:06:8F:29:E6	3566	Finona_3566	65b114b3	1
+4287	3C:0A:F3:8B:6D:81	4287	TahianaChristian_4287	2d37b0f1	1
+4267	d4:d8:53:09:dc:ba	4267	Dylane_4267	af80c0ca	1
+4192	02:14:B9:03:07:F6	4192	Harena_4192	ad93e726	1
+4236	90:CD:B6:5F:00:D1	4236	Morgan_4236	52c0c93d	1
+4756	24:fd:52:43:62:0e	4756	Mitiaanyah_4756	f7895af8	1
+5047	E8:B0:C5:14:C3:40	5047	Riccardo_5047	00e49b80	1
+4917	a4:4e:31:2e:38:00	4917	Anthonie_4917	ac62d2d6	1
+5036	3c:a9:f4:62:c1:fc	5036	bouta_5036	53bcf76c	1
+4016	30:52:CB:2B:CD:67	4016	Mihaja_4016	bb66c681	1
+4683	9a:a5:c6:87:41:ae	4683	Joevin_4683	bf747d1d	1
+4138	94:08:53:54:c7:d3	4138	Dahmyan_4138	f0974e7c	1
+4627	00:e0:4d:3d:01:1c	4627	Isaia_4627	be982788	1
+3519	B8:86:87:ED:B1:5E	3519	HasinaZr_3519	e45ea55c	1
+3560	80:A5:89:8B:C2:4B	3560	izaiaRm_3560	e7d63300	1
+4341	CC:D9:AC:D9:A7:56	4341	Herizo_4341	45fd9b02	1
+4332	f8:da:0c:59:d6:af	4332	Toky_4332	56028992	1
+4195	e8:88:43:e4:86:c6	4195	Manda_4195	da8a5fad	1
+3613	7A:8B:80:9B:9E:12	3613	Kenjohan_3613	94e08eff	1
+4127	80:19:34:01:80:15	4127	kolyDovan_4127	298c531e	1
+3501	DC:53:60:81:78:33	3501	Tinatia_3501	2d723a3a	1
+4177	4c:a3:a7:ee:29:4d	4177	AndoNathan_4177	a7d42525	1
+4110	b6:3c:d6:8b:24:e9	4110	Sandro_4110	fb45f3ec	1
+5055	cc:42:10:1f:93:3d	5055	minosoa_5055	a478949b	1
+4670	00:e0:4d:3d:33:0c	4670	gakemisa_4670	590eff24	1
+4182	90:0F:0C:B3:0D:11	4182	Zakaria_4182	41661fe1	1
+4036	cc:f9:e4:6b:29:7e	4036	Bryan_4036	682030e2	1
+3105	C0:B8:83:C3:A5:51	3105	Squilacci_3105	7c1f7d4b	1
+4167	f8:2D:7C:20:04:B9	4167	Mihaja24_4167	9a85ceb8	1
+3946	d8:4C:90:1B:28:6E	3946	Manantsoa_3946	16e9b2c9	1
+4055	e4:aa:ea:44:7c:85	4055	Giovanni_4055	695710c0	1
+3350	E4:B3:18:C9:9A:4B	3350	nam831_3350	97d1b587	1
+4362	00:db:df:9b:fd:4d	4362	Herimino_4362	8c0920eb	1
+3190	BC:54:2F:EB:50:91	3190	Hasina_3190	b0f019b1	1
+4326	34:F3:9A:9C:F4:BE	4326	Noah_4326	36ce1654	1
+3954	7c:b7:33:e4:e1:7b	3954	beluga_3954	fbfe7b04	1
+4124	14:13:33:27:cb:c9	4124	robertoCarlos01_4124	d7d62154	1
+3943	d0:39:57:6d:69:d5	3943	miambinintsoa_3943	4202d46e	1
+4363	90:e8:68:3d:e4:1b	4363	Karen_4363	b95065a7	1
+3911	b4:8c:9d:d6:fa:67	3911	Tsimbina_3911	8c8fb560	1
+4213	e0:9d:31:8c:43:74	4213	Arceus27_4213	ea4e2bb2	1
+4098	24:ee:9a:53:b7:09	4098	Mitia_4098	37cc2c29	1
+3888	60:a5:e2:78:7f:e9	3888	Armella_3888	e188e9c2	1
+4357	2c:33:58:5e:6b:63	4357	Niana444_4357	cfb01fb5	1
+4096	C0:BF:BE:73:A8:08	4096	ialy_4096	aa53c53e	1
+3938	80:19:34:03:4b:89	3938	Amel_3938	8712443b	1
+3892	1c:4d:70:ba:27:fa	3892	Lorick_3892	ec874697	1
+4373	54:35:30:56:33:7f	4373	tsinjo99_4373	797a099c	1
+3258	3C:CD:36:93:ED:FF	3258	Tsiky3258_3258	cb0e5e1a	1
+4178	0c:dd:24:01:57:48	4178	Akashi_4178	e0ceb5cf	1
+4147	A0:88:69:FC:85:D2	4147	NyAndo_4147	299ab264	1
+4094	50:5A:65:D9:81:E6	4094	Juan_4094	85ceed8a	1
+3903	10:a5:1d:fa:90:9c	3903	fifalianacake_3903	9505895d	1
+4172	94:B0:1F:81:94:3C	4172	Bolton_4172	e352dab5	1
+4145	14:4f:8a:f4:43:e0	4145	Kiady_4145	ee518c2d	1
+3922	18:56:80:D8:7C:23	3922	harryJones_3922	81818ede	1
+4029	ac:3e:b1:7e:1e:c7	4029	TendryNt_4029	deb93554	1
+4061	7C:B7:33:E4:E4:22	4061	Karl_4061	e80d3106	1
+3910	3c:a0:67:22:fe:d0	3910	Tojo08_3910	bea83d53	1
+2491	08:6a:c5:7b:d7:5c	2491	Sarobidy_2491	682b77f8	1
+3912	a8:e2:91:0b:c7:9e	3912	sundy20_3912	1d1b9f29	1
+3891	28:c5:d2:6b:21:69	3891	Tommy_3891	c4fa2b94	1
+3100	C0:F4:E6:B1:41:59	3100	Joary09_3100	b9a52825	1
+4547	14:2d:27:d4:cb:cb	4547	Andriatahinasoa_4547	37068b3f	1
+4729	c0:d9:62:56:62:16	4729	Fetraniaina_4729	02915e6c	1
+4374	da:e0:b2:17:59:cc	4374	Stephanie_4374	ac87999d	1
+4590	cc:15:31:d4:01:84	4590	Tsanta_4590	4838e80e	1
+4356	1C:CE:51:96:7B:E1	4356	Mirado_4356	5a001c98	1
+3928	e0:9d:31:99:05:90	3928	LordTomato_3928	3bcb1c85	1
+4239	80:A5:89:84:78:05	4239	Pr1nc10_4239	9ae0abd8	1
+4109	2c:9c:58:2c:c6:eb	4109	Ayman_4109	81c7b18f	1
+4360	00:FF:15:00:6C:38	4360	Ivo_4360	0d74ddde	1
+3299	58:00:E3:2F:06:B1	3299	Rojo_3299	56f1887f	1
+3939	06:86:8a:e8:82:04	3939	IonyJohnson_3939	6b5cc836	1
+4372	fc:18:3C:30:14:F5	4372	AnonymousGirl_4372	6342cfa7	1
+4370	e0:9d:31:9b:52:b4	4370	Anja_4370	8c0f5e65	1
+4225	84:ef:18:a5:93:ee	4225	tsikychristelle_4225	29ff2bc7	1
+4151	c0:e4:34:81:94:89	4151	christon11_4151	dbe2e322	1
+4339	cc:47:40:00:28:3a	4339	balou_4339	f082bfd5	1
+4318	88:66:5a:23:74:ec	4318	Liantsoa_4318	80967681	1
+4351	94:BB:43:DE:9F:50	4351	NoahRakoto_4351	37f0d88a	1
+3951	B4:70:64:94:EE:C8	3951	Manou_3951	1024b695	1
+3949	e4:0d:36:e3:95:d1	3949	valisoaRandria_3949	95cd3c46	1
+4164	B8:3C:28:1A:BD:2D	4164	Yrielle_4164	27b21b20	1
+4037	94:B8:6D:29:F7:25	4037	davida4037_4037	6ecad1ae	1
+4874	88:46:04:01:ec:20	4874	Iaritiana_4874	5d04f711	1
+4884	ee:ca:b8:57:a2:08	4884	RantoRomeo386865_4884	61f92544	1
+3936	D0:40:EF:81:5D:D5	3936	AkyDJ_3936	605b214d	1
+3955	7c:5c:f8:82:31:f6	3955	Tiavina3955_3955	d93f0478	1
+4930	B8:6B:23:8F:46:7C	4930	Rebecca_4930	cb303349	1
+4309	c4:3D:C7:2C:EB:6E	4309	Fabio_4309	0924e562	1
+4390	80:A5:89:84:0B:5B	4390	Harentsoa_4390	001ff88c	1
+4223	48:5A:B6:D3:8E:75	4223	Frank_4223	2cfe7c09	1
+4288	22:D9:62:56:4B:BC	4288	Herizo_4288	c84a0a23	1
+4746	dc:e5:5b:13:88:a9	4746	cristino_4746	1670d239	1
+4665	b8:ea:98:2a:2f:a4	4665	Glorisha_4665	821dcc78	1
+3575	08:D4:0C:DE:3B:8B	3575	Fitia_3575	df7109d2	1
+4222	74:C6:3B:05:8E:1F	4222	Alintsoa_4222	f23a0ec4	1
+4191	34:E1:2D:52:60:66	4191	Melissa_4191	8bd5c96e	1
+4967	e0:9d:31:86:3d:c0	4967	Kim05_4967	ca9aed29	1
+4685	f0:6c:5d:c4:e3:66	4685	FitiaSolofo_4685	fe4715e4	1
+4681	98:2c:bc:ae:0d:5d	4681	imraan_4681	63cb8ac5	1
+4730	b4:ee:b4:82:f4:31	4730	wero_4730	891fd939	1
+3080	12:54:d7:86:c0:04	3080	Nyxx_3080	451f5b42	1
+3130	CC:5E:F8:D1:53:A8	3130	Lalaina_3130	17aa50d0	1
+3914	74:c6:3b:cd:95:91	3914	Christian_3914	039ab509	1
+4367	5c:87:9c:3b:15:14	4367	NyAvo_4367	1d76ca47	1
+4024	90:A4:DE:5C:31:F8	4024	herman_4024	52e3ac7c	1
+4073	e0:9d:31:99:f2:3c	4073	Rayan_4073	64cd07e6	1
+4250	28:E3:47:07:D9:71	4250	Coralie_4250	3e24472b	1
+4371	B8:82:F2:87:B2:CF	4371	Ajaina_4371	209c12f1	1
+3587	be:1e:1f:6b:8f:2b	3587	Nierenantsoa_3587	bcea8ff4	1
+3573	94:bb:43:a0:91:61	3573	RAJOHARIMANANA_3573	fbca06c7	1
+3503	2C:6F:C9:58:02:75	3503	Safidy_3503	f3e7ea85	1
+3609	D2:57:7B:FE:EF:07	3609	Tsiory_3609	0ba1a89c	1
+3611	F0:03:8C:76:AA:DB	3611	Finaritra_3611	88283b4b	1
+3512	f8:da:0c:66:f9:0d	3512	Irinasoa_3512	07f7cd73	1
+3589	34:CF:F6:10:79:D0	3589	Tendry_3589	ba41d6a2	1
+3545	A8:41:F4:43:1C:1E	3545	Rica_3545	95ef938e	1
+3537	10:F6:0A:AD:02:78	3537	Erica_3537	a8f3374b	1
+3594	98:AF:65:88:9E:7E	3594	Rota_3594	500a9d12	1
+3956	00:E1:8C:43:DF:8C	3956	Florencia_3956	59baf7a3	1
+4329	D4:D2:52:FC:A1:70	4329	Rindra_4329	872ecbb4	1
+4384	00:00:00:00:00:00	4384	Iavo_4384	413fd54e	1
+4186	08:71:90:af:7a:f3	4186	Tendry_4186	6f1ed36b	1
+4381	88:b1:11:27:e7:28	4381	Mihajatiana_4381	d2762d1e	1
+4334	20:72:0d:39:24:11	4334	Wesley_4334	5611b784	1
+4238	dc:e5:5b:06:94:45	4238	FitiaIarantsoa_4238	6158a966	1
+4247	7C:67:A2:93:0D:8c	4247	Tendry4247_4247	7ce1da0e	1
+4327	24:FD:52:84:E4:A6	4327	Miahaja_4327	cb6845e4	1
+4221	30:10:b3:22:98:4f	4221	sharone_4221	ad095353	1
+4163	86:8e:5e:ad:52:71	4163	Annick_4163	7857acc9	1
+3527	38:87:D5:63:B4:E7	3527	Finoana_3527	319fe319	1
+3542	48:fd:a3:09:72:73	3542	Iantsa_3542	84357cc2	1
+4392	F4:C8:8A:87:1E:FF	4392	JonathanJojo77_4392	327721d9	1
+4211	44:6D:57:29:B1:E7	4211	Fitya_4211	aaf23b2e	1
+3275	7c:70:db:2e:68:ec	3275	Manampy_3275	62e40e00	1
+5052	74:e5:43:f0:e7:16	5052	Michael_5052	c16692c7	1
+2	00:e1:8c:99:d1:ee	3945	tacos_3945	6538d0fe	\N
+4	60:b7:6e:53:12:fc	4031	senoh_4031	012345	\N
+5	e0:d0:45:02:e5:f9	4226	nyantema_4226	25bf0313	\N
+6	B0:35:9F:01:71:56	4290	Miranto_4290	d144e53b	\N
+7	98:43:FA:3C:78:50	4308	Ricardo_4308	ec796e88	\N
+8	12:23:34:45:56	3894	Shina_3894	123456	\N
+\.
+
+
+--
+-- Data for Name: macs; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.macs (id, mac, id_etudiant) FROM stdin;
+92	f2:13:31:cb:8e:9d	1561
+93	c0:d9:62:4d:f7:2e	1592
+94	a0:d3:65:a1:2d:f9	1540
+95	04:ed:33:3c:13:d8	1545
+96	C0:D9:62:36:EA:4F	1502
+97	40:74:E0:38:4A:AF	1523
+98	64:80:99:C8:39:CB	1581
+99	c8:cb:9e:12:1f:d8	1612
+100	36:f9:51:05:c9:9e	1484
+101	6c:94:66:20:5c:79	1527
+102	b8:76:3f:d1:5d:cc	1479
+103	5C:3A:45:4D:F8:BD	1589
+104	F0:57:A6:F3:EB:F2	1483
+105	84:14:4d:b8:7c:34	1620
+106	b8:76:3f:d1:5d:bf	1520
+107	28:9F:04:BC:F2:37	1601
+108	F8:59:71:B1:27:31	1597
+109	b4:ee:b4:82:f5:51	1602
+110	18:67:ef:b1:b0:1e	1625
+111	48:87:59:12:fa:82	1497
+1462	58:D5:0A:4E:E1:F3	1864
+113	28:C2:DD:D2:46:35	1558
+114	F4:7B:09:53:BA:E2	1521
+115	b8:86:87:ed:b0:de	1574
+116	00:ad:a7:00:81:42	1616
+117	14:13:33:ad:2f:c9	1503
+118	84:14:4d:d1:73:2e	1553
+119	C0:35:32:E0:42:E1	1577
+120	40:e2:30:ad:a1:6d	1560
+121	a4:c3:f0:ac:1a:34	1583
+122	28:c2:dd:d2:09:b7	1623
+123	04:33:c2:89:a3:0a	1506
+124	4C:79:6E:B4:B1:3F	1543
+125	14:7f:ce:ca:4e:95	1548
+127	98:fe:3e:7f:d0:05	1535
+128	b0:a4:60:82:3d:d6	1546
+129	30:10:b3:db:46:0d	1485
+130	50:bb:b5:e7:cb:9a	1487
+131	e0:9d:31:86:7f:74	1573
+132	80:19:34:ea:d9:a4	1571
+133	80:C5:F2:D1:5C:B1	1568
+134	f0:20:ff:ee:2e:24	1482
+135	c8:cb:9e:10:a7:3e	1475
+136	1e:cc:db:5a:30:f4	1613
+137	0c:96:e6:bc:14:63	1552
+138	10:c3:7b:19:1c:f7	1591
+139	3c:f0:11:23:1e:19	1580
+140	04:33:C2:B9:0A:EB	1495
+141	9c:30:5b:de:ad:05	1476
+142	d0:ae:05:cf:9d:0b	1489
+143	c8:cb:9e:13:96:ba	1509
+144	3c:9c:0f:a5:7d:a5	1556
+145	f8:28:19:19:c8:e2	1595
+146	3c:a0:67:07:94:3a	1533
+147	00:1a:6b:0d:5a:db	1566
+148	F4:7B:09:4F:8E:09	1544
+149	4C:1D:96:22:6D:A7	1607
+150	48:e2:44:e2:64:d9	1628
+151	24:ee:9a:23:a4:1a	1488
+152	96:9f:aa:f0:37:84	1494
+153	B6:69:21:C3:93:F8	1629
+154	3C:F0:11:C0:59:A4	1610
+155	58:6c:25:80:1d:5d	1614
+156	70:18:8b:38:5b:0c	1609
+157	3C:A0:67:28:D2:82	1524
+158	80:C5:F2:D1:84:87	1564
+159	88:AE:35:E2:CB:0d	1522
+160	80:c5:f2:d1:56:03	1513
+161	AC:D1:B8:FF:DB:89	1549
+162	90:e8:68:41:16:a7	1626
+163	80:a5:89:d5:40:7f	1622
+164	5C:BA:EF:92:AB:5A	1532
+165	d0:3c:1f:12:38:c4	1569
+166	9C:92:4F:F3:98:8A	1576
+167	7c:b7:33:e4:fb:e5	1536
+168	b4:ee:b4:76:3d:96	1619
+169	2c:1b:3a:4a:3d:71	1599
+170	00:72:ee:48:5c:24	1538
+171	80:19:34:01:94:2e	1604
+172	f8:75:a4:60:1e:3a	1515
+173	b0:35:9f:ad:22:36	1570
+174	3c:a0:67:08:49:39	1567
+175	04:ec:d8:68:b1:d6	1582
+176	C0:35:32:78:C3:15	1588
+177	50:76:af:e3:59:ea	1559
+178	ac:49:DB:09:96:52	1578
+179	28:0c:50:1b:36:7c	1541
+180	e8:98:47:7d:4e:d4	1603
+181	94:E6:F7:F6:9D:61	1492
+183	d8:fc:93:34:e9:af	1514
+184	2C:7C:F2:B3:3B:6D	1529
+185	bc:a8:a6:ab:e3:2f	1608
+186	24:41:8C:FB:9A:8D	1498
+187	9A:AF:65:C1:5E:3F	1542
+188	C0:B8:83:AA:4B:BE	1516
+189	D0:C5:D3:8C:09:1D	1508
+190	50:3d:c6:0b:2b:f6	1519
+191	7c:7a:91:af:45:6a	1491
+192	A8:41:F4:AD:B8:DB	1630
+193	a0:02:a5:78:db:9c	1501
+194	dc:45:46:98:d9:d3	1572
+195	94:E7:0B:03:B6:F0	1615
+196	ac:e0:10:e1:46:84	1511
+197	f8:28:19:71:30:e1	1764
+198	DC:71:96:F0:1D:06	1658
+199	0c:c4:13:ea:6a:e9	1844
+200	3c:13:5a:e7:4e:48	1690
+201	68:a3:c4:c9:a8:a0	1918
+202	00:e0:4d:1d:01:2e	1814
+203	00:e0:4d:3d:06:e8	1815
+204	30:10:B3:49:70:8e	1884
+205	e0:9d:31:2d:3a:40	1792
+207	68:54:5A:8B:3E:3B	1801
+1464	7C:50:49:36:06:6E	2524
+206	ee:ca:b8:57:a2:08	1900
+210	d0:f5:20:05:d7:bd	2464
+211	b8:86:87:ed:b2:37	2475
+212	24:68:B0:F4:A9:E6	2401
+213	e0:9d:31:8a:9c:94	2399
+214	88:6c:60:e7:a0:bc	2478
+215	9c:d2:1e:d0:86:ff	2490
+216	b8:86:87:e6:3c:88	2408
+217	8c:8b:5b:9b:d3:44	2523
+218	58:24:29:e4:d0:c2	2411
+219	9c:30:5b:8a:26:8f	2405
+220	64:a2:00:fe:3f:3a	2503
+221	40:f0:2f:6d:8c:17	2415
+222	d4:3a:2c:83:5a:6a	2416
+223	20:25:cc:0a:80:7e	2326
+224	bc:52:d9:27:7d:d2	2473
+225	ac:fd:ce:47:ad:60	2439
+226	a8:e2:91:0b:c4:50	2471
+227	e4:5e:37:ff:52:f3	2371
+228	3c:95:09:33:62:8f	2477
+229	08:11:96:42:21:18	2438
+230	80:c5:f2:d1:55:1f	1854
+231	2c:4d:54:3e:fc:fd	2447
+232	7c:b7:33:e4:f8:33	2398
+233	D4:62:EA:95:9C:1A	2513
+234	90:cc:df:f7:68:95	2504
+235	e4:0c:fd:e9:1c:c3	2443
+236	00:e0:4d:1d:09:71	2466
+237	84:3a:4b:77:56:b0	2381
+239	A8:DB:03:7E:7E:0F	2497
+240	08:C7:B5:77:20:60	2388
+241	ac:7b:a1:65:5a:0e	2483
+242	58:D5:0A:FA:66:FC	2372
+244	9C:92:4F:1D:1A:6A	2486
+246	E4:10:88:C3:21:7C	2488
+247	8c:8b:5b:8c:02:45	2510
+248	f8:16:54:ad:ee:f9	2474
+249	a4:45:19:2c:22:c6	2440
+250	20:7c:8f:96:9e:7b	2397
+251	ac:7b:a1:65:7d:f4	2378
+252	58:02:05:a0:76:44	2460
+253	44:55:C4:23:38:26	2463
+254	94:8b:93:f4:b5:74	2518
+255	3c:13:5a:aa:9c:7c	2485
+256	70:21:7f:ff:ad:ee	2407
+257	e4:bc:aa:0d:c6:fd	2396
+258	0c:c6:fd:b7:f0:62	2502
+259	c8:58:95:91:26:9d	2495
+260	7c:3d:09:50:0a:69	2521
+261	b4:c4:fc:f1:65:0b	2465
+262	48:51:b7:11:4a:d6	2379
+263	74:42:8B:8A:93:C0	2428
+264	0C:19:F8:4D:24:3A	2406
+265	56:d4:d8:3d:74:a5	2498
+266	F0:05:1B:15:E7:BB	2377
+267	68:83:CB:46:0B:B3	2433
+268	18:47:3d:b9:ad:19	2070
+269	90:e8:68:a6:af:4f	2076
+270	44:D7:91:13:26:34	2270
+271	d0:ae:05:91:0b:ca	2321
+272	28:16:7f:8e:a0:b5	2322
+273	98:5f:41:34:25:6a	2218
+274	C8:90:8A:3F:FB:BF	2252
+275	F4:D1:08:52:27:35	2074
+276	b8:94:e7:ff:4e:30	2288
+277	60:3A:AF:B5:88:BA	2356
+278	d0:c5:d3:55:e2:e3	2094
+279	80:A5:89:AC:A4:4F	2143
+280	98:FB:27:75:58:A3	2314
+281	D4:F3:2D:26:A9:12	2127
+282	04:01:bb:ea:4f:db	2262
+283	74:4C:A1:D4:F8:D5	2183
+284	e8:88:43:6c:a3:bb	2181
+285	f4:DB:E3:78:3D:84	2324
+286	14:13:33:26:7b:91	1976
+287	74:c6:3b:12:46:89	2224
+288	94:65:9C:FC:1C:55	2157
+289	a4:5e:60:d8:61:f1	2279
+290	80:C5:F2:FA:66:E7	2232
+291	F8:DA:0C:20:98:B9	2123
+292	a4:50:46:c2:c4:32	2209
+293	94:5c:9A:C6:1D:88	2303
+294	b0:dc:ef:bf:ad:b0	2258
+295	08:f9:7e:bd:f8:8d	2281
+296	00:15:5d:86:0e:4b	2362
+297	F4:7B:09:4D:EF:77	2254
+298	A8:41:F4:52:1F:05	2036
+299	94:08:53:BB:68:17	1948
+300	40:c7:3c:0e:37:b0	2255
+301	28:e3:47:de:62:93	2242
+302	F8:3D:C6:AD:2B:A6	2297
+303	e8:98:47:e3:32:3c	2250
+304	34:f3:9a:99:53:90	2319
+305	e8:88:43:38:59:74	2206
+306	58:02:05:a0:8b:0c	2327
+307	5c:40:71:5b:6a:ec	2289
+308	00:0a:f5:d5:24:2c	2429
+309	60:6e:e8:bd:32:64	2256
+310	C8:8A:9A:CC:D7:74	2202
+311	04:33:C2:7B:79:87	2287
+312	58:02:05:9f:57:92	2342
+313	3C:A0:67:0C:FE:04	2081
+314	D4:54:8B:5A:78:F0	2097
+315	DC:71:96:18:68:D4	2282
+316	B0:A4:60:85:2F:E6	2756
+317	3C:A0:67:17:E7:21	1967
+318	4c:d5:77:a2:34:99	2172
+319	c0:cb:38:3f:dd:4e	2213
+320	98:09:cf:4c:68:7d	2257
+321	9c:bc:f0:78:72:ba	2339
+322	74:e6:0f:f1:c0:32	2229
+323	40:23:43:C9:46:03	2086
+324	e0:09:bf:84:e9:54	2277
+325	B6:98:CA:9E:E2:37	2219
+326	78:B6:FE:12:3F:A9	2301
+327	D0:C5:D3:56:A6:C7	1982
+328	C4:8e:8f:2d:99:3b	2140
+329	90:A2:5B:7D:5B:F8	2302
+330	3c:13:5a:3c:6f:ab	2337
+331	7C:67:A2:E2:73:4A	2151
+332	2c:fe:4f:80:52:44	2121
+333	54:21:a9:e7:d2:67	2245
+334	e0:2e:0b:45:1e:10	2744
+335	14:99:3e:03:7a:fa	2308
+336	b8:6b:23:5e:c8:22	2212
+337	04:68:74:77:C8:F7	2721
+338	d8:32:e3:0b:39:d8	2299
+339	E0:C2:64:04:DE:2C	2190
+340	98:BD:80:6A:FD:51	2711
+341	78:2B:46:3D:E5:FF	2766
+342	DC:21:5C:2E:99:60	2605
+343	E0:2B:E9:BC:1E:2F	2027
+344	28:7f:cf:e6:04:6f	2751
+345	24:fd:52:79:5f:cb	2783
+346	D4:3B:04:E9:C6:18	2597
+347	5C:3A:45:4D:ED:C5	2602
+348	94:B8:6D:89:0F:45	2241
+349	70:31:7F:3B:62:F7	2220
+350	70:D8:23:1A:17:92	2755
+351	22:f5:08:27:e2:14	2313
+352	74:97:79:79:7C:43	2125
+353	c0:cb:38:98:9b:b1	2318
+354	14:5A:FC:70:8F:0F	2079
+355	60:FF:9E:FB:1C:20	2155
+356	04:EC:D8:8A:5B:79	2717
+357	a0:af:bd:f3:26:7c	2697
+358	74:70:FD:D6:00:9C	2732
+359	ec:2e:98:84:62:39	2739
+360	18:56:80:25:72:68	2293
+361	3C:6A:A7:12:08:5E	2110
+362	00:db:df:1e:98:6c	2154
+363	90:4c:e5:c8:3c:13	2271
+243	bc:6a:d1:41:e8:78	2432
+238	c8:c7:50:5d:f4:9b	2449
+364	e8:5F:02:BB:2D:63	2525
+365	40:D1:33:BC:05:AC	2178
+366	44:38:e8:0a:39:cb	2053
+367	70:CF:49:EE:4F:35	2158
+368	9A:54:1B:7C:15:A5	2020
+369	f4:DB:E3:69:A7:90	2441
+370	dc:0b:34:ff:f0:2b	2457
+371	44:4a:37:56:a7:26	2410
+373	74:29:AF:34:85:1D	2188
+374	98:f6:21:e2:91:2d	2382
+375	0c:c6:fd:4b:d4:06	2403
+376	4c:f2:02:17:e4:0c	2419
+377	04:e5:98:da:79:03	2515
+378	2c:d0:66:ee:a3:44	2264
+379	8c:7a:3d:bf:cb:2a	2243
+380	00:0a:eb:40:24:18	2253
+381	00:12:0e:b2:66:d9	2476
+382	00:78:4c:4c:56:59	2494
+383	00:e0:4d:3d:32:87	2307
+384	00:4c:4b:01:b0:c8	2266
+385	7c:b7:33:e4:e0:a5	2484
+386	A8:64:F1:EE:3A:BD	1966
+387	e0:9d:31:9a:39:a8	2276
+388	90:56:fc:79:1d:95	2434
+389	e4:84:d3:25:70:9c	2383
+390	28:e3:47:ac:e5:99	2211
+391	24:fd:52:43:3d:98	2791
+392	2C:DB:07:13:F9:C0	2803
+393	28:e3:47:d5:68:dd	2781
+394	98:f6:21:64:b6:17	2325
+396	0c:70:4a:7f:71:50	2425
+397	64:63:06:33:9d:ed	2355
+398	c8:cb:9e:11:3b:0e	1605
+399	88:A4:79:46:92:C3	2292
+400	a2:f7:0d:01:c8:81	2267
+401	d0:ce:c0:aa:a4:08	2221
+402	3e:54:e9:05:f7:63	2309
+403	64:a2:00:53:72:5e	2207
+404	A0:4F:85:B2:DB:B5	2278
+405	E4:B3:18:70:6F:98	2492
+406	14:F2:87:60:F1:12	2344
+407	80:75:BF:41:F6:2F	2251
+408	30:83:d2:89:2f:72	2320
+409	58:02:05:60:12:d2	2340
+410	F0:CD:31:41:63:22	2244
+411	48:02:86:71:53:3d	2237
+412	fa:92:b8:69:a7:6f	2298
+413	5C:87:30:11:93:60	2310
+414	cc:2f:71:57:e8:56	2275
+415	bc:85:56:f3:6d:6f	2345
+416	3c:28:6d:cd:7b:c7	2334
+417	14:22:3b:ea:9e:7b	2228
+245	0c:c6:fb:4b:67:a2	2420
+418	28:D0:EA:25:39:F1	2284
+419	D8:C0:A6:70:6B:B7	2235
+420	04:d3:95:75:28:27	2305
+421	a0:66:10:bb:ee:9f	2348
+422	d8:43:ae:30:f3:50	2765
+423	08:02:3C:21:37:60	1730
+424	84:FD:D1:0E:95:16	2764
+425	38:8A:06:AA:7E:08	2737
+426	44:e5:17:c6:95:bc	2731
+427	28:C2:dd:28:77:bd	2346
+428	30:09:c0:80:e9:92	2296
+429	e8:7e:ef:76:4c:dc	2240
+430	f0:a6:54:8a:b5:77	2331
+431	3C:A0:67:08:48:44	2042
+432	40:1c:83:e0:3f:3a	2330
+433	F2:FE:4A:B7:9E:F5	2063
+434	20:bd:1d:53:ea:b7	2223
+435	2C:33:58:42:47:A3	1927
+436	c0:d9:62:4d:f0:d1	2225
+437	F4:7B:09:51:0E:E1	2037
+438	80:C5:F2:B9:E8:F5	1635
+439	04:10:6b:7a:2a:56	2741
+440	34:f3:9a:c3:10:31	1970
+441	D0:57:7E:77:29:D2	1651
+442	3c:ca:61:85:18:17	2115
+443	18:5E:0F:92:4B:22	1750
+444	14:13:33:59:04:c7	1936
+445	D0:C6:37:3A:FD:E0	2210
+446	d8:fc:93:13:68:a2	2194
+447	74:e5:f9:83:d3:35	2073
+448	00:1e:64:f4:e4:7b	1633
+449	30:f6:ef:87:f7:58	2724
+450	50:BB:B5:FB:03:54	2205
+451	68:3E:26:10:19:09	2000
+452	f8:54:f6:78:50:4e	2725
+453	96:E8:68:90:51:3F	2118
+454	40:23:43:3c:e1:89	2032
+455	7C:B5:66:3B:32:29	2193
+456	80:a5:89:e0:31:41	1723
+457	28:d0:43:68:0f:9d	2306
+458	B4:8C:9D:A3:26:09	1987
+459	32:87:71:22:17:2B	2107
+460	14:f6:d8:63:7c:34	2196
+461	00:45:e2:82:44:91	1949
+462	F8:54:F6:B2:09:49	2133
+463	F0:9E:4A:59:85:D5	2007
+464	70:66:55:a1:ad:9d	2018
+466	8C:F8:C5:63:16:27	2022
+467	50:2F:9B:06:41:04	1946
+468	fc:77:74:5d:b0:42	1682
+469	D4:25:8B:55:28:05	2120
+470	00:41:0E:2A:98:F5	2131
+471	70:B3:06:0E:4C:CF	2046
+472	d2:3f:78:2c:ce:47	1947
+473	58:6c:25:16:77:36	2040
+474	80:A5:89:D5:8C:89	1746
+475	A4:B1:C1:CF:75:FB	1985
+476	90:78:41:2C:4A:4D	1688
+477	C0:E4:34:65:1B:1F	2109
+478	24:41:8C:26:11:F0	2709
+479	18:1d:ea:e6:2d:2d	2039
+480	6A:1E:1E:74:02:7A	1759
+481	70:C9:4E:2C:DF:4C	2002
+482	48:A4:72:EF:E9:7B	2061
+483	64:6e:e0:97:54:ff	1696
+484	D4:6D:6D:C7:4C:3C	1933
+485	D8:F3:BC:74:19:4D	1716
+486	2c:3b:70:d8:7e:75	1731
+487	40:1A:58:51:8D:76	2068
+488	98:0D:AF:2F:4E:82	2119
+489	B0:68:E6:56:80:CB	1963
+490	90:4C:C5:91:2A:04	1754
+491	44:A3:BB:83:4E:F6	2159
+492	40:a3:cc:ba:0a:9f	2058
+493	94:BB:43:A0:0E:A7	2179
+494	58:00:E3:08:73:AA	1771
+495	54:27:1e:a3:3a:bf	2787
+496	14:5A:FC:26:65:17	2197
+497	B4:8C:9D:6E:2B:27	1703
+498	f8:fe:5e:16:f5:ee	1984
+465	da:e0:b2:17:59:cc	1665
+395	f8:1a:2b:f4:61:0e	1886
+499	ac:DF:A1:36:61:DF	2187
+500	00:5a:6d:c1:d8:34	2354
+501	08:11:96:12:49:0c	1534
+502	B8:1E:A4:DA:40:9F	2056
+503	84:A9:3E:12:82:3C	1953
+504	08:5B:D6:B4:2F:A8	1956
+505	E4:42:A6:00:20:67	2080
+506	20:c1:9b:a4:25:d6	2019
+507	94:BB:43:23:8B:5F	2054
+508	00:FF:BF:5A:4C:A8	1994
+509	22:2B:20:CC:AA:89	1950
+510	2C:98:11:96:93:87	2023
+511	bc:d0:74:46:99:2e	1928
+512	c0:d9:62:56:50:74	2049
+513	E8:84:A5:FE:38:96	2085
+514	10:b1:df:57:35:ef	2089
+515	28:2E:89:BB:CA:16	2048
+516	C4:3D:1A:CE:B8:87	1974
+517	9C:29:76:54:C3:EC	1779
+518	60:F2:62:12:D3:33	2163
+519	94:BB:43:26:B8:FE	2030
+520	48:AD:9A:76:99:EF	2146
+521	F8:54:F6:48:B4:AF	1935
+522	14:13:33:9E:0B:27	1980
+523	c8:58:95:e6:60:cb	1683
+524	80:19:34:03:80:22	2797
+525	3C:A0:67:37:C1:D0	2075
+526	28:39:26:d7:a4:e1	2248
+527	54:35:30:85:43:4B	2013
+528	14:4F:8A:BF:9B:63	2204
+529	F4:96:34:2D:30:16	2712
+530	A8:41:F4:F1:47:C4	1992
+531	24:0a:64:b0:33:ce	2776
+532	b8:86:87:ed:b0:df	1691
+533	94:B8:6D:09:EE:7B	1954
+534	A4:9F:E7:31:56:EF	2304
+535	40:ec:99:8e:05:a3	1774
+536	0c:7d:b0:c8:e2:91	2164
+537	f8:1a:2b:33:81:76	2114
+538	AC:12:03:EE:53:B8	1988
+539	B4:8C:9D:D6:3A:2B	1973
+540	04:ed:33:7b:68:e4	2177
+541	3c:28:6d:fa:0e:11	2171
+542	94:65:9c:1e:7c:60	2189
+543	00:08:22:1c:37:fc	2168
+544	d8:fc:93:6b:f2:dd	2124
+545	04:d3:b0:ab:70:ac	2370
+546	d0:53:49:87:92:4c	2409
+547	30:52:cb:f3:5a:73	2469
+548	d8:fc:93:50:f0:64	2499
+549	24:A4:52:99:6B:78	2417
+550	08:BF:B8:5C:20:2F	2663
+551	28:8E:EC:E4:8A:82	2514
+552	88:25:2C:46:D0:89	2064
+553	b8:86:87:ed:b6:32	2452
+554	8c:b8:7e:8f:38:c9	2393
+555	80:A5:89:86:F8:91	2035
+556	00:f4:8d:6f:bf:59	2142
+557	4C:E0:DB:08:8C:24	2374
+558	ec:8e:77:d0:4d:73	2312
+559	d0:c6:37:1d:69:b5	2431
+560	80:A5:89:78:E3:A5	1611
+561	2C:4D:54:32:36:98	1969
+562	58:ce:2a:4b:20:17	2203
+563	1C:4D:70:A3:32:A2	1937
+564	b0:6e:72:7a:15:2f	2479
+565	2c:3b:70:0d:25:a9	2041
+566	18:87:40:da:40:b8	2095
+567	78:24:af:c6:39:2d	2387
+568	5C:70:17:56:6B:4C	2361
+569	60:6e:e8:96:cb:96	2368
+570	BC:03:58:DF:4D:E7	1926
+571	30:f7:72:41:32:39	2385
+572	E4:F8:9C:B3:10:19	2031
+573	62:f8:53:14:f5:4f	2427
+575	d4:7b:b0:2c:0c:34	2511
+576	4c:6f:9c:60:2e:83	2481
+577	28:a4:4a:ae:22:9d	2508
+578	B4:8C:9D:00:BE:A9	2069
+579	f4:BE:EC:22:94:E8	2453
+580	fc:5b:8c:b1:07:fe	2645
+581	18:cf:5e:44:3a:18	2500
+582	00:15:5D:4B:01:03	2010
+583	d0:c5:d3:41:7c:61	2391
+584	50:5A:65:7D:0D:87	2541
+585	bc:2f:cb:84:93:8c	2507
+586	84:c5:a6:6d:8f:e9	2455
+587	b8:6b:23:05:d2:be	2520
+588	80:19:34:01:a5:86	2482
+589	46:AF:28:0C:AD:E1	1957
+590	f0:62:5a:90:f5:4a	2567
+591	b0:9c:63:21:00:aa	2501
+592	80:a5:89:85:b6:81	2150
+593	b8:86:87:ed:ba:75	2424
+594	ac:00:7A:83:C9:41	2519
+595	C0:35:32:0F:4F:F5	1986
+596	3c:a0:67:1a:57:36	2435
+597	90:cc:df:da:ed:91	2496
+598	F4:CE:23:70:FB:5C	1972
+599	2C:F0:5D:65:A9:09	1977
+600	D0:AB:D5:E9:EE:A9	2200
+601	d4:6d:6d:63:e8:2c	2454
+602	34:e6:d7:27:6b:80	2423
+603	20:7c:8f:9b:99:e3	2493
+604	80:00:0b:43:f9:13	2436
+605	64:17:cd:df:d3:62	2098
+606	d4:6d:6d:ba:1a:6c	1964
+607	3C:A0:67:38:D7:0D	2052
+608	58:02:05:F9:E7:A2	2043
+609	74:C6:3B:38:AD:3F	2102
+610	30:03:C8:36:FE:E5	2014
+611	5C:ED:F4:13:5B:54	2522
+612	3C:A0:67:41:96:E0	2017
+613	30:74:67:C0:65:B7	2648
+614	48:89:E7:9A:F4:B1	2011
+615	00:ad:a7:11:66:b8	2505
+616	C8:94:02:47:66:97	2065
+617	40:A3:CC:20:6E:12	2201
+618	E0:C2:64:FF:83:B3	2026
+619	0C:7A:15:F7:BA:20	2184
+620	B8:82:F2:59:30:34	2055
+621	40:f0:2f:83:c3:e0	2458
+622	14:13:33:D9:A0:6D	1999
+623	00:F4:8D:F1:38:40	1617
+624	14:2D:4D:B9:F9:3B	2674
+625	00:E1:8C:A0:CC:CE	2679
+626	f8:16:54:60:d0:24	2491
+627	80:32:53:f2:4c:e3	2195
+628	80:A5:89:8A:26:AF	2637
+629	D8:FC:93:6B:EA:18	2088
+630	D0:C5:D3:8C:79:29	2136
+631	F6:34:8B:ED:01:69	2105
+632	F4:6D:3F:BD:26:BC	1971
+633	2C:D4:44:AF:A3:92	2472
+634	D0:C5:D3:29:B3:A1	2198
+635	92:04:0C:67:F6:C2	2004
+636	28:7F:CF:87:DF:75	2066
+637	D0:39:FA:30:D8:2E	2448
+638	98:22:EF:A1:AB:DF	1940
+639	00:21:6A:E6:A5:C8	1978
+640	80:19:34:1c:b3:49	2113
+641	DC:53:92:16:2A:09	2044
+642	c8:e1:93:4e:86:04	2191
+643	C8:FF:28:F5:8A:1B	2003
+644	E4:AA:EA:6E:8F:D1	2034
+645	58:6C:25:7F:FF:80	2380
+646	10:6F:D9:63:C4:3B	1943
+647	fc:e2:6c:23:5c:f4	1952
+648	D8:FC:93:76:B1:E1	2047
+649	36:6f:24:57:3c:ad	2532
+650	3C:21:9C:FF:AE:79	2135
+651	84:14:4D:2F:9D:EC	2173
+652	F0:20:FF:99:D0:2C	1944
+653	78:33:C6:53:42:7A	2161
+654	48:A4:72:1F:F9:A5	2096
+655	5c:9b:a6:5c:ad:6b	1990
+656	94:BB:43:76:55:17	2045
+657	c8:1F:E8:24:DC:BE	2384
+658	70:9c:d1:38:9a:96	2426
+659	88:78:73:54:C9:55	2072
+660	7C:5C:F8:82:32:3B	2628
+661	E8:2A:44:D5:AB:A1	2112
+662	9C:30:5B:A3:A7:63	2057
+663	AE:E2:91:0B:83:9A	2537
+664	98:22:EF:74:3C:95	2528
+665	2c:d2:6b:c0:82:93	1530
+666	70:c9:4e:56:77:e7	2082
+667	70:CF:49:34:78:B7	2153
+668	14:13:33:26:7F:DB	1929
+669	16:13:33:b9:8d:35	2548
+670	C6:AD:68:15:9E:6F	2008
+671	DC:B7:2E:C8:0D:62	1941
+672	F8:B5:4D:69:61:FD	2060
+673	80:A5:89:3E:D1:52	1618
+674	8e:8e:99:46:bb:0d	2418
+675	da:34:f3:b8:7e:04	2176
+676	F8:AC:65:7B:E6:20	2546
+677	1C:71:25:47:05:98	2670
+678	f4:d1:08:73:dd:0e	1934
+679	10:02:B5:ED:28:C6	2103
+680	00:e0:4d:0d:01:4c	2062
+681	58:cb:52:79:e7:a1	1902
+682	74:30:9d:c4:c6:fd	1816
+683	30:10:B3:25:F2:E3	2138
+684	34:E1:2D:B5:57:F2	2625
+685	e4:9C:67:A8:2A:79	1828
+686	62:05:6D:C0:D5:41	2635
+687	34:e1:2d:f0:09:24	2462
+688	e8:5a:8b:45:71:61	1525
+689	D8:3B:BF:F2:C5:F1	2152
+690	c8:ff:28:22:12:11	2025
+692	28:B2:BD:6B:0D:73	2078
+693	C8:09:A8:72:42:5A	1930
+694	f4:60:e2:f4:2d:84	2512
+695	E8:2A:44:D5:D9:F7	2598
+696	E8:C8:29:42:B7:01	2021
+697	FC:34:97:94:7E:67	1932
+698	DC:56:7B:D3:9F:CB	2338
+699	94:ee:9f:1b:b7:da	1846
+700	70:C9:4E:4B:07:C2	1979
+701	30:F6:EF:7D:38:D1	1938
+702	28:16:AD:3D:51:26	1889
+703	02:73:46:43:34:53	2090
+704	08:D4:0C:78:3D:09	2618
+705	00:2B:70:E7:EC:CD	1820
+706	b4:ee:b4:76:14:a9	1787
+707	10:EC:81:49:6E:E4	1839
+708	E4:5E:37:D1:88:B9	2116
+709	18:cf:5e:47:18:3c	2430
+710	8C:8D:28:D9:E9:0A	2028
+711	48:51:C5:00:FF:E6	1860
+712	a0:af:bd:15:1d:7d	2442
+713	2C:56:DC:08:79:8C	2050
+714	28:d0:43:13:d7:d7	2165
+715	50:eb:71:a7:86:86	1955
+717	F4:7B:09:72:0B:FA	2129
+718	A6:D9:0D:00:D2:BE	2650
+719	30:E3:7A:6C:3D:51	1803
+720	BC:FC:E7:D4:F2:ED	2549
+721	50:FE:0C:15:55:6E	1865
+722	3c:35:76:11:f5:39	1507
+723	E8:B1:FC:0D:37:48	2180
+724	CC:20:E8:10:05:0D	2414
+725	10:9f:41:b3:a7:c2	2641
+727	58:02:05:D8:CE:26	2009
+728	74:C6:3B:2D:EA:2F	2134
+729	bc:09:eb:4f:31:9d	2468
+730	80:a9:97:12:6a:03	2016
+731	66:D9:73:09:BF:81	2149
+732	48:3F:E9:5D:E5:F8	2208
+733	a4:c4:94:40:26:21	1490
+734	14:F6:D8:91:41:E1	2671
+735	e4:a7:a0:55:9a:f1	1981
+737	0C:54:15:34:A8:50	2553
+738	10:68:38:DD:15:7C	2589
+739	CC:2F:71:0E:53:17	2192
+740	50:28:4A:01:9D:2A	2558
+741	F0:9E:4A:AA:DD:4F	2621
+742	28:C2:DD:42:31:23	2601
+743	9C:2F:9D:60:EB:5F	2594
+744	38:ba:f8:1b:39:7e	1806
+745	7c:03:ab:18:12:2b	1786
+746	10:5b:ad:91:c1:81	1917
+747	7C:2A:31:C6:E1:B1	2613
+748	12:4c:cf:89:ff:2d	2540
+749	54:8C:A0:34:C2:46	2578
+751	A6:B5:B2:8D:86:6E	1798
+754	b8:86:87:ed:b6:2a	1793
+755	7c:5c:f8:82:20:ad	1575
+756	9E:4E:36:BD:0E:08	1493
+757	D0:57:7B:EE:88:AA	2623
+758	04:10:6b:49:60:5d	1890
+759	e8:65:38:0d:34:5d	2239
+760	b8:6b:23:a1:d2:be	1880
+762	00:ad:a7:01:3d:b2	1850
+763	d8:fc:93:28:5d:43	2167
+764	c0:d9:62:46:66:cc	1925
+765	00:ad:a7:11:66:5c	1893
+766	D0:39:57:38:AA:A9	2544
+767	18:1d:ea:d6:3c:8d	1913
+768	90:61:ae:aa:28:dc	2404
+769	5c:ac:4c:16:99:f3	2804
+770	B2:22:9A:6B:54:E8	2536
+752	14:D1:9E:B1:BB:4D	1825
+716	c4:71:0f:4e:51:a5	1852
+736	28:e3:47:8a:ec:54	1909
+761	9C:73:B1:D7:66:9D	1869
+726	d8:c0:a6:44:4c:41	1843
+691	3a:1c:67:ab:91:CB	1855
+771	b8:86:87:ed:b4:90	1802
+772	00:e0:4d:3d:07:dc	1911
+773	C8:A3:E8:28:E0:6D	1794
+775	0c:07:df:12:27:af	1834
+776	00:1A:2B:3C:4D:5C	1512
+777	e4:bc:aa:0b:d8:0a	2576
+778	b4:ee:b4:82:f4:21	1847
+779	e8:88:43:13:82:3a	1829
+781	9c:6b:72:f0:80:c1	2234
+782	d0:c6:37:5c:13:0e	1790
+783	48:E2:44:21:E6:7D	2175
+784	F8:16:54:50:CB:CF	2186
+785	cc:0d:f2:44:c3:94	1887
+786	3C:A0:67:0A:35:C1	2137
+787	58:24:29:d7:00:61	2233
+788	20:39:56:f5:58:bf	1797
+789	1C:CE:51:49:72:87	2015
+790	24:B2:B9:C0:14:53	1807
+791	B4:69:21:78:E6:EB	2156
+792	40:E2:30:AD:3C:61	2573
+793	00:e0:4d:0d:00:52	1842
+794	34:6F:24:E4:31:65	1939
+795	58:96:1D:D8:5F:2C	2182
+796	2c:d0:5a:2e:2b:96	2394
+797	F4:7B:09:44:43:79	1908
+798	20:7c:8f:97:66:78	1922
+799	fc:61:98:89:f2:f1	1795
+800	40:8c:1f:8b:29:cf	2366
+801	D8:C0:A6:42:B8:E9	2051
+802	60:6e:e8:4d:b9:6d	2461
+803	a0:a4:c5:a7:94:0a	1848
+804	00:41:0E:ED:11:03	2006
+805	e8:88:43:04:3d:0c	2445
+806	18:26:49:EB:DB:B5	2604
+807	3c:a9:f4:62:c6:48	2274
+808	B4:CE:40:37:F5:44	2126
+809	34:7d:f6:72:c9:69	1881
+810	bc:09:63:13:B2:A3	2606
+811	b8:86:87:ed:b0:da	1838
+812	60:F2:62:FA:04:65	2111
+813	2c:fd:a1:41:53:06	1867
+814	90:78:41:81:69:88	2038
+815	b8:6b:23:dc:76:1b	1876
+816	d0:39:57:39:0e:1f	2526
+817	F0:04:E1:AF:60:72	2333
+818	f8:38:80:6C:E3:9F	2349
+819	98:f6:21:59:0e:6b	1921
+820	5C:3E:1B:CE:DE:4A	2236
+821	94:BB:43:67:B6:90	1733
+822	74:e5:43:db:91:66	2185
+823	20:0B:74:2B:52:DA	1496
+824	D0:C5:D3:5E:FC:DB	1758
+825	18:69:D4:F8:59:8D	2363
+826	D8:B3:2F:3B:5A:6F	1709
+827	64:48:42:93:AA:5D	2170
+828	74:04:F1:16:E3:38	1916
+829	48:5F:99:D6:8D:4F	1862
+830	28:34:FF:9A:1C:E2	1788
+831	20:0d:b0:c1:89:6f	1646
+832	34:12:F9:4D:67:34	1811
+833	0C:9A:3C:DF:34:6E	1907
+834	7C:70:DB:2F:47:25	2071
+835	f4:4e:e3:6b:7e:de	2166
+836	E4:5E:37:90:A7:F4	1680
+837	8e:1a:de:ef:ee:a5	1734
+838	DC:F5:05:15:B5:2B	1659
+839	30:05:05:C5:EA:3B	1621
+840	7C:B7:33:E4:EE:6E	1991
+841	2C:7B:A0:D1:98:D6	2139
+842	D0:13:FD:53:5F:E8	2249
+843	4c:d3:af:04:ed:17	2230
+844	A0:A8:CD:9D:CB:A5	1756
+845	74:e5:43:f5:2e:5f	1817
+846	04:B1:A1:DC:AB:47	2328
+847	58:24:29:80:c5:ea	2160
+848	0c:c4:13:49:37:79	1810
+849	e8:5a:8b:f9:de:6f	2467
+850	24:95:2f:70:f1:f3	1912
+851	74:F6:7A:B8:93:E0	1823
+852	B4:8C:9D:65:0B:05	1959
+853	fc:43:45:cc:89:a8	1837
+854	3C:21:9C:C8:01:90	1997
+855	b8:86:87:ed:b9:41	1871
+856	D8:9C:67:B0:2A:71	1968
+857	70:4d:e7:7c:71:55	2001
+858	40:A3:CC:1D:B9:D8	2672
+859	E0:C2:64:64:3D:04	2746
+860	FC:F8:AE:EF:BE:E3	2662
+861	02:50:A6:BF:42:12	2569
+862	64:79:F0:3E:AB:F7	2412
+863	18:CF:5E:4A:38:30	2259
+864	30:10:B3:D3:C2:A6	2719
+865	60:f6:77:e3:cd:8a	2217
+866	e0:9d:31:98:fa:9c	2775
+867	50:C2:E8:6B:CE:CD	2012
+868	00:e0:4d:2D:03:72	2285
+869	7c:2a:db:3f:f4:e9	2295
+870	dc:e5:5b:0b:87:5a	1743
+871	B0:68:E6:88:A9:93	2574
+872	02:33:d2:d6:f5:17	2762
+873	40:E2:30:DF:DD:0D	1961
+874	c0:6b:55:e6:a2:95	2214
+875	f0:C3:71:1F:F6:D5	1851
+876	2c:4d:54:25:4f:4a	1942
+877	00:42:38:0C:1B:FB	2100
+878	28:0C:50:15:83:0D	2067
+879	28:C2:DD:1D:81:AD	2668
+880	A0:A8:CD:2A:97:02	2162
+881	B8:86:87:ED:D0:2D	1989
+882	f6:95:d1:2c:18:6f	1931
+883	80:19:34:03:3B:EE	2130
+884	e4:0d:36:e4:cd:6b	2534
+885	a4:42:3b:2b:e5:8a	1892
+886	00:93:37:fe:32:a1	1835
+887	D0:C5:D3:71:9D:87	2566
+888	1a:86:87:ed:ab:99	2743
+889	90:48:9a:69:63:7d	2101
+890	10:A5:1D:43:D9:1F	2677
+891	c0:d9:62:56:4b:1d	2684
+892	F8:54:F6:B9:33:65	2583
+893	F8:34:41:77:78:38	2788
+894	2C:DA:46:D3:4E:9C	2261
+895	D0:C5:D3:5E:D4:F9	2705
+896	BC:03:58:C2:63:AC	2653
+897	BC:54:2F:63:88:F0	1765
+898	AC:12:03:8E:3F:AF	2122
+899	50:5A:65:C9:69:D5	2199
+900	88:6c:60:57:30:e6	2104
+901	e8:b1:fc:27:20:3b	2785
+902	F8:54:F6:BB:A8:E2	2141
+903	54:6C:EB:88:F3:15	1960
+904	B8:A8:25:85:C9:92	2300
+905	e0:9d:31:9b:5b:dc	2246
+906	d0:c6:37:c5:2f:f1	2351
+907	dc:fb:48:51:3c:04	1996
+908	B6:84:B3:91:FE:02	2639
+909	8C:55:4A:4D:B8:4F	1694
+910	e8:6f:38:c5:96:d3	2283
+911	26:33:87:1a:59:8f	2145
+912	58:96:1D:D6:9E:FD	2169
+913	28:59:23:c6:fa:d6	2347
+914	f4:30:8b:0d:68:2b	2216
+915	9c:2f:9d:56:3f:23	2265
+916	CC:47:40:B8:4C:2C	2024
+917	dc:f5:05:d0:f0:9d	2774
+918	7c:67:a2:5e:37:7e	1781
+919	80:c5:f2:d2:64:51	1951
+920	5A:6D:5C:8A:ED:AB	1998
+921	9c:bc:f0:e7:6c:fa	2386
+922	e8:88:43:88:56:be	2357
+923	94:b8:6d:6f:bf:bc	2367
+924	ac:7b:a1:66:ac:ec	2360
+925	2c:db:07:15:55:13	2329
+926	38:8D:3D:1E:91:AE	2311
+927	44:af:28:b2:33:f1	2373
+928	34:cf:f6:a5:c4:ef	2083
+929	F8:34:41:C0:82:FD	2561
+930	24:fd:52:43:62:ef	2268
+932	c0:d9:62:4d:f5:4b	2350
+933	e0:9d:31:5f:f7:f4	1897
+934	54:10:4F:8E:5E:AE	2389
+935	44:af:28:c0:ad:2d	1836
+936	c0:d9:62:ae:b9:a8	2517
+937	9C:50:D1:9D:E3:D3	2459
+938	d8:32:e3:84:c4:7c	2470
+939	40:e2:30:f3:e3:4f	1718
+940	b0:a4:60:54:83:e6	1670
+941	2c:6d:c1:52:f0:94	1660
+942	48:35:2B:D5:A8:45	1915
+943	00:B3:62:50:20:18	1896
+944	f4:21:CA:16:60:C6	1894
+945	BC:7A:BF:D7:97:0C	2760
+946	30:10:B3:30:40:E1	1853
+947	04:e5:98:76:7b:e8	1796
+948	50:FE:0C:03:81:7F	1643
+949	28:D0:43:37:26:B3	1664
+950	A4:9F:E7:1D:0B:5B	1832
+951	9c:fc:e8:21:20:c8	1639
+952	ba:47:2a:27:e3:53	1819
+953	28:16:7f:3e:4f:4e	1868
+954	d0:6B:78:02:4F:ED	1919
+955	3c:38:24:1a:ef:10	2777
+956	9C:50:D1:78:D1:75	1914
+957	74:C6:3B:04:04:87	2644
+958	60:6e:e8:59:18:c1	1833
+959	e8:5f:b4:0d:39:9d	1857
+960	F8:AC:65:23:80:25	1648
+961	C0:B6:F9:93:0D:EB	2005
+962	80:5F:C5:A2:6A:B2	1873
+963	AA:BB:CC:DD:EE:FF	1964
+1463	06:39:2c:13:7e:b7	2335
+1465	5c:ac:4c:35:f7:d6	2446
+1466	a8:9c:ed:d9:af:80	1674
+1467	e0:9d:31:88:06:ac	1812
+1468	7c:5c:f8:82:31:fb	1695
+1469	5C:3E:1B:5B:BB:C8	1824
+1470	80:B6:55:24:8C:90	1772
+1471	b8:76:3f:d1:61:f3	1687
+1472	dc:21:48:cb:2a:32	1763
+1473	B4:8C:9D:D4:BA:95	2656
+1474	A4:02:B9:43:72:45	2695
+1475	40:f0:2f:3b:9e:fc	1636
+1476	a0:d3:7a:f3:63:12	1822
+1477	74:ef:4b:2a:99:a1	1849
+1478	74:c6:3b:54:d6:c9	1780
+1479	2A:42:28:79:5F:36	2704
+1480	00:15:5d:95:1c:b7	1791
+1481	d8:32:e3:0e:fb:03	1879
+1482	3C:A0:67:26:13:D5	2581
+1483	40:1C:83:7B:EA:62	2584
+1484	F8:94:C2:49:29:A1	2556
+1485	34:f3:9a:ed:ab:b1	1809
+1486	b8:7e:39:c0:ff:fc	1698
+1487	d0:c5:d3:71:ee:ef	1766
+1488	b8:1e:a4:38:5a:73	1725
+1489	94:BB:43:43:25:DF	1863
+1490	4c:e0:db:7c:ba:3a	1872
+1491	A0:29:42:8D:54:FA	1565
+1492	f8:34:41:f6:53:83	2753
+1493	0C:19:F8:76:F9:53	2509
+1494	D4:6D:6D:C6:24:F1	1745
+1495	d4:a3:65:f3:65:06	1702
+1496	38:c6:bd:69:cc:ae	1707
+1497	2c:d0:5a:72:0e:6d	1762
+1498	f8:ac:65:13:29:c8	1724
+1499	50:5A:65:C2:29:ED	2673
+1500	80:91:33:c0:7b:f9	1669
+1501	00:72:ee:77:65:e1	1755
+1502	d8:12:65:52:3d:49	1719
+1503	28:7f:cf:bd:2d:1f	1777
+1504	e4:7f:b2:14:e6:dc	1840
+1505	68:7a:64:c7:36:2f	1631
+1506	2c:3b:70:f6:7f:85	1898
+1507	30:3A:64:96:7A:A8	1685
+1508	50:E0:85:C2:9A:25	2770
+1509	C8:21:58:4C:B5:53	1671
+1510	e4:70:b8:c9:2b:10	1710
+1511	38:63:BB:BA:E7:0D	2608
+1512	f8:94:c2:1d:a3:8f	1693
+1513	28:c2:dd:23:6d:51	1634
+1514	04:6c:59:34:b4:71	1704
+1515	58:a0:23:66:e5:1d	1675
+1516	c0:d9:62:ae:b8:ff	2421
+1517	06:7b:62:39:4c:fa	2681
+1518	98:29:a6:59:4a:8c	1742
+1519	04:01:bb:9e:5c:87	1655
+1520	3c:f0:11:17:c1:d6	1531
+1521	A4:C6:9A:8D:5F:5F	1722
+1522	F6:4E:B4:1A:3C:CF	2622
+1523	7c:b7:33:e4:fa:2a	2402
+1524	b4:ee:b4:82:f4:28	2489
+126	e8:4e:06:b0:d1:81	1481
+1525	82:34:94:06:39:ba	2780
+1526	26:86:C4:D6:3D:A5	2689
+1527	90:de:80:4a:10:32	2808
+1528	96:77:0f:51:01:05	2714
+1529	A0:AF:BD:39:8D:E8	2757
+1530	38:00:25:95:6B:EF	2740
+1531	10:02:b5:e5:42:d7	2715
+1532	f8:da:0c:67:1a:a7	2750
+1533	F6:FB:8C:7C:F6:AD	2809
+1534	BC:03:58:2D:F8:25	2706
+1535	28:E3:47:00:91:C1	2767
+1536	38:B1:DB:7B:78:A3	2726
+1537	4C:D5:77:2F:39:0B	1737
+1538	50:E0:85:F8:E3:BE	2802
+1539	F8:28:19:0C:71:A8	2769
+1540	D8:FC:93:1F:E5:0A	2773
+1541	E2:FA:09:5E:BD:90	2738
+1542	c0:d9:62:4d:f6:38	2353
+1543	18:CF:5E:47:28:56	2593
+1544	B4:69:21:4A:C1:A8	2801
+1545	D0:C5:D3:03:08:A3	2758
+1546	b0:35:9f:a0:ac:7b	2247
+1547	e0:9d:31:86:51:3c	2685
+1548	38:8A:06:8F:29:E6	2592
+1549	3C:0A:F3:8B:6D:81	2799
+1550	d4:d8:53:09:dc:ba	2782
+1551	02:14:B9:03:07:F6	2730
+1552	90:CD:B6:5F:00:D1	2693
+1553	24:fd:52:43:62:0e	2269
+1554	E8:B0:C5:14:C3:40	2316
+1555	a4:4e:31:2e:38:00	1878
+1556	3c:a9:f4:62:c1:fc	2336
+1557	30:52:CB:2B:CD:67	2690
+1558	9a:a5:c6:87:41:ae	2365
+1559	c0:d9:62:56:62:10	2263
+1560	94:08:53:54:c7:d3	2710
+1561	00:e0:4d:3d:01:1c	2290
+1562	B8:86:87:ED:B1:5E	2547
+1563	80:A5:89:8B:C2:4B	2586
+1564	CC:D9:AC:D9:A7:56	2720
+1565	f8:da:0c:59:d6:af	2794
+1566	e8:88:43:e4:86:c6	2810
+1567	7A:8B:80:9B:9E:12	2642
+1568	80:19:34:01:80:15	2793
+1569	DC:53:60:81:78:33	2682
+1570	4c:a3:a7:ee:29:4d	2811
+1571	b6:3c:d6:8b:24:e9	2694
+1572	cc:42:10:1f:93:3d	2272
+1573	00:e0:4d:3d:33:0c	2805
+1574	90:0F:0C:B3:0D:11	2812
+1575	cc:f9:e4:6b:29:7e	2784
+1576	C0:B8:83:C3:A5:51	2807
+1577	f8:2D:7C:20:04:B9	1761
+1578	d8:4C:90:1B:28:6E	1640
+1579	e4:aa:ea:44:7c:85	1739
+1580	E4:B3:18:C9:9A:4B	2174
+1581	00:db:df:9b:fd:4d	1663
+1582	BC:54:2F:EB:50:91	2029
+1583	34:F3:9A:9C:F4:BE	1650
+1584	7c:b7:33:e4:e1:7b	1747
+1585	14:13:33:27:cb:c9	1713
+1586	d0:39:57:6d:69:d5	1656
+1587	90:e8:68:3d:e4:1b	1741
+1588	b4:8c:9d:d6:fa:67	1672
+1589	e0:9d:31:8c:43:74	1735
+1590	24:ee:9a:53:b7:09	1677
+1591	60:a5:e2:78:7f:e9	1686
+1592	2c:33:58:5e:6b:63	1767
+1593	C0:BF:BE:73:A8:08	1783
+1594	80:19:34:03:4b:89	1666
+1595	1c:4d:70:ba:27:fa	1782
+1596	54:35:30:56:33:7f	1647
+1597	3C:CD:36:93:ED:FF	2091
+1598	0c:dd:24:01:57:48	1684
+1599	A0:88:69:FC:85:D2	1644
+1600	50:5A:65:D9:81:E6	1776
+1601	10:a5:1d:fa:90:9c	2813
+1602	94:B0:1F:81:94:3C	1653
+1603	14:4f:8a:f4:43:e0	1740
+1604	18:56:80:D8:7C:23	1652
+1605	ac:3e:b1:7e:1e:c7	1729
+1606	7C:B7:33:E4:E4:22	1768
+1607	3c:a0:67:22:fe:d0	1714
+1608	08:6a:c5:7b:d7:5c	2814
+1609	a8:e2:91:0b:c7:9e	1692
+1610	28:c5:d2:6b:21:69	1784
+1611	C0:F4:E6:B1:41:59	1945
+1612	14:2d:27:d4:cb:cb	1701
+1613	cc:15:31:d4:01:84	1738
+1614	1C:CE:51:96:7B:E1	1727
+1615	e0:9d:31:99:05:90	1748
+1616	80:A5:89:84:78:05	1752
+1617	2c:9c:58:2c:c6:eb	1673
+1618	00:FF:15:00:6C:38	1751
+1619	58:00:E3:2F:06:B1	2128
+1620	06:86:8a:e8:82:04	1678
+1621	fc:18:3C:30:14:F5	1681
+1622	e0:9d:31:9b:52:b4	1657
+1623	84:ef:18:a5:93:ee	1689
+1624	c0:e4:34:81:94:89	1632
+1625	cc:47:40:00:28:3a	1711
+1626	88:66:5a:23:74:ec	1721
+1627	94:BB:43:DE:9F:50	1720
+750	28:16:7f:8b:36:04	1841
+1628	B4:70:64:94:EE:C8	1706
+1629	e4:0d:36:e3:95:d1	1753
+931	88:46:04:01:ec:20	1821
+774	64:c7:53:18:c7:e8	1875
+753	88:19:08:0D:12:1D	1799
+1630	B8:3C:28:1A:BD:2D	1668
+1631	94:B8:6D:29:F7:25	1705
+1632	D0:40:EF:81:5D:D5	1712
+1633	7c:5c:f8:82:31:f6	1778
+1634	B8:6B:23:8F:46:7C	1789
+1635	c4:3D:C7:2C:EB:6E	2772
+1636	80:A5:89:84:0B:5B	2698
+1637	48:5A:B6:D3:8E:75	2733
+1638	22:D9:62:56:4B:BC	2815
+1639	dc:e5:5b:13:88:a9	1923
+1640	b8:ea:98:2a:2f:a4	1877
+1641	08:D4:0C:DE:3B:8B	2132
+1642	74:C6:3B:05:8E:1F	2723
+1643	34:E1:2D:52:60:66	2718
+1644	e0:9d:31:86:3d:c0	1866
+1645	f0:6c:5d:c4:e3:66	2359
+1646	98:2c:bc:ae:0d:5d	2358
+1647	b4:ee:b4:82:f4:31	2317
+1648	CC:5E:F8:D1:53:A8	2806
+1649	74:c6:3b:cd:95:91	1667
+1650	5c:87:9c:3b:15:14	1649
+1651	90:A4:DE:5C:31:F8	1769
+1652	e0:9d:31:99:f2:3c	1700
+1653	28:E3:47:07:D9:71	1551
+1654	B8:82:F2:87:B2:CF	1773
+1655	be:1e:1f:6b:8f:2b	2612
+1656	94:bb:43:a0:91:61	2599
+1657	2C:6F:C9:58:02:75	2529
+1658	D2:57:7B:FE:EF:07	2638
+1659	F0:03:8C:76:AA:DB	2640
+1660	f8:da:0c:66:f9:0d	2538
+1661	34:CF:F6:10:79:D0	2614
+1662	A8:41:F4:43:1C:1E	2571
+1663	10:F6:0A:AD:02:78	2563
+1664	98:AF:65:88:9E:7E	2619
+1665	00:E1:8C:43:DF:8C	1645
+1666	D4:D2:52:FC:A1:70	1697
+1667	08:71:90:af:7a:f3	2816
+1668	88:b1:11:27:e7:28	2742
+1669	20:72:0d:39:24:11	2754
+1670	dc:e5:5b:06:94:45	2752
+1671	7C:67:A2:93:0D:8c	2729
+1672	24:FD:52:84:E4:A6	2686
+1673	30:10:b3:22:98:4f	2792
+1674	86:8e:5e:ad:52:71	2763
+1675	38:87:D5:63:B4:E7	2554
+1676	48:fd:a3:09:72:73	2568
+1677	F4:C8:8A:87:1E:00	2696
+1678	44:6D:57:29:B1:E7	2736
+1679	74:e5:43:f0:e7:16	2231
+1680	00:e1:8c:99:d1:ee	1477
+1682	60:b7:6e:53:12:fc	1600
+1683	e0:d0:45:02:e5:f9	1593
+1684	B0:35:9F:01:71:56	1505
+1685	98:43:FA:3C:78:50	1557
+1686	8c:7a:3d:a9:37:fe	1528
+\.
+
+
+--
+-- Data for Name: port; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.port (id, numero_port, id_vlan) FROM stdin;
+\.
+
+
+--
+-- Data for Name: quota; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.quota (id, id_type_user, quota_limite) FROM stdin;
+1	1	52428800
+2	2	52428800
+3	3	52428800
+\.
+
+
+--
+-- Data for Name: quota_machine; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.quota_machine (id, id_machine, quota_consomme, id_quota) FROM stdin;
+1	3272	0	1
+2	3145	0	1
+3	4874	0	1
+4	4295	0	1
+5	4718	0	1
+6	4349	0	1
+7	3370	0	1
+8	5039	0	1
+9	3356	0	1
+10	4776	0	1
+11	3081	0	1
+12	3311	0	1
+13	4987	0	1
+14	4632	0	1
+15	4281	0	1
+16	4029	0	1
+17	3647	0	1
+18	3290	0	1
+19	5031	0	1
+20	3903	0	1
+21	3519	0	1
+22	3095	0	1
+23	3612	0	1
+24	4858	0	1
+25	5001	0	1
+26	3239	0	1
+27	3205	0	1
+28	3204	0	1
+29	3195	0	1
+30	4083	0	1
+31	4321	0	1
+32	4131	0	1
+33	4293	0	1
+34	3140	0	1
+35	4059	0	1
+36	4875	0	1
+37	3312	0	1
+38	4885	0	1
+39	4996	0	1
+40	3358	0	1
+41	3949	0	1
+42	5028	0	1
+43	5084	0	1
+44	5067	0	1
+45	3319	0	1
+46	3079	0	1
+47	3367	0	1
+48	3189	0	1
+49	3310	0	1
+50	4679	0	1
+51	4208	0	1
+52	3895	0	1
+53	4192	0	1
+54	4749	0	1
+55	3230	0	1
+56	4909	0	1
+57	4201	0	1
+58	4650	0	1
+59	4114	0	1
+60	3911	0	1
+61	4722	0	1
+62	4387	0	1
+63	3381	0	1
+64	3351	0	1
+65	4922	0	1
+66	3924	0	1
+67	3142	0	1
+68	4259	0	1
+69	4283	0	1
+70	4994	0	1
+71	4129	0	1
+72	3301	0	1
+73	3254	0	1
+74	4845	0	1
+75	4905	0	1
+76	4170	0	1
+77	4019	0	1
+78	4943	0	1
+79	5080	0	1
+80	4123	0	1
+81	4808	0	1
+82	4818	0	1
+83	4184	0	1
+84	4748	0	1
+85	5069	0	1
+86	4180	0	1
+87	3086	0	1
+88	4634	0	1
+89	4166	0	1
+90	4831	0	1
+91	4096	0	1
+92	5051	0	1
+93	3300	0	1
+94	3326	0	1
+95	3229	0	1
+96	4775	0	1
+97	4013	0	1
+98	4830	0	1
+99	4055	0	1
+100	3560	0	1
+101	4035	0	1
+102	4986	0	1
+103	4667	0	1
+104	3124	0	1
+105	5023	0	1
+106	4157	0	1
+107	5048	0	1
+108	3510	0	1
+109	4658	0	1
+110	3115	0	1
+111	4137	0	1
+112	4910	0	1
+113	3335	0	1
+114	3948	0	1
+115	4297	0	1
+116	4985	0	1
+117	3626	0	1
+118	4709	0	1
+119	3882	0	1
+120	4082	0	1
+121	4936	0	1
+122	4304	0	1
+123	4767	0	1
+124	4089	0	1
+125	3966	0	1
+126	4997	0	1
+127	4279	0	1
+128	3608	0	1
+129	4270	0	1
+130	3533	0	1
+131	3892	0	1
+132	3157	0	1
+133	3191	0	1
+134	4280	0	1
+135	3973	0	1
+136	3541	0	1
+137	3606	0	1
+138	3342	0	1
+139	4678	0	1
+140	3190	0	1
+141	5007	0	1
+142	4728	0	1
+143	4145	0	1
+144	4725	0	1
+145	4360	0	1
+146	4828	0	1
+147	4310	0	1
+148	4155	0	1
+149	4912	0	1
+150	5078	0	1
+151	4738	0	1
+152	4146	0	1
+153	3581	0	1
+154	4547	0	1
+155	3598	0	1
+156	4692	0	1
+157	4809	0	1
+158	4980	0	1
+159	3926	0	1
+160	3371	0	1
+161	4965	0	1
+162	4264	0	1
+163	4991	0	1
+164	4880	0	1
+165	5050	0	1
+166	3384	0	1
+167	3132	0	1
+168	5070	0	1
+169	3118	0	1
+170	4786	0	1
+171	4324	0	1
+172	4686	0	1
+173	3193	0	1
+174	4925	0	1
+175	4802	0	1
+176	3082	0	1
+177	4175	0	1
+178	4359	0	1
+179	4189	0	1
+180	4934	0	1
+181	5035	0	1
+182	3838	0	1
+183	5019	0	1
+184	3209	0	1
+185	4753	0	1
+186	5041	0	1
+187	4819	0	1
+188	3232	0	1
+189	4330	0	1
+190	4174	0	1
+191	3203	0	1
+192	3955	0	1
+193	3959	0	1
+194	4312	0	1
+195	5062	0	1
+197	3273	0	1
+198	3912	0	1
+199	4353	0	1
+200	3364	0	1
+201	3117	0	1
+202	4647	0	1
+203	3556	0	1
+204	4781	0	1
+205	4173	0	1
+206	4311	0	1
+207	4242	0	1
+208	4086	0	1
+209	4868	0	1
+210	3201	0	1
+211	4750	0	1
+212	4829	0	1
+213	4768	0	1
+214	5057	0	1
+215	3171	0	1
+216	3200	0	1
+217	3085	0	1
+218	4837	0	1
+219	3285	0	1
+220	3517	0	1
+221	4981	0	1
+222	3379	0	1
+223	3521	0	1
+224	3120	0	1
+225	3340	0	1
+226	4128	0	1
+227	4761	0	1
+228	3155	0	1
+229	3249	0	1
+230	3277	0	1
+231	3339	0	1
+232	3146	0	1
+233	2719	0	1
+234	3218	0	1
+235	4801	0	1
+236	4764	0	1
+237	3572	0	1
+238	4300	0	1
+239	3530	0	1
+240	4635	0	1
+241	3103	0	1
+242	4959	0	1
+243	4982	0	1
+244	4893	0	1
+245	3910	0	1
+246	4833	0	1
+247	3900	0	1
+248	3373	0	1
+249	3192	0	1
+250	4256	0	1
+251	3777	0	1
+252	4675	0	1
+253	4939	0	1
+254	3653	0	1
+255	5006	0	1
+256	3502	0	1
+257	4362	0	1
+258	4861	0	1
+259	4176	0	1
+260	4027	0	1
+261	3637	0	1
+262	4248	0	1
+263	4876	0	1
+264	3078	0	1
+265	4016	0	1
+266	3915	0	1
+267	3162	0	1
+268	4648	0	1
+269	3122	0	1
+270	4832	0	1
+271	4836	0	1
+272	3928	0	1
+273	4821	0	1
+274	5026	0	1
+275	4854	0	1
+276	5043	0	1
+277	3173	0	1
+278	3102	0	1
+279	4075	0	1
+280	5002	0	1
+281	4813	0	1
+282	3252	0	1
+283	4894	0	1
+284	4117	0	1
+285	3933	0	1
+286	4241	0	1
+287	4663	0	1
+288	4274	0	1
+289	4054	0	1
+290	4799	0	1
+291	3596	0	1
+292	4788	0	1
+293	3225	0	1
+294	4963	0	1
+295	3678	0	1
+296	3929	0	1
+297	4740	0	1
+298	4887	0	1
+299	3661	0	1
+300	4643	0	1
+301	3365	0	1
+302	4318	0	1
+303	4668	0	1
+304	3526	0	1
+305	3276	0	1
+306	4974	0	1
+307	3927	0	1
+308	5063	0	1
+309	4795	0	1
+310	4390	0	1
+311	4235	0	1
+312	4901	0	1
+313	4341	0	1
+314	4846	0	1
+315	3293	0	1
+316	4041	0	1
+317	4863	0	1
+318	3284	0	1
+319	4385	0	1
+320	4138	0	1
+321	4911	0	1
+322	4090	0	1
+323	3551	0	1
+324	4672	0	1
+325	3348	0	1
+326	3349	0	1
+327	3172	0	1
+328	4178	0	1
+330	3576	0	1
+331	3577	0	1
+332	4232	0	1
+333	3185	0	1
+334	3321	0	1
+335	4972	0	1
+336	4332	0	1
+337	3881	0	1
+338	3329	0	1
+339	3198	0	1
+340	3943	0	1
+341	5055	0	1
+342	3557	0	1
+343	3520	0	1
+344	4307	0	1
+345	3970	0	1
+346	4378	0	1
+347	3597	0	1
+348	3888	0	1
+349	4656	0	1
+350	3334	0	1
+351	4231	0	1
+352	3798	0	1
+353	4727	0	1
+354	4025	0	1
+355	4080	0	1
+356	4956	0	1
+357	3324	0	1
+358	4840	0	1
+359	4336	0	1
+360	4696	0	1
+361	4654	0	1
+362	3144	0	1
+363	3969	0	1
+364	4670	0	1
+365	3175	0	1
+366	3372	0	1
+367	4286	0	1
+368	3210	0	1
+369	4823	0	1
+370	3950	0	1
+371	4044	0	1
+372	4374	0	1
+373	4777	0	1
+374	3256	0	1
+375	4363	0	1
+376	3222	0	1
+377	3993	0	1
+378	4111	0	1
+379	4646	0	1
+380	3891	0	1
+381	4732	0	1
+382	4687	0	1
+383	3211	0	1
+384	4269	0	1
+385	4824	0	1
+386	3250	0	1
+387	4763	0	1
+388	4791	0	1
+389	3291	0	1
+390	3923	0	1
+391	4195	0	1
+392	4884	0	1
+393	4825	0	1
+394	4998	0	1
+395	4760	0	1
+396	4930	0	1
+397	3549	0	1
+398	3631	0	1
+399	4322	0	1
+400	3183	0	1
+401	4942	0	1
+402	4136	0	1
+403	4021	0	1
+404	4872	0	1
+405	5018	0	1
+406	4770	0	1
+407	3174	0	1
+408	4915	0	1
+409	3212	0	1
+410	3119	0	1
+411	3580	0	1
+412	4729	0	1
+413	3889	0	1
+414	3613	0	1
+415	3151	0	1
+416	4017	0	1
+417	4842	0	1
+418	4774	0	1
+419	4627	0	1
+420	4920	0	1
+421	4771	0	1
+422	4940	0	1
+423	4151	0	1
+424	4373	0	1
+425	5085	0	1
+426	4164	0	1
+427	3378	0	1
+428	3315	0	1
+429	4850	0	1
+430	3113	0	1
+431	3188	0	1
+432	3361	0	1
+433	4848	0	1
+434	5109	0	1
+435	4216	0	1
+436	3221	0	1
+437	4944	0	1
+438	3298	0	1
+439	3877	0	1
+440	3932	0	1
+441	4183	0	1
+442	3636	0	1
+443	3568	0	1
+444	4344	0	1
+445	3563	0	1
+446	5087	0	1
+447	3127	0	1
+448	3265	0	1
+449	4859	0	1
+450	3972	0	1
+451	4744	0	1
+452	3105	0	1
+453	3214	0	1
+454	4873	0	1
+455	3618	0	1
+456	4789	0	1
+457	4078	0	1
+458	3208	0	1
+459	4908	0	1
+460	4034	0	1
+461	4746	0	1
+462	4039	0	1
+463	4326	0	1
+464	4267	0	1
+465	3583	0	1
+466	5045	0	1
+467	3651	0	1
+468	3134	0	1
+469	5059	0	1
+470	4661	0	1
+471	4101	0	1
+472	4108	0	1
+473	4040	0	1
+474	3206	0	1
+475	4645	0	1
+476	4240	0	1
+477	3960	0	1
+478	4356	0	1
+479	4717	0	1
+480	4706	0	1
+481	4867	0	1
+482	3246	0	1
+483	3187	0	1
+485	4962	0	1
+486	3506	0	1
+487	5071	0	1
+488	4277	0	1
+489	1988	0	1
+490	4276	0	1
+491	4755	0	1
+492	3197	0	1
+493	4608	0	1
+494	3245	0	1
+495	3518	0	1
+496	3667	0	1
+497	3331	0	1
+498	3543	0	1
+499	4051	0	1
+500	4715	0	1
+501	4152	0	1
+502	4177	0	1
+503	4734	0	1
+504	3281	0	1
+505	4897	0	1
+506	3090	0	1
+507	4629	0	1
+508	3954	0	1
+509	3238	0	1
+510	3951	0	1
+511	4278	0	1
+512	4168	0	1
+513	4941	0	1
+514	3916	0	1
+515	4710	0	1
+516	3114	0	1
+517	4886	0	1
+518	4856	0	1
+519	4889	0	1
+520	3299	0	1
+521	4067	0	1
+522	3935	0	1
+523	3514	0	1
+524	3099	0	1
+525	4694	0	1
+526	3168	0	1
+527	4773	0	1
+528	4094	0	1
+529	3366	0	1
+530	4879	0	1
+531	3389	0	1
+532	4085	0	1
+533	3571	0	1
+534	3936	0	1
+535	3368	0	1
+536	4287	0	1
+537	3958	0	1
+538	4093	0	1
+539	4200	0	1
+540	3178	0	1
+541	4891	0	1
+542	4807	0	1
+543	4255	0	1
+544	4990	0	1
+545	4676	0	1
+546	4193	0	1
+547	4731	0	1
+548	3141	0	1
+549	3207	0	1
+550	5014	0	1
+551	4862	0	1
+553	4102	0	1
+554	4866	0	1
+555	4092	0	1
+556	4904	0	1
+557	3638	0	1
+558	4927	0	1
+559	5108	0	1
+560	3125	0	1
+561	4384	0	1
+562	3383	0	1
+563	4841	0	1
+564	3354	0	1
+565	4364	0	1
+566	3644	0	1
+567	4916	0	1
+568	4735	0	1
+569	4098	0	1
+570	4743	0	1
+571	4721	0	1
+572	3154	0	1
+573	3244	0	1
+574	2491	0	1
+575	3640	0	1
+576	5060	0	1
+577	4185	0	1
+578	4810	0	1
+579	4079	0	1
+580	4379	0	1
+581	4881	0	1
+582	4179	0	1
+583	4736	0	1
+584	4682	0	1
+585	4037	0	1
+586	4171	0	1
+587	3159	0	1
+588	4628	0	1
+589	4651	0	1
+590	4630	0	1
+591	4890	0	1
+592	3600	0	1
+593	4100	0	1
+594	4929	0	1
+595	4139	0	1
+596	4339	0	1
+597	3515	0	1
+598	5083	0	1
+599	3104	0	1
+600	4695	0	1
+601	3350	0	1
+602	3883	0	1
+603	5004	0	1
+604	4069	0	1
+605	4892	0	1
+606	3303	0	1
+607	4395	0	1
+608	3964	0	1
+609	4790	0	1
+610	5042	0	1
+611	3363	0	1
+612	4659	0	1
+613	3088	0	1
+614	4902	0	1
+615	3247	0	1
+616	3147	0	1
+617	5011	0	1
+618	5013	0	1
+619	4225	0	1
+620	4026	0	1
+621	3579	0	1
+622	4666	0	1
+623	4302	0	1
+624	4141	0	1
+625	4816	0	1
+626	3632	0	1
+627	4838	0	1
+628	4669	0	1
+629	4680	0	1
+630	3241	0	1
+631	4700	0	1
+632	3946	0	1
+633	5008	0	1
+634	4968	0	1
+635	3919	0	1
+636	5072	0	1
+637	4814	0	1
+638	3938	0	1
+639	4631	0	1
+640	4110	0	1
+641	5024	0	1
+642	3330	0	1
+643	3588	0	1
+644	4071	0	1
+645	4714	0	1
+646	4691	0	1
+647	4683	0	1
+648	4199	0	1
+649	4124	0	1
+650	4194	0	1
+651	4664	0	1
+652	4784	0	1
+653	4851	0	1
+654	3149	0	1
+655	4933	0	1
+656	4140	0	1
+657	4995	0	1
+658	3905	0	1
+659	3861	0	1
+660	4095	0	1
+661	4766	0	1
+662	3109	0	1
+663	3337	0	1
+664	4143	0	1
+665	3341	0	1
+666	3158	0	1
+667	5111	0	1
+668	3658	0	1
+669	4626	0	1
+670	5076	0	1
+671	3231	0	1
+672	3258	0	1
+673	3123	0	1
+674	5029	0	1
+675	3890	0	1
+676	5005	0	1
+677	4783	0	1
+678	3593	0	1
+679	3235	0	1
+680	4190	0	1
+681	4033	0	1
+682	4091	0	1
+683	4320	0	1
+684	3269	0	1
+685	3087	0	1
+686	5021	0	1
+687	4852	0	1
+688	3886	0	1
+689	3220	0	1
+690	4733	0	1
+691	5044	0	1
+692	3224	0	1
+693	5054	0	1
+694	4769	0	1
+695	4188	0	1
+696	4805	0	1
+697	4900	0	1
+698	3639	0	1
+699	3338	0	1
+700	4970	0	1
+701	3511	0	1
+702	3107	0	1
+703	3251	0	1
+704	3227	0	1
+705	3234	0	1
+706	4752	0	1
+707	3885	0	1
+708	4860	0	1
+709	4747	0	1
+710	5009	0	1
+711	4957	0	1
+712	4119	0	1
+713	4182	0	1
+714	3289	0	1
+715	3112	0	1
+716	3297	0	1
+717	3110	0	1
+718	4153	0	1
+719	4720	0	1
+720	4386	0	1
+721	1944	0	1
+722	5056	0	1
+723	4169	0	1
+724	3820	0	1
+725	3362	0	1
+726	4106	0	1
+727	3176	0	1
+728	4785	0	1
+729	4158	0	1
+730	4870	0	1
+731	4898	0	1
+732	3375	0	1
+733	5017	0	1
+734	4252	0	1
+735	4758	0	1
+736	4988	0	1
+737	3133	0	1
+738	3901	0	1
+739	4932	0	1
+740	3566	0	1
+741	4883	0	1
+742	4977	0	1
+743	3126	0	1
+744	4704	0	1
+745	4723	0	1
+746	4061	0	1
+747	3106	0	1
+748	4351	0	1
+749	4978	0	1
+750	4230	0	1
+751	4703	0	1
+752	4961	0	1
+753	3084	0	1
+754	5033	0	1
+755	4011	0	1
+756	3156	0	1
+757	5081	0	1
+758	5025	0	1
+759	3508	0	1
+760	3388	0	1
+761	3260	0	1
+762	3093	0	1
+763	4759	0	1
+764	4653	0	1
+765	4244	0	1
+766	4132	0	1
+767	4966	0	1
+768	4160	0	1
+769	4042	0	1
+770	4254	0	1
+771	4779	0	1
+772	3992	0	1
+773	4215	0	1
+774	4366	0	1
+775	3614	0	1
+776	4803	0	1
+777	4917	0	1
+778	5073	0	1
+779	4793	0	1
+780	4058	0	1
+781	3369	0	1
+782	3944	0	1
+783	4955	0	1
+784	3623	0	1
+785	3880	0	1
+786	3930	0	1
+787	4690	0	1
+788	4847	0	1
+789	4213	0	1
+790	4919	0	1
+791	4074	0	1
+792	4989	0	1
+793	3263	0	1
+794	4289	0	1
+795	3343	0	1
+796	4812	0	1
+797	3097	0	1
+798	4660	0	1
+799	4948	0	1
+800	1968	0	1
+801	3139	0	1
+802	3163	0	1
+803	3654	0	1
+804	3554	0	1
+805	4953	0	1
+806	4798	0	1
+807	4973	0	1
+808	4317	0	1
+809	3392	0	1
+810	4167	0	1
+811	4068	0	1
+812	4394	0	1
+813	5106	0	1
+814	4120	0	1
+815	4257	0	1
+816	3313	0	1
+817	5075	0	1
+818	5061	0	1
+819	3501	0	1
+820	3939	0	1
+821	4895	0	1
+822	3305	0	1
+823	3268	0	1
+824	5068	0	1
+825	4741	0	1
+826	3160	0	1
+827	4333	0	1
+828	3641	0	1
+829	3922	0	1
+830	4796	0	1
+831	5077	0	1
+832	5036	0	1
+833	5000	0	1
+834	3893	0	1
+835	4135	0	1
+836	3129	0	1
+837	4705	0	1
+838	3567	0	1
+839	3967	0	1
+840	3615	0	1
+841	3306	0	1
+842	4209	0	1
+843	3233	0	1
+844	4018	0	1
+845	4196	0	1
+846	3332	0	1
+847	3181	0	1
+848	4197	0	1
+849	2804	0	1
+850	3902	0	1
+851	3152	0	1
+852	4546	0	1
+853	4144	0	1
+854	4015	0	1
+855	3101	0	1
+856	4590	0	1
+857	4674	0	1
+858	3386	0	1
+859	4036	0	1
+860	4708	0	1
+861	4762	0	1
+862	4045	0	1
+863	4815	0	1
+864	3131	0	1
+865	4121	0	1
+866	3390	0	1
+867	4587	0	1
+868	4971	0	1
+869	4688	0	1
+870	3962	0	1
+871	4665	0	1
+872	3314	0	1
+873	4772	0	1
+874	4951	0	1
+875	4869	0	1
+876	3255	0	1
+877	3271	0	1
+878	4871	0	1
+879	3248	0	1
+880	4372	0	1
+881	3346	0	1
+882	4038	0	1
+883	4711	0	1
+884	4701	0	1
+885	3610	0	1
+886	4433	0	1
+887	3360	0	1
+888	4526	0	1
+889	4737	0	1
+890	4844	0	1
+891	4052	0	1
+892	3657	0	1
+893	4662	0	1
+894	4214	0	1
+895	4896	0	1
+896	4697	0	1
+897	4754	0	1
+898	4817	0	1
+899	4331	0	1
+900	3186	0	1
+901	3309	0	1
+902	4745	0	1
+903	3059	0	1
+904	4800	0	1
+905	3098	0	1
+906	3620	0	1
+907	3180	0	1
+908	3184	0	1
+909	4060	0	1
+910	3344	0	1
+911	4756	0	1
+912	3660	0	1
+913	4236	0	1
+914	4797	0	1
+915	4751	0	1
+916	3336	0	1
+917	3295	0	1
+918	3540	0	1
+919	4127	0	1
+920	4217	0	1
+921	4288	0	1
+922	4716	0	1
+923	3327	0	1
+924	5047	0	1
+925	4983	0	1
+926	4820	0	1
+927	3111	0	1
+928	4792	0	1
+929	4352	0	1
+930	3317	0	1
+931	4671	0	1
+932	4391	0	1
+933	5016	0	1
+934	4154	0	1
+935	4223	0	1
+936	4338	0	1
+937	4822	0	1
+938	4913	0	1
+939	4104	0	1
+940	3353	0	1
+941	4707	0	1
+942	4726	0	1
+943	4203	0	1
+944	4282	0	1
+945	4159	0	1
+946	3377	0	1
+947	3940	0	1
+948	4877	0	1
+949	4030	0	1
+950	3080	0	1
+951	4924	0	1
+952	3294	0	1
+953	3137	0	1
+954	4947	0	1
+955	4945	0	1
+956	3917	0	1
+957	4713	0	1
+958	4246	0	1
+959	3347	0	1
+960	3150	0	1
+961	4172	0	1
+962	4218	0	1
+963	4126	0	1
+964	4148	0	1
+965	3287	0	1
+966	4954	0	1
+967	5037	0	1
+968	3100	0	1
+969	3286	0	1
+970	4147	0	1
+971	4864	0	1
+972	4843	0	1
+973	4130	0	1
+974	3213	0	1
+975	3165	0	1
+976	3215	0	1
+977	4724	0	1
+978	4328	0	1
+979	3216	0	1
+980	4698	0	1
+981	4284	0	1
+982	4926	0	1
+983	5022	0	1
+984	4878	0	1
+985	4361	0	1
+986	4719	0	1
+987	4742	0	1
+988	4673	0	1
+989	3558	0	1
+990	3547	0	1
+991	4072	0	1
+992	4633	0	1
+993	4115	0	1
+994	3083	0	1
+995	3240	0	1
+996	4693	0	1
+997	4950	0	1
+998	4906	0	1
+999	3896	0	1
+1000	4699	0	1
+1001	3280	0	1
+1002	2530	0	1
+1003	4655	0	1
+1004	3913	0	1
+1005	3264	0	1
+1006	4964	0	1
+1007	5074	0	1
+1008	4109	0	1
+1009	5112	0	1
+1010	3166	0	1
+1011	3243	0	1
+1012	3199	0	1
+1013	4835	0	1
+1014	3659	0	1
+1015	4357	0	1
+1016	4975	0	1
+1017	3177	0	1
+1018	4161	0	1
+1019	4220	0	1
+1020	3994	0	1
+1021	3918	0	1
+1022	3167	0	1
+1023	4285	0	1
+1024	5027	0	1
+1025	4958	0	1
+1026	4239	0	1
+1027	4370	0	1
+1028	5020	0	1
+1029	4918	0	1
+1030	3275	0	1
+1031	4949	0	1
+1032	5110	0	1
+1033	2647	0	1
+1034	4156	0	1
+1035	3345	0	1
+1036	4365	0	1
+1037	3952	0	1
+1038	4914	0	1
+1039	5010	0	1
+1040	4309	0	1
+1041	3385	0	1
+1042	3328	0	1
+1043	5079	0	1
+1044	3108	0	1
+1045	4346	0	1
+329	3920	53947	1
+196	5127	52428798	1
+\.
+
+
+--
+-- Data for Name: salle; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.salle (id, salle) FROM stdin;
+\.
+
+
+--
+-- Data for Name: salle_vlan; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.salle_vlan (id_salle, id_vlan, limit_debit, limit_nb_machine, limit_bande_passante) FROM stdin;
+\.
+
+
+--
+-- Data for Name: type_user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.type_user (id, type_user) FROM stdin;
+1	etudiant
+2	special
+3	Admin
+\.
+
+
+--
+-- Data for Name: vlan; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.vlan (id, vlan, ip) FROM stdin;
+\.
+
+
+--
+-- Name: etudiants_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.etudiants_id_seq', 2816, true);
+
+
+--
+-- Name: machine_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.machine_id_seq', 8, true);
+
+
+--
+-- Name: macs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.macs_id_seq', 1686, true);
+
+
+--
+-- Name: quota_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.quota_id_seq', 3, true);
+
+
+--
+-- Name: quota_machine_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.quota_machine_id_seq', 1045, true);
+
+
+--
+-- Name: etudiants etudiants_etu_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etudiants
+    ADD CONSTRAINT etudiants_etu_key UNIQUE (etu);
+
+
+--
+-- Name: etudiants etudiants_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etudiants
+    ADD CONSTRAINT etudiants_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: machine machine_mac_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.machine
+    ADD CONSTRAINT machine_mac_key UNIQUE (mac);
+
+
+--
+-- Name: machine machine_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.machine
+    ADD CONSTRAINT machine_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: macs macs_mac_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.macs
+    ADD CONSTRAINT macs_mac_key UNIQUE (mac);
+
+
+--
+-- Name: macs macs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.macs
+    ADD CONSTRAINT macs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: port port_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.port
+    ADD CONSTRAINT port_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: quota_machine quota_machine_id_machine_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota_machine
+    ADD CONSTRAINT quota_machine_id_machine_key UNIQUE (id_machine);
+
+
+--
+-- Name: quota_machine quota_machine_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota_machine
+    ADD CONSTRAINT quota_machine_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: quota quota_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota
+    ADD CONSTRAINT quota_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: salle salle_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.salle
+    ADD CONSTRAINT salle_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: salle_vlan salle_vlan_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.salle_vlan
+    ADD CONSTRAINT salle_vlan_pkey PRIMARY KEY (id_salle, id_vlan);
+
+
+--
+-- Name: type_user type_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_user
+    ADD CONSTRAINT type_user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: vlan vlan_ip_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vlan
+    ADD CONSTRAINT vlan_ip_key UNIQUE (ip);
+
+
+--
+-- Name: vlan vlan_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vlan
+    ADD CONSTRAINT vlan_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: vlan vlan_vlan_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.vlan
+    ADD CONSTRAINT vlan_vlan_key UNIQUE (vlan);
+
+
+--
+-- Name: quota_machine fk_quota_machine_machine; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota_machine
+    ADD CONSTRAINT fk_quota_machine_machine FOREIGN KEY (id_machine) REFERENCES public.machine(id) ON DELETE CASCADE;
+
+
+--
+-- Name: quota_machine fk_quota_machine_quota; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota_machine
+    ADD CONSTRAINT fk_quota_machine_quota FOREIGN KEY (id_quota) REFERENCES public.quota(id) ON DELETE CASCADE;
+
+
+--
+-- Name: quota fk_quota_type_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.quota
+    ADD CONSTRAINT fk_quota_type_user FOREIGN KEY (id_type_user) REFERENCES public.type_user(id) ON DELETE CASCADE;
+
+
+--
+-- Name: machine machine_type_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.machine
+    ADD CONSTRAINT machine_type_user_fkey FOREIGN KEY (type_user) REFERENCES public.type_user(id);
+
+
+--
+-- Name: macs macs_id_etudiant_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.macs
+    ADD CONSTRAINT macs_id_etudiant_fkey FOREIGN KEY (id_etudiant) REFERENCES public.etudiants(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict PfHRhS1zGl80HrKYbbu5COJa76QfoHbEn3j0cUZJhVhbBZzif5USfo6KH1Iytch
+

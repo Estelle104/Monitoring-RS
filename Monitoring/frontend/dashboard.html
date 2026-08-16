@@ -1,0 +1,610 @@
+<div class="px-6 py-8 dashboard-page">
+
+  <!-- Page Header -->
+  <div class="mb-10 flex items-end justify-between">
+    <div>
+
+      <h1 class="text-4xl font-bold dark:text-white mb-1"
+        style="font-family:'Space Grotesk',sans-serif; letter-spacing:-0.03em;">Bienvenue sur RohySafe</h1>
+      <p class="text-xs font-bold uppercase tracking-widest mb-2"
+        style="color:var(--chartreuse); letter-spacing:0.18em;"></p>
+      <p class="text-sm" style="color:var(--text-muted)">Monitoring et gestion du réseau en temps réel</p>
+    </div>
+    <div class="flex items-center gap-3">
+
+      <div class="flex items-center gap-2 px-4 py-2 rounded-lg" onclick="updateTableQuota()"
+        style="background:rgba(202,244,56,0.07); border:1px solid var(--border);">
+        <button>
+          <span class="w-2 h-2 rounded-full animate-pulse"
+            style="background:var(--chartreuse); box-shadow:0 0 6px var(--chartreuse);"></span>
+          <span class="text-xs font-semibold" style="color:var(--chartreuse);">Update table quota</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 px-4 py-2 rounded-lg" onclick="resetAllQuotas()"
+        style="background:rgba(202,244,56,0.07); border:1px solid var(--border);">
+        <button>
+          <span class="w-2 h-2 rounded-full animate-pulse"
+            style="background:var(--chartreuse); box-shadow:0 0 6px var(--chartreuse);"></span>
+          <span class="text-xs font-semibold" style="color:var(--chartreuse);">Réinitialiser quota</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-2 px-4 py-2 rounded-lg"
+        style="background:rgba(202,244,56,0.07); border:1px solid var(--border);">
+        <span class="w-2 h-2 rounded-full animate-pulse"
+          style="background:var(--chartreuse); box-shadow:0 0 6px var(--chartreuse);"></span>
+        <span class="text-xs font-semibold" style="color:var(--chartreuse);">Système actif</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-5">
+
+    <!-- Bandwidth Chart (wider) -->
+    <div class="lg:col-span-3 rounded-xl p-6" style="background:rgba(60,79,46,0.22); border:1px solid var(--border);">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-base font-bold dark:text-white" style="font-family:'Space Grotesk',sans-serif;">Bande Passante
+          </h2>
+          <p class="text-xs" style="color:var(--text-muted)">Dernières 24 heures</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm" style="background:#7efb5c;"></span>
+            <span class="text-xs" style="color:var(--text-muted)">Upload</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm" style="background:#CAF438;"></span>
+            <span class="text-xs" style="color:var(--text-muted)">Download</span>
+          </div>
+        </div>
+      </div>
+      <div style="height:220px; position:relative; width:100%;">
+        <canvas id="bandwidthChart" style="display:block;"></canvas>
+      </div>
+    </div>
+
+    <!-- Network Status -->
+    <div class="lg:col-span-2 rounded-xl p-6" style="background:rgba(60,79,46,0.22); border:1px solid var(--border);">
+      <div class="mb-6">
+        <h2 class="text-base font-bold dark:text-white" style="font-family:'Space Grotesk',sans-serif;">État du Réseau
+        </h2>
+        <p class="text-xs" style="color:var(--text-muted)">Infrastructure principale</p>
+      </div>
+      <div class="space-y-5">
+
+        <div class="network-item">
+          <div class="flex justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full"
+                style="background:var(--chartreuse); box-shadow:0 0 5px var(--chartreuse);"></span>
+              <p class="text-sm font-medium" style="color:var(--text)">Serveur Principal</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style="color:var(--ink); background:var(--chartreuse); letter-spacing:0.05em;">EN LIGNE</span>
+          </div>
+          <div class="w-full rounded-full h-1" style="background:rgba(202,244,56,0.12);">
+            <div class="h-1 rounded-full"
+              style="width:100%; background:linear-gradient(90deg,var(--chartreuse),var(--green));"></div>
+          </div>
+          <p class="text-[10px] mt-1 text-right" style="color:var(--text-muted);">100% uptime</p>
+        </div>
+
+        <div class="network-item">
+          <div class="flex justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full"
+                style="background:var(--chartreuse); box-shadow:0 0 5px var(--chartreuse);"></span>
+              <p class="text-sm font-medium" style="color:var(--text)">Routeur Principal</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style="color:var(--ink); background:var(--chartreuse); letter-spacing:0.05em;">EN LIGNE</span>
+          </div>
+          <div class="w-full rounded-full h-1" style="background:rgba(202,244,56,0.12);">
+            <div class="h-1 rounded-full"
+              style="width:95%; background:linear-gradient(90deg,var(--chartreuse),var(--green));"></div>
+          </div>
+          <p class="text-[10px] mt-1 text-right" style="color:var(--text-muted);">95% uptime</p>
+        </div>
+
+        <div class="network-item">
+          <div class="flex justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full animate-pulse"
+                style="background:#f59e0b; box-shadow:0 0 5px #f59e0b;"></span>
+              <p class="text-sm font-medium" style="color:var(--text)">Switch Réseau</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style="color:#fff; background:#ef4444; letter-spacing:0.05em;">ALERTE</span>
+          </div>
+          <div class="w-full rounded-full h-1" style="background:rgba(239,68,68,0.12);">
+            <div class="h-1 rounded-full" style="width:70%; background:linear-gradient(90deg,#f59e0b,#ef4444);"></div>
+          </div>
+          <p class="text-[10px] mt-1 text-right" style="color:#f59e0b;">70% — dégradé</p>
+        </div>
+
+        <div class="network-item">
+          <div class="flex justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full"
+                style="background:var(--chartreuse); box-shadow:0 0 5px var(--chartreuse);"></span>
+              <p class="text-sm font-medium" style="color:var(--text)">Firewall</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style="color:var(--ink); background:var(--chartreuse); letter-spacing:0.05em;">EN LIGNE</span>
+          </div>
+          <div class="w-full rounded-full h-1" style="background:rgba(202,244,56,0.12);">
+            <div class="h-1 rounded-full"
+              style="width:100%; background:linear-gradient(90deg,var(--chartreuse),var(--green));"></div>
+          </div>
+          <p class="text-[10px] mt-1 text-right" style="color:var(--text-muted);">100% uptime</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bandwidth Variation Chart -->
+  <div class="rounded-xl p-6 mb-5" style="background:rgba(60,79,46,0.22); border:1px solid var(--border);">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-base font-bold dark:text-white" style="font-family:'Space Grotesk',sans-serif;">Variation de la
+          Bande Passante par interface</h2>
+        <p class="text-xs" style="color:var(--text-muted)">Mise à jour en temps réel pour `enp7s0` et `enp4s0` -
+          affichage direct en Mbps</p>
+      </div>
+      <div class="flex items-center gap-5">
+        <div class="text-right">
+          <p class="text-xs" style="color:var(--text-muted)">Débit actuel</p>
+          <p class="text-sm font-bold" style="color:var(--chartreuse); font-family:'Space Grotesk',sans-serif;"
+            id="bw-current">—</p>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+          style="background:rgba(202,244,56,0.07); border:1px solid var(--border);">
+          <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:var(--chartreuse);"></span>
+          <span class="text-xs font-semibold" style="color:var(--chartreuse);">Live</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex items-center gap-6 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-0.5 rounded" style="background:#f43838;"></div>
+        <span class="text-xs" style="color:var(--text-muted)">enp7s0</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-0.5 rounded" style="background:#7efb5c;"></div>
+        <span class="text-xs" style="color:var(--text-m7ted)">enp4s0</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-px rounded" style="background:rgba(239,68,68,0.6); border-top: 1px dashed #ef4444;"></div>
+        <span class="text-xs" style="color:var(--text-muted)">Seuil critique (800 Mbps)</span>
+      </div>
+    </div>
+
+    <div style="height:350px; position:relative; width:100%;">
+      <canvas id="variationChart" style="display:block;"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="rounded-xl p-6" style="background:rgba(60,79,46,0.22); border:1px solid var(--border);">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-base font-bold dark:text-white" style="font-family:'Space Grotesk',sans-serif;">Activité Récente
+        </h2>
+        <p class="text-xs" style="color:var(--text-muted)">Derniers événements système</p>
+      </div>
+      <button class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+        style="color:var(--chartreuse); border:1px solid rgba(202,244,56,0.2); background:rgba(202,244,56,0.05);">Voir
+        tout</button>
+    </div>
+
+    <div class="space-y-0">
+
+      <div class="flex items-center gap-4 py-3.5" style="border-bottom:1px solid var(--border);">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+          style="background:rgba(202,244,56,0.1);">
+          <span class="material-icons-outlined text-lg" style="color:var(--chartreuse)">check_circle</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium dark:text-white">Nouvelle salle ajoutée</p>
+          <p class="text-xs" style="color:var(--text-muted)">Salle B-204 — Réseau configuré avec succès</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <span class="text-xs px-2 py-1 rounded-full"
+            style="background:rgba(202,244,56,0.1); color:var(--chartreuse);">Succès</span>
+          <p class="text-xs mt-1" style="color:var(--text-muted)">Il y a 2h</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 py-3.5" style="border-bottom:1px solid var(--border);">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+          style="background:rgba(239,68,68,0.1);">
+          <span class="material-icons-outlined text-lg" style="color:#ef4444">error</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium dark:text-white">Alerte: Bande passante élevée détectée</p>
+          <p class="text-xs" style="color:var(--text-muted)">Switch Réseau — Dépassement seuil 80%</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <span class="text-xs px-2 py-1 rounded-full"
+            style="background:rgba(239,68,68,0.1); color:#ef4444;">Critique</span>
+          <p class="text-xs mt-1" style="color:var(--text-muted)">Il y a 4h</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 py-3.5">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+          style="background:rgba(232,245,226,0.06);">
+          <span class="material-icons-outlined text-lg" style="color:var(--text-muted)">info</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium dark:text-white">Appareil connecté au réseau</p>
+          <p class="text-xs" style="color:var(--text-muted)">IP 192.168.1.47 — VLAN-12</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <span class="text-xs px-2 py-1 rounded-full"
+            style="background:rgba(232,245,226,0.07); color:var(--text-muted);">Info</span>
+          <p class="text-xs mt-1" style="color:var(--text-muted)">Il y a 6h</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+  rel="stylesheet" />
+<script>
+  function loadChartJS(cb) {
+    if (window.Chart) { cb(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    s.onload = cb;
+    document.head.appendChild(s);
+  }
+
+  function initDashboard() {
+    // Hover effect on stat cards
+    document.querySelectorAll('.stat-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-3px)';
+        card.style.boxShadow = '0 8px 30px rgba(0,0,0,0.3)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.style.boxShadow = '';
+      });
+    });
+
+    // Load active salles count
+    async function loadActiveSalles() {
+      try {
+        const response = await fetch('http://localhost:8000/api/salles');
+        const result = await response.json();
+        if (result.status === 'ok' && result.data) {
+          document.getElementById('activeSalles').textContent = result.data.length;
+        }
+      } catch (error) {
+        document.getElementById('activeSalles').textContent = '9';
+      }
+    }
+    loadActiveSalles();
+
+    // ── Variation Chart (live interfaces) ──────────────────────────────
+    const MAX_POINTS = 40;
+    const THRESHOLD_MBPS = 800;
+    const MAX_BW_MBPS = 600;
+    const interfaceNames = ['enp7s0', 'enp4s0'];
+    const interfaceColors = {
+      enp7s0: '#f43838',
+      enp4s0: '#7efb5c'
+    };
+
+    const variationData = {
+      enp7s0: Array.from({ length: MAX_POINTS }, (_, i) => Math.round(35 + Math.sin(i * 0.32) * 10 + Math.random() * 8)),
+      enp4s0: Array.from({ length: MAX_POINTS }, (_, i) => Math.round(18 + Math.cos(i * 0.28) * 8 + Math.random() * 6))
+    };
+    const variationLabels = Array.from({ length: MAX_POINTS }, (_, i) => {
+      const s = MAX_POINTS - i;
+      return s % 5 === 0 ? `-${s}s` : '';
+    });
+
+    const thresholdData = Array(MAX_POINTS).fill(THRESHOLD_MBPS);
+
+    const vCtx = document.getElementById('variationChart');
+    let variationChart;
+    if (vCtx) {
+      variationChart = new Chart(vCtx, {
+        type: 'line',
+        data: {
+          labels: variationLabels,
+          datasets: [
+            {
+              label: 'enp7s0',
+              data: variationData.enp7s0,
+              borderColor: interfaceColors.enp7s0,
+              backgroundColor: (ctx) => {
+                const chart = ctx.chart;
+                const { ctx: c, chartArea } = chart;
+                if (!chartArea) return 'transparent';
+                const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, 'rgba(244,56,56,0.25)');
+                gradient.addColorStop(1, 'rgba(244,56,56,0.01)');
+                return gradient;
+              },
+              tension: 0.45,
+              fill: true,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: interfaceColors.enp7s0,
+              borderWidth: 2,
+              clip: false,
+            },
+            {
+              label: 'enp4s0',
+              data: variationData.enp4s0,
+              borderColor: interfaceColors.enp4s0,
+              backgroundColor: (ctx) => {
+                const chart = ctx.chart;
+                const { ctx: c, chartArea } = chart;
+                if (!chartArea) return 'transparent';
+                const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, 'rgba(126,251,92,0.20)');
+                gradient.addColorStop(1, 'rgba(126,251,92,0.01)');
+                return gradient;
+              },
+              tension: 0.45,
+              fill: true,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: interfaceColors.enp4s0,
+              borderWidth: 2,
+              clip: false,
+            },
+            {
+              label: 'Seuil critique',
+              data: thresholdData,
+              borderColor: 'rgba(239,68,68,0.55)',
+              borderDash: [5, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+              tension: 0,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 300, easing: 'easeOutQuart' },
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0,25,37,0.95)',
+              borderColor: 'rgba(202,244,56,0.2)',
+              borderWidth: 1,
+              titleColor: '#CAF438',
+              bodyColor: '#e8f5e2',
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: ctx => {
+                  if (ctx.datasetIndex === 0 || ctx.datasetIndex === 1) {
+                    return ` ${ctx.dataset.label} : ${ctx.parsed.y.toFixed(2)} Mbps`;
+                  }
+                  return ` Seuil : ${ctx.parsed.y.toFixed(2)} Mbps`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: MAX_BW_MBPS,
+              ticks: {
+                color: 'rgba(232,245,226,0.35)',
+                font: { size: 10 },
+                stepSize: 200,
+                callback: v => v + ' Mbps'
+              },
+              grid: { color: 'rgba(202,244,56,0.06)', drawBorder: false },
+              border: { display: false },
+            },
+            x: {
+              ticks: { color: 'rgba(232,245,226,0.35)', font: { size: 10 } },
+              grid: { display: false },
+              border: { display: false },
+            }
+          }
+        }
+      });
+
+      function refreshInterfaceStats() {
+        const currentEl = document.getElementById('bw-current');
+        if (currentEl) {
+          const lastEnp7s0 = variationData.enp7s0[variationData.enp7s0.length - 1];
+          const lastEnp4s0 = variationData.enp4s0[variationData.enp4s0.length - 1];
+          currentEl.textContent = `enp7s0   ${Number(lastEnp7s0).toFixed(2)} Mbps   |   enp4s0   ${Number(lastEnp4s0).toFixed(2)} Mbps`;
+        }
+      }
+
+      refreshInterfaceStats();
+
+      // WebSocket: receive real-time netmetrics from backend and update chart
+      function setupNetmetricsWS() {
+        const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = wsProto + '://' + location.hostname + ':8000/ws/netmetrics';
+        let ws;
+        try {
+          ws = new WebSocket(wsUrl);
+        } catch (e) {
+          console.error('WebSocket init failed', e);
+          return;
+        }
+        ws.onopen = () => console.log('netmetrics ws open');
+        ws.onclose = () => console.log('netmetrics ws closed');
+        ws.onerror = (e) => console.error('netmetrics ws error', e);
+        ws.onmessage = (ev) => {
+          try {
+            const payload = JSON.parse(ev.data);
+            // payload: { ts: <num>, data: {iface: value, ...} }
+            const data = payload.data || {};
+            console.log('[netmetrics] received:', data);
+            const enp7s0Mbps = Number(data.enp7s0 ?? data['enp7s0']) || 0;
+            const enp4s0Mbps = Number(data.enp4s0 ?? data['enp4s0']) || 0;
+            const enp7s0Value = Math.min(MAX_BW_MBPS, enp7s0Mbps);
+            const enp4s0Value = Math.min(MAX_BW_MBPS, enp4s0Mbps);
+
+            variationData.enp7s0.push(enp7s0Value);
+            variationData.enp7s0.shift();
+            variationData.enp4s0.push(enp4s0Value);
+            variationData.enp4s0.shift();
+
+            variationLabels.shift();
+            variationLabels.push('');
+
+            refreshInterfaceStats();
+
+            if (variationChart && variationChart.data && variationChart.data.datasets && variationChart.data.datasets[0]) {
+              variationChart.data.datasets[0].data = variationData.enp7s0;
+              variationChart.data.datasets[1].data = variationData.enp4s0;
+              variationChart.update('none');
+            }
+          } catch (err) {
+            console.error('failed to parse netmetrics message', err);
+          }
+        };
+      }
+      // start ws after small delay to ensure charts ready
+      setTimeout(setupNetmetricsWS, 500);
+    }
+
+    // Bandwidth Chart
+    const ctx = document.getElementById('bandwidthChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['00h', '02h', '04h', '06h', '08h', '10h', '12h', '14h', '16h', '18h', '20h', '22h'],
+          datasets: [
+            {
+              label: 'Upload (Mbps)',
+              data: [12, 19, 8, 15, 22, 18, 25, 20, 28, 24, 30, 22],
+              borderColor: '#7efb5c',
+              backgroundColor: 'rgba(126,251,92,0.07)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#7efb5c',
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+            },
+            {
+              label: 'Download (Mbps)',
+              data: [28, 32, 25, 35, 42, 38, 45, 40, 52, 48, 55, 50],
+              borderColor: '#CAF438',
+              backgroundColor: 'rgba(255,165,0,0.07)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#CAF438',
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0,25,37,0.95)',
+              borderColor: 'rgba(202,244,56,0.2)',
+              borderWidth: 1,
+              titleColor: '#CAF438',
+              bodyColor: '#e8f5e2',
+              padding: 10,
+              cornerRadius: 8,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 80,
+              ticks: { color: 'rgba(232,245,226,0.4)', font: { size: 11 }, stepSize: 20 },
+              grid: { color: 'rgba(202,244,56,0.06)', drawBorder: false },
+              border: { display: false },
+            },
+            x: {
+              ticks: { color: 'rgba(232,245,226,0.4)', font: { size: 11 } },
+              grid: { display: false },
+              border: { display: false },
+            }
+          }
+        }
+      });
+    }
+  } // end initDashboard
+
+  // Fonction pour update la table quota_machine 
+  function updateTableQuota() {
+    if (confirm('Êtes-vous sûr de faire une MAJ de quota_machine ?')) {
+      fetch('http://localhost:8000/api/quota/update-table', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            alert('✓ Succès: ');
+            location.reload();
+          } else {
+            alert('✗ Erreur: ' + result.message);
+          }
+        })
+        .catch(error => {
+          alert('✗ Erreur de connexion: ' + error.message);
+          console.error(error);
+        });
+    }
+  }
+
+  // Fonction pour réinitialiser le quota de TOUTES les machines
+  function resetAllQuotas() {
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser le quota de TOUTES les machines ?')) {
+      fetch('http://localhost:8000/api/quota/reset-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            alert('✓ Succès: ' + result.message + ' (' + result.machines_updated + ' machines)');
+            location.reload();
+          } else {
+            alert('✗ Erreur: ' + result.message);
+          }
+        })
+        .catch(error => {
+          alert('✗ Erreur de connexion: ' + error.message);
+          console.error(error);
+        });
+    }
+  }
+
+  // Called via eval() after DOM injection — wait for layout + Chart.js
+  requestAnimationFrame(() => requestAnimationFrame(() => loadChartJS(initDashboard)));
+</script>

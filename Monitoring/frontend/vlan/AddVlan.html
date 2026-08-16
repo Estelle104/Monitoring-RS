@@ -1,0 +1,337 @@
+<title>Ajouter un VLAN</title>
+
+<style>
+  .form-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .add-vlan-form input,
+  .add-vlan-form select {
+    background-color: rgba(60, 79, 46, 0.35) !important;
+    border: 1px solid var(--border) !important;
+    color: #e8f5e2 !important;
+    caret-color: #CAF438;
+  }
+
+  .add-vlan-form input:focus,
+  .add-vlan-form select:focus {
+    border-color: var(--chartreuse) !important;
+    box-shadow: 0 0 0 2px rgba(202, 244, 56, 0.1) !important;
+  }
+
+  .add-vlan-form input::placeholder {
+    color: rgba(232, 245, 226, 0.4) !important;
+  }
+
+  .add-vlan-form select option {
+    background-color: #001925;
+    color: #e8f5e2;
+  }
+
+  .add-vlan-form label {
+    color: var(--chartreuse) !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+  }
+</style>
+
+<div class="p-6 md:p-8 add-vlan-form">
+  <div class="max-w-[1200px] mx-auto">
+
+    <!-- Header Section -->
+    <div class="flex items-center gap-4 mb-8">
+      <button onclick="loadPageContent('salle/liste.html')" class="p-2 focus:outline-none transition-colors"
+        style="color:var(--text-muted)">
+        <span class="material-icons-outlined">arrow_back</span>
+      </button>
+      <div>
+        <h1 class="text-3xl font-bold dark:text-white flex items-center gap-3">
+          <span class="material-icons-outlined text-primary">router</span>
+          Ajouter un VLAN
+        </h1>
+        <p class="text-sm mt-1" style="color:var(--text-muted)">Créer un nouveau réseau virtuel dans la base de données
+        </p>
+      </div>
+    </div>
+
+    <form id="vlan-form" class="space-y-6">
+
+      <!-- Section 1: NOUVEAU VLAN -->
+      <div class="form-section">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="material-icons-outlined text-lg" style="color:var(--chartreuse)">router</span>
+          <h2 class="text-lg font-bold dark:text-white">NOUVEAU VLAN</h2>
+        </div>
+        <p class="text-sm mb-6" style="color:var(--text-muted)">Remplissez les informations puis cliquez sur Créer</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Numéro VLAN -->
+          <div>
+            <label for="vlan-number" class="block mb-2">NUMÉRO DU VLAN</label>
+            <input id="vlan-number" type="number" placeholder="ex: 10" min="1" max="4094"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Entrez unique entre 1 et 4094</p>
+          </div>
+
+          <!-- Adresse IP VLAN -->
+          <div>
+            <label for="vlan-ip" class="block mb-2">ADRESSE IP DU VLAN</label>
+            <input id="vlan-ip" type="text" placeholder="ex: 192.168.10.0"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Adresse réseau du VLAN</p>
+          </div>
+
+          <!-- Salle Associée -->
+          <div>
+            <label for="associated-room" class="block mb-2">SALLE ASSOCIÉE</label>
+            <select id="associated-room"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+              <option value="">-- Aucune salle --</option>
+            </select>
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">La salle sera enregistrée dans le VLAN et dans la
+              liaison salle-VLAN</p>
+          </div>
+
+          <!-- Limite de Machines -->
+          <div>
+            <label for="machine-limit" class="block mb-2">LIMITE DE MACHINES</label>
+            <input id="machine-limit" type="number" placeholder="ex: 50"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Nombre max de machines dans la salle (si salle
+              choisie)</p>
+          </div>
+
+          <!-- Interface Réseau -->
+          <div>
+            <label for="network-interface" class="block mb-2">INTERFACE RÉSEAU</label>
+            <select id="network-interface"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+              <option value="">-- Sélectionner une interface --</option>
+            </select>
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Interfaces détectées sur la machine</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: CONFIGURATION SWITCH -->
+      <div class="form-section">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="material-icons-outlined text-lg" style="color:var(--chartreuse)">computer</span>
+          <h2 class="text-lg font-bold dark:text-white">CONFIGURATION SWITCH</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- IP du Switch -->
+          <div>
+            <label for="switch-ip" class="block mb-2">IP DU SWITCH</label>
+            <input id="switch-ip" type="text" placeholder="ex: 192.168.1.1"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Adresse IP du switch réseau</p>
+          </div>
+
+          <!-- Utilisateur Switch -->
+          <div>
+            <label for="switch-user" class="block mb-2">UTILISATEUR DU SWITCH</label>
+            <input id="switch-user" type="text" placeholder="ex: cisco"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Identifiant de connexion</p>
+          </div>
+
+          <!-- Mot de passe Switch -->
+          <div>
+            <label for="switch-password" class="block mb-2">MOT DE PASSE DU SWITCH</label>
+            <input id="switch-password" type="password" placeholder="••••••••"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Mot de passe de connexion sécurisé</p>
+          </div>
+
+          <!-- Port du Switch -->
+          <div>
+            <label for="switch-port" class="block mb-2">PORT DU SWITCH1</label>
+            <input id="switch-port" type="text" placeholder="ex: gi1/0/4, Fa0/5"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Port du switch à assigner au VLAN</p>
+          </div>
+
+          <div>
+            <label for="switch-port1" class="block mb-2">PORT DU SWITCH2</label>
+            <input id="switch-port1" type="text" placeholder="ex: gi1/0/4, Fa0/5"
+              class="w-full px-4 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              required />
+            <p class="text-xs mt-2" style="color:var(--chartreuse)">Port du switch à assigner au VLAN</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-4">
+        <button type="button" onclick="loadPageContent('salle/liste.html')"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors"
+          style="color:var(--text-muted); border:1px solid var(--border);">
+          Annuler
+        </button>
+        <button id="create-vlan" type="submit" class="px-6 py-2.5 rounded-md font-bold transition-colors"
+          style="background:var(--chartreuse); color:#001925;"
+          onmousedown="this.style.transform='scale(0.95)'; this.style.opacity='0.8';"
+          onmouseup="this.style.transform='scale(1)'; this.style.opacity='1';"
+          onmouseleave="this.style.transform='scale(1)'; this.style.opacity='1';">
+          Créer le VLAN
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  var API_BASE = 'http://localhost:8000/api';
+
+  /* =========================
+     TOAST SIMPLE
+  ========================= */
+  function showToast(msg, type) {
+    alert(msg);
+  }
+
+  /* =========================
+     LOAD INTERFACES
+  ========================= */
+  function loadInterfaces() {
+    fetch(API_BASE + '/interfaces')
+      .then(res => res.json())
+      .then(json => {
+        const select = document.getElementById("network-interface");
+        select.innerHTML = '<option value="">-- Sélectionner une interface --</option>';
+        const ifaces = json.data || [];
+        ifaces.forEach(iface => {
+          const opt = document.createElement("option");
+          opt.value = iface.name;
+          opt.textContent = iface.name;
+          select.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  /* =========================
+     LOAD SALLES
+  ========================= */
+  function loadSalles() {
+    fetch(API_BASE + '/salles')
+      .then(res => res.json())
+      .then(json => {
+        const select = document.getElementById("associated-room");
+        select.innerHTML = '<option value="">-- Aucune salle --</option>';
+        const salles = json.data || [];
+        salles.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = s.salle;
+          select.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  /* =========================
+     VALIDATION
+  ========================= */
+  function validate() {
+    let vlan = document.getElementById("vlan-number").value;
+    let ip = document.getElementById("vlan-ip").value;
+    let salleId = document.getElementById("associated-room").value;
+
+    if (!vlan) {
+      showToast("Numéro VLAN requis", "ko");
+      return false;
+    }
+    if (vlan < 1 || vlan > 4094) {
+      showToast("VLAN doit être entre 1 et 4094", "ko");
+      return false;
+    }
+    if (!ip) {
+      showToast("Adresse IP requise", "ko");
+      return false;
+    }
+    if (!salleId) {
+      showToast("Salle requise", "ko");
+      return false;
+    }
+    const regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+    if (!regex.test(ip)) {
+      showToast("Format IP invalide", "ko");
+      return false;
+    }
+    return true;
+  }
+
+  /* =========================
+     SUBMIT FORM
+  ========================= */
+  document.getElementById("vlan-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!validate()) return;
+    document.getElementById("create-vlan").disabled = true;
+
+    const vlanData = {
+      vlan: parseInt(document.getElementById("vlan-number").value),
+      ip: document.getElementById("vlan-ip").value.trim(),
+      id_salle: document.getElementById("associated-room").value,
+      interface: document.getElementById("network-interface").value || null,
+      switch_port: document.getElementById("switch-port").value || null,
+      switch_port2: document.getElementById("switch-port1").value || null,
+      nb_pc: parseInt(document.getElementById("machine-limit").value) || 50,
+      switch_ip: document.getElementById("switch-ip").value.trim() || null,
+      username: document.getElementById("switch-user").value.trim() || null,
+      password: document.getElementById("switch-password").value.trim() || null
+    };
+
+    console.log("Données à envoyer:", vlanData);
+
+    fetch(API_BASE + '/vlans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(vlanData)
+    })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(e => { throw new Error(e.detail || "Erreur serveur"); });
+        }
+        return res.json();
+      })
+      .then(json => {
+        return json;
+      })
+      .then(() => {
+        showToast("VLAN créé avec succès", "ok");
+        document.getElementById("create-vlan").disabled = false;
+        setTimeout(() => { loadPageContent('salle/liste.html'); }, 1200);
+      })
+      .catch(err => {
+        console.error(err);
+        showToast(err.message, "ko");
+      });
+  });
+
+  /* =========================
+     INIT
+  ========================= */
+  loadInterfaces();
+  loadSalles();
+</script>
