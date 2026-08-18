@@ -13,7 +13,7 @@ def reset_quota_all_machines(db_connection):
         dict: Résultat de l'opération
     """
     try:
-        
+
         rows_history = enregistrer_histo_quota(db_connection)
 
         with db_connection.cursor() as cursor:
@@ -177,21 +177,15 @@ def update_table_quota(db_connection):
         dict: Résultat de l'opération
     """
     try:
-        # ---------------------------------------------------------
         # 1. ENREGISTRER L'HISTORIQUE AVANT LE TRUNCATE
-        # ---------------------------------------------------------
         rows_history = enregistrer_histo_quota(db_connection)
 
         with db_connection.cursor() as cursor:
 
-            # -----------------------------------------------------
             # 2. Vider la table quota_machine
-            # -----------------------------------------------------
             cursor.execute("TRUNCATE TABLE quota_machine;")
 
-            # -----------------------------------------------------
             # 3. Re-remplir quota_machine
-            # -----------------------------------------------------
             cursor.execute(
                 """
                 INSERT INTO quota_machine (
