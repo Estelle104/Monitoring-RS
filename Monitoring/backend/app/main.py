@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import salle, vlan, firewall, login, rx
+from app.api import salle, vlan, firewall, login, rx, quota, type_user, machine
 from app.services import network_rx
 import asyncio
 
@@ -28,8 +28,9 @@ app.include_router(salle.router, prefix="/api", tags=["Salle"])
 app.include_router(vlan.router, prefix="/api", tags=["VLAN"])
 app.include_router(login.router, prefix="/api", tags=["Login"])
 
-# Inclure les routes du quota
-app.include_router(firewall.router, prefix="/api", tags=["Quota"])
+app.include_router(quota.router, prefix="/api", tags=["Quota"])
+app.include_router(type_user.router, prefix="/api", tags=["Type user"])
+app.include_router(machine.router, prefix="/api", tags=["Machine"])
 # WebSocket route for netmetrics
 app.include_router(rx.router)
 
