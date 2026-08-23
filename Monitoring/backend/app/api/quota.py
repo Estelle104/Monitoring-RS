@@ -122,7 +122,7 @@ def create_new_quota(quota: dict = Body(...)):
 
 
 @router.put("/quota/{quota_id}")
-def update_quota(quota_id: int, data: dict = Body(...)):
+def update_quota_route(quota_id: int, data: dict = Body(...)):
     """Mettre à jour uniquement la limite du quota."""
     try:
         quota_limite = get_quota_limit_saisie(data)
@@ -147,7 +147,7 @@ def update_quota(quota_id: int, data: dict = Body(...)):
 
 
 @router.delete("/quota/{quota_id}")
-def delete_quota(quota_id: int):
+def delete_quota_route(quota_id: int):
     """Supprimer une quota"""
     try:
         deleted = delete_quota(quota_id)
