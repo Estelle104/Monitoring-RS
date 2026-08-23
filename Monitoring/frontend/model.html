@@ -8,6 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <!-- Styles partagés quota -->
+    <link rel="stylesheet" href="quota/quota.shared.css" />
+    <!-- Utilitaires partagés quota -->
+    <script src="quota/quota.shared.js"></script>
+    <!-- Styles partagés quota_machine -->
+    <link rel="stylesheet" href="quota_machine/quota_machine.shared.css" />
+    <!-- Utilitaires partagés quota_machine -->
+    <script src="quota_machine/quota_machine.shared.js"></script>
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -207,16 +215,6 @@
   </head>
 
   <body>
-    <!-- AUTH GUARD: redirige vers login si non authentifié -->
-    <script>
-      (function() {
-        const user = sessionStorage.getItem('user');
-        if (!user) {
-          window.location.href = 'login.html';
-        }
-      })();
-    </script>
-
     <!-- HEADER -->
     <header id="app-header" class="dark:bg-surface-dark px-6 flex items-center justify-between sticky top-0 z-50">
       <button id="menu-btn" onclick="toggleSidebar()"
@@ -269,11 +267,18 @@
               <span class="material-icons-outlined mr-3 text-lg">lan</span>
               Liste VLAN
             </button>
+            <button onclick="setActiveMenuItem(this); loadPageContent('quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+              Liste Quota
+            </button>
+            <button onclick="setActiveMenuItem(this); loadPageContent('quota_machine/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+              Liste Quota Machine
+            </button>
           </nav>
+
 
           <div class="px-4 my-8 border-t dark:border-slate-700/50 pt-8">
             <p class="text-[10px] font-bold uppercase mb-6 tracking-widest" style="color:var(--text-muted)">Autres</p>
-            <a href="#" onclick="logout(); return false;" class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
+            <a href="#" class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
               <span class="material-icons-outlined mr-3 text-lg">logout</span>
               Déconnexion
             </a>
@@ -295,12 +300,6 @@
     </div>
 
     <script>
-      // Fonction de déconnexion
-      function logout() {
-        sessionStorage.removeItem('user');
-        window.location.href = 'login.html';
-      }
-
       function setActiveMenuItem(element) {
         // Enlever la classe active de tous les menu items
         document.querySelectorAll('.sidebar-menu-item').forEach(item => {
@@ -319,7 +318,8 @@
 
       // Charger le contenu depuis une page
       function loadPageContent(pagePath) {
-        fetch(pagePath)
+        const separator = pagePath.includes('?') ? '&' : '?';
+        fetch(`${pagePath}${separator}_=${Date.now()}`, { cache: 'no-store' })
           .then(response => response.text())
           .then(html => {
             const parser = new DOMParser();
@@ -333,7 +333,7 @@
             // Supprimer les anciens styles de page injectés
             document.querySelectorAll('style[data-page-style]').forEach(s => s.remove());
 
-            // Injecter les <style> du fragment dans le <head> principal
+            // Injecter les <style> inline du fragment dans le <head> principal
             doc.querySelectorAll('style').forEach(style => {
               const s = document.createElement('style');
               s.setAttribute('data-page-style', 'true');
@@ -341,16 +341,21 @@
               document.head.appendChild(s);
             });
 
+            // Ignorer les <link rel="stylesheet"> des fragments (déjà chargés dans le shell)
+            // (rien à faire : ils sont ignorés par innerHTML, c'est voulu)
+
             // Charger le contenu de la page
             const content = doc.body.innerHTML;
             document.getElementById('page-content').innerHTML = content;
             
-            // Exécuter les scripts de la page
+            // Exécuter les scripts inline de la page (les src sont ignorés car déjà chargés)
             const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
               if (!script.src) {
                 window.eval(script.textContent);
               }
+              // Les <script src="..."> des fragments sont ignorés intentionnellement :
+              // les libs partagées sont chargées une fois dans ce shell.
             });
           })
           .catch(error => console.error('Erreur de chargement:', error));

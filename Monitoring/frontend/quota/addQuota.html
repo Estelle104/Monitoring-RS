@@ -1,0 +1,133 @@
+<title>Ajouter une Quota</title>
+
+<div class="px-6 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold dark:text-white mb-2">Ajouter une nouvelle Quota</h1>
+    <p class="text-sm" style="color:var(--text-muted)">Remplissez les informations puis cliquez sur Créer</p>
+  </div>
+
+  <div class="dark:bg-card-dark rounded-lg p-6 border dark:border-slate-700/50">
+    <form class="space-y-6" onsubmit="return false;">
+
+      <!-- Type utilisateur -->
+      <div>
+        <label for="id-type-user" class="block text-sm font-medium dark:text-white mb-2">Type user</label>
+        <select
+          id="id-type-user"
+          class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all quota-unit-select"
+          style="color:var(--text)"
+        >
+          <option value="" disabled selected>Chargement...</option>
+        </select>
+        <p id="type-user-hint" class="text-xs" style="color:var(--text-muted); margin-top:6px;">
+          Seuls les types sans quota s'affichent.
+        </p>
+      </div>
+
+      <!-- Limite de quota -->
+      <div>
+        <label class="block text-sm font-medium dark:text-white mb-2">Limite de quota *</label>
+        <div class="quota-value-row">
+          <input
+            id="quota-value"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ex: 10"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+          <select id="quota-unit" class="quota-unit-select"></select>
+        </div>
+      </div>
+
+      <!-- Format lisible -->
+      <div class="format-panel">
+        <p style="color:var(--text-muted); font-size:0.85rem;">Format lisible</p>
+        <p id="add-format-display" style="color:var(--chartreuse); font-size:1.2rem; font-weight:bold; margin-top:4px;">—</p>
+        <p id="add-bytes-display" style="color:var(--text-muted); font-size:0.82rem; margin-top:6px;">0 octet(s)</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4 pt-4">
+        <button
+          onclick="createQuota()"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+          Créer Quota
+        </button>
+        <button
+          onclick="loadPageContent('quota/liste.html')"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:rgba(202,244,56,0.1); color:var(--chartreuse); border:none; cursor:pointer;">
+          Annuler
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const { buildUnitsSelect, updateFormatPanel, resetFormatPanel, getBytesFromInputs, loadTypeUsers } = window.QuotaShared;
+
+  // Init select unités
+  buildUnitsSelect(document.getElementById('quota-unit'), 'mo');
+
+  // Chargement des types sans quota
+  loadTypeUsers('id-type-user', 'type-user-hint');
+
+  // Mise à jour en temps réel du format
+  function onInputChange() {
+    const raw = document.getElementById('quota-value').value;
+    const bytes = getBytesFromInputs('quota-value', 'quota-unit');
+    updateFormatPanel(bytes, 'add-format-display', 'add-bytes-display', raw === '');
+  }
+
+  document.getElementById('quota-value').addEventListener('input',  onInputChange);
+  document.getElementById('quota-unit').addEventListener('change', onInputChange);
+
+  // Création du quota
+  window.createQuota = function() {
+    const id_type_user = parseInt(document.getElementById('id-type-user').value);
+    const quota_value  = parseFloat(document.getElementById('quota-value').value);
+    const quota_unit   = document.getElementById('quota-unit').value;
+
+    if (!id_type_user) {
+      alert('Veuillez sélectionner un type user.');
+      return;
+    }
+    if (isNaN(quota_value) || quota_value < 0) {
+      alert('Veuillez entrer une valeur valide pour le quota limite.');
+      return;
+    }
+
+    fetch('http://localhost:8000/api/quota/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_type_user, quota_value, quota_unit }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          alert('Quota créée avec succès !');
+          document.getElementById('id-type-user').value = '';
+          document.getElementById('quota-value').value  = '';
+          buildUnitsSelect(document.getElementById('quota-unit'), 'mo');
+          resetFormatPanel('add-format-display', 'add-bytes-display');
+          loadTypeUsers('id-type-user', 'type-user-hint');
+          setTimeout(() => window.loadPageContent('quota/addQuota.html'), 100);
+        } else {
+          alert('Erreur lors de la création du Quota: ' + (data.detail || 'Erreur inconnue'));
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la création du Quota: ' + error.message);
+      });
+  };
+})();
+</script>
