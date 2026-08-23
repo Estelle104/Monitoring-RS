@@ -1,0 +1,131 @@
+<title>Ajouter une Quota Machine</title>
+
+<div class="px-6 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold dark:text-white mb-2">Ajouter une nouvelle Quota Machine</h1>
+    <p class="text-sm" style="color:var(--text-muted)">Remplissez les informations puis cliquez sur Créer</p>
+  </div>
+
+  <div class="dark:bg-card-dark rounded-lg p-6 border dark:border-slate-700/50">
+    <form class="space-y-6" onsubmit="return false;">
+
+      <!-- Machine -->
+      <div>
+        <label for="id-machine" class="block text-sm font-medium dark:text-white mb-2">Machine</label>
+        <select
+          id="id-machine"
+          class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all quota-unit-select"
+          style="color:var(--text)"
+        >
+          <option value="" disabled selected>Chargement...</option>
+        </select>
+        <p id="machine-hint" class="text-xs" style="color:var(--text-muted); margin-top:6px;">
+          Seules les machines sans quota machine s'affichent.
+        </p>
+      </div>
+
+      <!-- Quota consommé -->
+      <div>
+        <label class="block text-sm font-medium dark:text-white mb-2">Quota consommé *</label>
+        <div class="quota-value-row">
+          <input
+            id="quota-consomme-value"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ex: 10"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+          <select id="quota-consomme-unit" class="quota-unit-select"></select>
+        </div>
+      </div>
+
+      <!-- Format lisible -->
+      <div class="format-panel">
+        <p style="color:var(--text-muted); font-size:0.85rem;">Format lisible</p>
+        <p id="add-qm-format-display" style="color:var(--chartreuse); font-size:1.2rem; font-weight:bold; margin-top:4px;">—</p>
+        <p id="add-qm-bytes-display" style="color:var(--text-muted); font-size:0.82rem; margin-top:6px;">0 octet(s)</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4 pt-4">
+        <button
+          onclick="createQuotaMachine()"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+          Créer Quota Machine
+        </button>
+        <button
+          onclick="loadPageContent('quota_machine/liste.html')"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:rgba(202,244,56,0.1); color:var(--chartreuse); border:none; cursor:pointer;">
+          Annuler
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const { loadMachines } = window.QuotaMachineShared;
+  const { buildUnitsSelect, updateFormatPanel, resetFormatPanel, getBytesFromInputs } = window.QuotaShared;
+
+  // Init
+  buildUnitsSelect(document.getElementById('quota-consomme-unit'), 'mo');
+  loadMachines('id-machine', 'machine-hint');
+
+  // Format lisible temps réel
+  function onInputChange() {
+    const raw   = document.getElementById('quota-consomme-value').value;
+    const bytes = getBytesFromInputs('quota-consomme-value', 'quota-consomme-unit');
+    updateFormatPanel(bytes, 'add-qm-format-display', 'add-qm-bytes-display', raw === '');
+  }
+  document.getElementById('quota-consomme-value').addEventListener('input',  onInputChange);
+  document.getElementById('quota-consomme-unit').addEventListener('change', onInputChange);
+
+  // Création
+  window.createQuotaMachine = function() {
+    const id_machine  = parseInt(document.getElementById('id-machine').value);
+    const quota_value = parseFloat(document.getElementById('quota-consomme-value').value);
+    const quota_unit  = document.getElementById('quota-consomme-unit').value;
+
+    if (!id_machine) {
+      alert('Veuillez sélectionner une machine.');
+      return;
+    }
+    if (isNaN(quota_value) || quota_value < 0) {
+      alert('Veuillez entrer une valeur valide pour le quota consommé.');
+      return;
+    }
+
+    fetch('http://localhost:8000/api/quota_machine/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_machine, quota_value, quota_unit }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          alert('Quota machine créée avec succès !');
+          document.getElementById('id-machine').value = '';
+          document.getElementById('quota-consomme-value').value = '';
+          buildUnitsSelect(document.getElementById('quota-consomme-unit'), 'mo');
+          resetFormatPanel('add-qm-format-display', 'add-qm-bytes-display');
+          loadMachines('id-machine', 'machine-hint');
+          setTimeout(() => window.loadPageContent('quota_machine/addQuotaMachine.html'), 100);
+        } else {
+          alert('Erreur lors de la création du Quota machine: ' + (data.detail || 'Erreur inconnue'));
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la création du Quota machine: ' + error.message);
+      });
+  };
+})();
+</script>

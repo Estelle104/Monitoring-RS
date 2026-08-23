@@ -8,13 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-    <!-- Styles partagés quota -->
+    
     <link rel="stylesheet" href="quota/quota.shared.css" />
-    <!-- Utilitaires partagés quota -->
     <script src="quota/quota.shared.js"></script>
-    <!-- Styles partagés quota_machine -->
     <link rel="stylesheet" href="quota_machine/quota_machine.shared.css" />
-    <!-- Utilitaires partagés quota_machine -->
     <script src="quota_machine/quota_machine.shared.js"></script>
     <script>
       tailwind.config = {
@@ -300,6 +297,12 @@
     </div>
 
     <script>
+      // Fonction de déconnexion
+      function logout() {
+        sessionStorage.removeItem('user');
+        window.location.href = 'login.html';
+      }
+
       function setActiveMenuItem(element) {
         // Enlever la classe active de tous les menu items
         document.querySelectorAll('.sidebar-menu-item').forEach(item => {
@@ -318,8 +321,7 @@
 
       // Charger le contenu depuis une page
       function loadPageContent(pagePath) {
-        const separator = pagePath.includes('?') ? '&' : '?';
-        fetch(`${pagePath}${separator}_=${Date.now()}`, { cache: 'no-store' })
+        fetch(pagePath)
           .then(response => response.text())
           .then(html => {
             const parser = new DOMParser();
@@ -333,7 +335,7 @@
             // Supprimer les anciens styles de page injectés
             document.querySelectorAll('style[data-page-style]').forEach(s => s.remove());
 
-            // Injecter les <style> inline du fragment dans le <head> principal
+            // Injecter les <style> du fragment dans le <head> principal
             doc.querySelectorAll('style').forEach(style => {
               const s = document.createElement('style');
               s.setAttribute('data-page-style', 'true');
@@ -341,21 +343,16 @@
               document.head.appendChild(s);
             });
 
-            // Ignorer les <link rel="stylesheet"> des fragments (déjà chargés dans le shell)
-            // (rien à faire : ils sont ignorés par innerHTML, c'est voulu)
-
             // Charger le contenu de la page
             const content = doc.body.innerHTML;
             document.getElementById('page-content').innerHTML = content;
             
-            // Exécuter les scripts inline de la page (les src sont ignorés car déjà chargés)
+            // Exécuter les scripts de la page
             const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
               if (!script.src) {
                 window.eval(script.textContent);
               }
-              // Les <script src="..."> des fragments sont ignorés intentionnellement :
-              // les libs partagées sont chargées une fois dans ce shell.
             });
           })
           .catch(error => console.error('Erreur de chargement:', error));

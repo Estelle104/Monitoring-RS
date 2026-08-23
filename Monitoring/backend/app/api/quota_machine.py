@@ -37,7 +37,7 @@ def calculate_quota_bytes(value, unit):
     return int(round(number * unit_multipliers[normalized_unit]))
 
 
-def get_quota_consomme_from_payload(data: dict) -> int:
+def get_quota_consomme_saisie(data: dict) -> int:
     """Extraire la valeur en octets depuis quota_value+quota_unit ou quota_consomme brut."""
     # Nouveau format : valeur + unité
     if "quota_value" in data and "quota_unit" in data:
@@ -93,7 +93,7 @@ def list_quota_machine():
 def create_new_quota_machine(quota_machine: dict = Body(...)):
     """Créer une nouvelle quota_machine"""
     try:
-        quota_consomme = get_quota_consomme_from_payload(quota_machine)
+        quota_consomme = get_quota_consomme_saisie(quota_machine)
         payload = {**quota_machine, "quota_consomme": quota_consomme}
         # Retirer les clés de saisie si présentes pour ne garder que quota_consomme
         payload.pop("quota_value", None)
@@ -120,7 +120,7 @@ def create_new_quota_machine(quota_machine: dict = Body(...)):
 def update_quota_machine_endpoint(quota_machine_id: int, data: dict = Body(...)):
     """Mettre à jour uniquement la valeur de quota consommé."""
     try:
-        quota_consomme = get_quota_consomme_from_payload(data)
+        quota_consomme = get_quota_consomme_saisie(data)
 
         updated = update_quota_machine(quota_machine_id, quota_consomme)
         if not updated:

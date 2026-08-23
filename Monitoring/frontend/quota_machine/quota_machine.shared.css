@@ -1,0 +1,256 @@
+/* --- Page layout --- */
+.quota-machine-page {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  color: var(--text);
+}
+
+/* --- En-tête --- */
+.quota-machine-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.quota-machine-header h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+  color: #fff;
+}
+.quota-machine-header p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+
+/* --- Carte conteneur --- */
+.quota-machine-card {
+  background: rgba(8, 39, 45, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* --- Barre d'outils (recherche + bouton) --- */
+.quota-machine-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.quota-machine-toolbar input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  outline: none;
+}
+
+/* --- Barre de recherche icône --- */
+.search-wrap {
+  position: relative;
+  flex: 1;
+}
+.search-wrap span {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+/* --- Badge compteur --- */
+.summary-pill {
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  color: var(--chartreuse);
+  background: rgba(190, 255, 45, 0.08);
+  border: 1px solid rgba(190, 255, 45, 0.12);
+  white-space: nowrap;
+}
+
+/* --- Filtres --- */
+.quota-machine-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.filter-select,
+.filter-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  outline: none;
+}
+.filter-select.small-select {
+  width: auto;
+  padding: 10px;
+}
+
+/* --- Tableau --- */
+.quota-machine-table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1050px;
+}
+th, td {
+  padding: 16px 18px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: top;
+}
+th {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+td { color: var(--text); font-size: 0.95rem; }
+
+/* --- Cellules empilées --- */
+.cell-stack { display: flex; flex-direction: column; gap: 6px; }
+.cell-stack strong { color: #fff; font-weight: 700; }
+.muted { color: var(--text-muted); }
+
+/* --- Chip type --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(190, 255, 45, 0.08);
+  color: var(--chartreuse);
+  border: 1px solid rgba(190, 255, 45, 0.12);
+}
+
+/* --- Barre de progression --- */
+.progress-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 165px; }
+.progress {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4ade80 0%, #facc15 55%, #f87171 100%);
+}
+
+/* --- Statuts colorés --- */
+.status-ok     { color: #72f6a1; }
+.status-warn   { color: #ffb454; }
+.status-danger { color: #ff7a7a; }
+
+/* --- État vide --- */
+.empty-state { text-align: center; padding: 36px 18px; color: var(--text-muted); }
+
+/* --- Boutons d'action --- */
+.action-group { display: flex; gap: 8px; align-items: center; }
+.action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.action-btn:hover { transform: translateY(-1px); }
+.action-btn.edit   { color: #4ade80; background: rgba(74,222,128,0.1);  border-color: rgba(74,222,128,0.25); }
+.action-btn.delete { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); }
+.action-btn .material-icons-outlined { font-size: 18px; }
+
+/* --- Résumé machine (page edit) --- */
+.machine-summary {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 18px;
+  background: linear-gradient(145deg, rgba(10,45,49,0.98), rgba(4,30,36,0.98));
+  border: 1px solid rgba(190,255,45,0.12);
+  box-shadow: 0 18px 45px rgba(0,0,0,0.16);
+}
+.machine-main {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(230px,0.55fr);
+  gap: 20px;
+  z-index: 1;
+}
+.machine-id-block { display: flex; gap: 16px; align-items: flex-start; }
+.machine-icon {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+  background: rgba(190,255,45,0.1);
+  color: var(--chartreuse);
+  border: 1px solid rgba(190,255,45,0.14);
+}
+.machine-name { margin:0; color:#fff; font-size:1.45rem; font-weight:800; line-height:1.2; word-break:break-word; }
+.machine-subline { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.info-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 28px; padding: 5px 10px; border-radius: 999px;
+  color: var(--chartreuse); background: rgba(190,255,45,0.08);
+  border: 1px solid rgba(190,255,45,0.12);
+  font-size: 0.78rem; font-weight: 800;
+}
+.machine-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px; margin-top: 20px;
+}
+
+/* --- Panneau d'utilisation --- */
+.usage-panel {
+  padding: 16px; border-radius: 12px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.075);
+}
+.usage-percent { color: #fff; font-size: 2rem; line-height: 1; font-weight: 900; }
+.usage-bar {
+  height: 11px; margin: 16px 0 10px;
+  overflow: hidden; border-radius: 999px;
+  background: rgba(255,255,255,0.075);
+}
+.usage-bar span {
+  display: block; width: 0%; height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4ade80 0%, #facc15 55%, #f87171 100%);
+  transition: width 180ms ease;
+}
+
+/* =====================================================
+   Responsive
+   ===================================================== */
+@media (max-width: 768px) {
+  .quota-machine-page    { padding: 18px; }
+  .quota-machine-toolbar { flex-direction: column; align-items: stretch; }
+  .machine-main          { grid-template-columns: 1fr; }
+  .machine-metrics       { grid-template-columns: 1fr; }
+}
