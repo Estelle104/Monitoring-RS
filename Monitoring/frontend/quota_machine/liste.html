@@ -1,0 +1,298 @@
+<title>Liste des quota machines</title>
+
+<div class="quota-machine-page">
+
+  <!-- En-tête -->
+  <div class="quota-machine-header">
+    <div>
+      <h1>Quota machine</h1>
+      <p>Suivi des consommations par machine et par type d'utilisateur.</p>
+    </div>
+    <span class="summary-pill" id="quotaCount">0 élément</span>
+  </div>
+
+  <!-- Carte principale -->
+  <div class="quota-machine-card">
+
+    <!-- Barre d'outils -->
+    <div class="quota-machine-toolbar">
+      <div class="search-wrap">
+        <span class="material-icons-outlined">search</span>
+        <input id="searchInput" type="text" placeholder="Rechercher une machine, un type, un quota..." />
+      </div>
+      <button
+        onclick="loadPageContent('quota_machine/addQuotaMachine.html')"
+        class="font-bold py-2.5 px-5 rounded-lg transition-all text-sm uppercase tracking-wide flex items-center justify-center gap-2"
+        style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer; box-shadow:0 6px 20px rgba(190,255,45,0.15);">
+        <span class="material-icons-outlined text-base">add</span>
+        Ajouter
+      </button>
+    </div>
+
+    <!-- Filtres -->
+    <div class="quota-machine-filters">
+      <div>
+        <label for="typeFilter" style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Type</label>
+        <select id="typeFilter" class="filter-select">
+          <option value="all">Tous</option>
+        </select>
+      </div>
+      <div>
+        <label for="statusFilter" style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Statut</label>
+        <select id="statusFilter" class="filter-select">
+          <option value="all">Tous</option>
+          <option value="Normal">Normal</option>
+          <option value="Très élevé">Très élevé</option>
+          <option value="Limite atteinte">Limite atteinte</option>
+        </select>
+      </div>
+      <div>
+        <label for="minPercent" style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">% Min</label>
+        <input id="minPercent" type="number" min="0" max="100" step="1" placeholder="0" class="filter-input" />
+      </div>
+      <div>
+        <label for="maxPercent" style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">% Max</label>
+        <input id="maxPercent" type="number" min="0" max="100" step="1" placeholder="100" class="filter-input" />
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="quota-machine-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Machine</th>
+            <th>Type</th>
+            <th>Consommé</th>
+            <th>Utilisation</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="quotaMachineBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="paginationBar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.06);"></div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  const { getProgressGradient, escapeHtml, apiDeleteQM } = window.QuotaMachineShared;
+
+  const API = 'http://localhost:8000/api/quota_machine';
+  const state = {
+    rows: [],
+    page: 1,
+    pageSize: 10,
+    search: '',
+    type: 'all',
+    status: 'all',
+    minPercent: '',
+    maxPercent: '',
+    listenersReady: false,
+  };
+
+  /* --- Filtrage --- */
+  function getFilteredRows() {
+    const search     = state.search.trim().toLowerCase();
+    const minPercent = state.minPercent === '' ? null : Number(state.minPercent);
+    const maxPercent = state.maxPercent === '' ? null : Number(state.maxPercent);
+
+    return state.rows.filter(row => {
+      const text = [row.hostname, row.etu, row.mac, row.machine_type_user,
+                    row.formatted_quota_limite, row.formatted_quota_consomme, row.status]
+                   .join(' ').toLowerCase();
+      if (search && !text.includes(search)) return false;
+      if (state.type   !== 'all' && (row.machine_type_user || '') !== state.type)   return false;
+      if (state.status !== 'all' && (row.status || '')             !== state.status) return false;
+      const percent = Number(row.usage_percent || 0);
+      if (minPercent !== null && percent < minPercent) return false;
+      if (maxPercent !== null && percent > maxPercent) return false;
+      return true;
+    });
+  }
+
+  /* --- Rendu du tableau --- */
+  function renderTable(rows) {
+    const body  = document.getElementById('quotaMachineBody');
+    const count = document.getElementById('quotaCount');
+    if (!body) return;
+
+    body.innerHTML = '';
+
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty-state">Aucune donnée disponible.</td></tr>';
+      count.textContent = '0 élément';
+      return;
+    }
+
+    count.textContent = `${rows.length} élément${rows.length > 1 ? 's' : ''}`;
+
+    rows.forEach(row => {
+      const percent     = Number(row.usage_percent || 0);
+      const statusClass = row.status_class || 'status-ok';
+      const statusLabel = row.status       || 'Normal';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="cell-stack">
+            <strong>ETU${escapeHtml(row.etu || '—')}: ${escapeHtml(row.hostname || '—')}</strong>
+            <span class="muted">${escapeHtml(row.mac || '—')}</span>
+          </div>
+        </td>
+        <td><div class="cell-stack"><span class="chip">${escapeHtml(row.machine_type_user || 'Inconnu')}</span></div></td>
+        <td>
+          <div class="cell-stack">
+            <strong>${escapeHtml(row.formatted_quota_consomme || '0 Bytes')}</strong>
+            <span class="muted">Sur ${escapeHtml(row.formatted_quota_limite || '0 Bytes')}</span>
+          </div>
+        </td>
+        <td>
+          <div class="progress-wrap">
+            <strong>${percent.toFixed(1)}%</strong>
+            <div class="progress"><span style="width:${Math.min(percent,100)}%; background:${getProgressGradient(percent)}"></span></div>
+          </div>
+        </td>
+        <td class="${escapeHtml(statusClass)}">${escapeHtml(statusLabel)}</td>
+        <td>
+          <div class="action-group">
+            <button onclick="editQuotaMachineById(${Number(row.id)})" class="action-btn edit" title="Modifier" type="button">
+              <span class="material-icons-outlined">edit</span>
+            </button>
+            <button onclick="deleteQuotaMachine(${Number(row.id)})" class="action-btn delete" title="Supprimer" type="button">
+              <span class="material-icons-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  /* --- Pagination --- */
+  function renderPagination(filteredRows) {
+    const bar = document.getElementById('paginationBar');
+    if (!bar) return;
+
+    const totalPages = Math.max(1, Math.ceil(filteredRows.length / state.pageSize));
+    state.page = Math.min(state.page, totalPages);
+    const start = (state.page - 1) * state.pageSize;
+    renderTable(filteredRows.slice(start, start + state.pageSize));
+
+    const prevDis = state.page <= 1            ? 'disabled' : '';
+    const nextDis = state.page >= totalPages   ? 'disabled' : '';
+    const btnStyle = (dis) =>
+      `padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);
+       background:rgba(255,255,255,0.02);
+       color:${dis ? 'var(--text-muted)' : 'var(--text)'};
+       cursor:${dis ? 'not-allowed' : 'pointer'};
+       opacity:${dis ? '0.5' : '1'};`;
+
+    bar.innerHTML = `
+      <span style="color:var(--text-muted); font-size:0.85rem;">${filteredRows.length} résultat${filteredRows.length > 1 ? 's' : ''}</span>
+      <div style="display:flex; align-items:center; gap:10px; color:var(--text-muted); font-size:0.9rem;">
+        <button data-action="prev" ${prevDis} style="${btnStyle(prevDis)}">Précédent</button>
+        <input id="pageInput" type="number" min="1" max="${totalPages}" value="${state.page}"
+               class="filter-input" style="width:50px; padding:8px 12px; font-size:0.9rem;" />
+        <span>/ ${totalPages}</span>
+        <button data-action="next" ${nextDis} style="${btnStyle(nextDis)}">Suivant</button>
+      </div>
+    `;
+
+    bar.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled || btn.getAttribute('disabled') === 'disabled') return;
+        if (btn.dataset.action === 'prev') state.page = Math.max(1, state.page - 1);
+        if (btn.dataset.action === 'next') state.page = Math.min(totalPages, state.page + 1);
+        applyFilters();
+      });
+    });
+
+    const pageInput = bar.querySelector('#pageInput');
+    if (pageInput) {
+      pageInput.addEventListener('change', () => {
+        const p = Number(pageInput.value);
+        if (Number.isFinite(p) && p >= 1 && p <= totalPages) {
+          state.page = p;
+          applyFilters();
+        } else {
+          pageInput.value = state.page;
+        }
+      });
+    }
+  }
+
+  function applyFilters() { renderPagination(getFilteredRows()); }
+
+  /* --- Filtre type --- */
+  function populateTypeFilter() {
+    const sel = document.getElementById('typeFilter');
+    if (!sel) return;
+    const types = [...new Set(state.rows.map(r => r.machine_type_user).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="all">Tous</option>' +
+      types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+    sel.value = state.type;
+  }
+
+  /* --- Listeners filtres --- */
+  function setupFilters() {
+    if (state.listenersReady) return;
+    state.listenersReady = true;
+
+    const bind = (id, prop) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input',  e => { state[prop] = e.target.value; state.page = 1; applyFilters(); });
+      if (el) el.addEventListener('change', e => { state[prop] = e.target.value; state.page = 1; applyFilters(); });
+    };
+    bind('searchInput',  'search');
+    bind('typeFilter',   'type');
+    bind('statusFilter', 'status');
+    bind('minPercent',   'minPercent');
+    bind('maxPercent',   'maxPercent');
+  }
+
+  /* --- Chargement API --- */
+  async function loadQuotaMachines() {
+    try {
+      const response = await fetch(API);
+      const result   = await response.json();
+      state.rows = Array.isArray(result?.data) ? result.data : [];
+      populateTypeFilter();
+      setupFilters();
+      applyFilters();
+    } catch (error) {
+      console.error('Erreur chargement quota machine:', error);
+    }
+  }
+
+  /* --- Actions --- */
+  window.loadQuotaMachines = loadQuotaMachines;
+
+  window.editQuotaMachine = function(row) {
+    localStorage.setItem('quotaMachineData', JSON.stringify(row));
+    loadPageContent('quota_machine/editQuotaMachine.html');
+  };
+
+  window.editQuotaMachineById = function(id) {
+    const row = state.rows.find(r => Number(r.id) === Number(id));
+    if (!row) { alert('Quota machine introuvable'); return; }
+    window.editQuotaMachine(row);
+  };
+
+  window.deleteQuotaMachine = function(id) {
+    apiDeleteQM(`${API}/${id}`, () => loadQuotaMachines());
+  };
+
+  // Initialisation
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadQuotaMachines);
+  } else {
+    loadQuotaMachines();
+  }
+})();
+</script>

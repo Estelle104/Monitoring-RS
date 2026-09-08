@@ -8,6 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="quota/quota.shared.css" />
+    <script src="quota/quota.shared.js"></script>
+    <link rel="stylesheet" href="quota_machine/quota_machine.shared.css" />
+    <script src="quota_machine/quota_machine.shared.js"></script>
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -207,16 +212,6 @@
   </head>
 
   <body>
-    <!-- AUTH GUARD: redirige vers login si non authentifié -->
-    <script>
-      (function() {
-        const user = sessionStorage.getItem('user');
-        if (!user) {
-          window.location.href = 'login.html';
-        }
-      })();
-    </script>
-
     <!-- HEADER -->
     <header id="app-header" class="dark:bg-surface-dark px-6 flex items-center justify-between sticky top-0 z-50">
       <button id="menu-btn" onclick="toggleSidebar()"
@@ -269,11 +264,18 @@
               <span class="material-icons-outlined mr-3 text-lg">lan</span>
               Liste VLAN
             </button>
+            <button onclick="setActiveMenuItem(this); loadPageContent('quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+              Liste Quota
+            </button>
+            <button onclick="setActiveMenuItem(this); loadPageContent('quota_machine/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+              Liste Quota Machine
+            </button>
           </nav>
+
 
           <div class="px-4 my-8 border-t dark:border-slate-700/50 pt-8">
             <p class="text-[10px] font-bold uppercase mb-6 tracking-widest" style="color:var(--text-muted)">Autres</p>
-            <a href="#" onclick="logout(); return false;" class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
+            <a href="#" class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
               <span class="material-icons-outlined mr-3 text-lg">logout</span>
               Déconnexion
             </a>

@@ -51,3 +51,30 @@ def delete_machine_by_mac(mac: str):
     conn.close()
 
     return deleted > 0
+
+
+def get_all_machines():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, hostname, etu, mac FROM machine ORDER BY hostname")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+
+def get_machines_sans_quota_machine():
+    """Retourne les machines qui ne sont pas encore dans quota_machine."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT m.id, m.hostname, m.etu, m.mac
+        FROM machine m
+        LEFT JOIN quota_machine qm ON qm.id_machine = m.id
+        WHERE qm.id IS NULL
+        ORDER BY m.hostname
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
