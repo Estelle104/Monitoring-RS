@@ -4,7 +4,7 @@ from fastapi import Request
 import json
 from pydantic import BaseModel
 from typing import Optional
-from app.crud.vlan import get_all_vlans, get_vlan_by_id, get_vlan_by_idSalle, create_vlan, create_salle_vlan_link, update_vlan, delete_vlan
+from app.crud.vlan import get_all_vlans, get_vlan_by_id, get_vlan_by_idSalle, create_vlan, create_salle_vlan_link, update_vlan, delete_vlan, get_vlan_port_by_id, get_vlan_port_by_idSalle
 from app.crud.salle import get_all_salles, get_salle_by_id
 from app.crud.port import get_all_ports, get_ports_by_vlan, create_port, update_port, delete_port
 # from app.crud.salle_vlan import (
@@ -162,6 +162,14 @@ def get_vlan(vlan_id: str):
 def get_vlan_by_salle(salle_id: str):
     """Récupérer un VLAN par son ID de salle"""
     vlan = get_vlan_by_idSalle(salle_id)
+    if not vlan:
+        raise HTTPException(status_code=404, detail="VLAN non trouvé")
+    return {"status": "ok", "data": vlan}
+
+@router.get("/vlans/vlan_port/{salle_id}")
+def get_vlan_port_by_salle(salle_id: str):
+    """Récupérer un VLAN et port par son ID de salle"""
+    vlan = get_vlan_port_by_id(salle_id)
     if not vlan:
         raise HTTPException(status_code=404, detail="VLAN non trouvé")
     return {"status": "ok", "data": vlan}
