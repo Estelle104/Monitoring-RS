@@ -1,407 +1,502 @@
 <!doctype html>
 <html class="dark" lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title id="pageTitle">Dashboard</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-    
-    <link rel="stylesheet" href="quota/quota.shared.css" />
-    <script src="quota/quota.shared.js"></script>
-    <link rel="stylesheet" href="quota_machine/quota_machine.shared.css" />
-    <script src="quota_machine/quota_machine.shared.js"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "var(--chartreuse)",
-              "background-light": "var(--card-bg)",
-              "background-dark": "var(--ink)",
-              "card-dark": "rgba(60,79,46,0.25)",
-              "surface-dark": "var(--sidebar-bg)",
-              "text-base": "var(--text)",
-              "text-muted": "var(--text-muted)",
-              border: "var(--border)",
-            },
-            fontFamily: { display: ["Inter", "sans-serif"] },
-            borderRadius: { DEFAULT: "4px" },
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title id="pageTitle">Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+
+  <link rel="stylesheet" href="quota/quota.shared.css" />
+  <script src="quota/quota.shared.js"></script>
+  <link rel="stylesheet" href="quota_machine/quota_machine.shared.css" />
+  <script src="quota_machine/quota_machine.shared.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "var(--chartreuse)",
+            "background-light": "var(--card-bg)",
+            "background-dark": "var(--ink)",
+            "card-dark": "rgba(60,79,46,0.25)",
+            "surface-dark": "var(--sidebar-bg)",
+            "text-base": "var(--text)",
+            "text-muted": "var(--text-muted)",
+            border: "var(--border)",
           },
+          fontFamily: { display: ["Inter", "sans-serif"] },
+          borderRadius: { DEFAULT: "4px" },
         },
-      };
-    </script>
-    <style>
-      :root {
-        --ink: #001925;
-        --sidebar-bg: rgba(68, 112, 60, 0.15);
-        --sidebar-hover: rgba(202, 244, 56, 0.07);
-        --sidebar-active: rgba(202, 244, 56, 0.12);
-        --chartreuse: #CAF438;
-        --india: #258714;
-        --green: #7efb5c;
-        --text: #e8f5e2;
-        --text-muted: rgba(232, 245, 226, 0.5);
-        --border: rgba(202, 244, 56, 0.12);
-        --card-bg: rgba(60, 79, 46, 0.18);
-      }
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --ink: #001925;
+      --sidebar-bg: rgba(68, 112, 60, 0.15);
+      --sidebar-hover: rgba(202, 244, 56, 0.07);
+      --sidebar-active: rgba(202, 244, 56, 0.12);
+      --chartreuse: #CAF438;
+      --india: #258714;
+      --green: #7efb5c;
+      --text: #e8f5e2;
+      --text-muted: rgba(232, 245, 226, 0.5);
+      --border: rgba(202, 244, 56, 0.12);
+      --card-bg: rgba(60, 79, 46, 0.18);
+    }
 
-      /* === RESET & BASE === */
-      *, *::before, *::after { box-sizing: border-box; }
+    /* === RESET & BASE === */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-      }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
 
-      body {
-        font-family: "Inter", sans-serif;
-        -webkit-font-smoothing: antialiased;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--ink);
-        color: var(--text);
-      }
+    body {
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--ink);
+      color: var(--text);
+    }
 
-      /* === HEADER === */
-      #app-header {
-        flex-shrink: 0;
-        height: 64px;
-      }
+    /* === HEADER === */
+    #app-header {
+      flex-shrink: 0;
+      height: 64px;
+    }
 
-      /* === LAYOUT === */
-      #layout {
-        display: flex;
-        flex: 1 1 0%;
-        min-height: 0;
-        overflow: hidden;
-      }
+    /* === LAYOUT === */
+    #layout {
+      display: flex;
+      flex: 1 1 0%;
+      min-height: 0;
+      overflow: hidden;
+    }
 
-      /* === SIDEBAR === */
-      #sidebar {
-        flex-shrink: 0;
-        width: 256px;
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 1;
-        transform: translateX(0);
-      }
+    /* === SIDEBAR === */
+    #sidebar {
+      flex-shrink: 0;
+      width: 256px;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 1;
+      transform: translateX(0);
+    }
 
-      #sidebar.collapsed {
-        width: 0;
-        opacity: 0;
-        transform: translateX(-20px);
-        pointer-events: none;
-      }
+    #sidebar.collapsed {
+      width: 0;
+      opacity: 0;
+      transform: translateX(-20px);
+      pointer-events: none;
+    }
 
-      #sidebar .sidebar-inner {
-        width: 256px;
-      }
+    #sidebar .sidebar-inner {
+      width: 256px;
+    }
 
-      /* === MAIN CONTENT === */
-      #main-content {
-        flex: 1 1 0%;
-        height: 100%;
-        overflow-y: auto;
-        min-width: 0;
-      }
+    /* === MAIN CONTENT === */
+    #main-content {
+      flex: 1 1 0%;
+      height: 100%;
+      overflow-y: auto;
+      min-width: 0;
+    }
 
-      /* === SCROLLBAR === */
-      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
+    /* === SCROLLBAR === */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
 
-      /* === MENU BUTTON ANIMATION === */
-      #menu-btn .bar {
-        display: block;
-        width: 18px;
-        height: 2px;
-        background: var(--chartreuse);
-        border-radius: 2px;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-        transform-origin: center;
-      }
-      #menu-btn.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-      #menu-btn.open .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
-      #menu-btn.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-      /* === TAILWIND PALETTE OVERRIDES === */
-      .text-slate-800, .dark .text-slate-200 { color: var(--text) !important; }
-      .text-slate-400, .text-slate-500, .text-slate-600,
-      .dark .text-slate-400, .dark .text-slate-500 { color: var(--text-muted) !important; }
-      .border-slate-200, .border-slate-100,
-      .dark .border-slate-700\/50,
-      .dark .border-slate-800 { border-color: var(--border) !important; }
-      .placeholder\:text-slate-400::placeholder { color: var(--text-muted) !important; }
-      .dark .placeholder\:text-slate-500::placeholder { color: var(--text-muted) !important; }
-      .hover\:bg-slate-100:hover { background-color: var(--sidebar-hover) !important; }
-      .dark .hover\:bg-slate-800:hover { background-color: var(--sidebar-active) !important; }
-      a:focus, button:focus { outline: none !important; }
-      .logo { display: flex; align-items: center; gap: 12px; }
-      .logo-rect { width: 44px; height: 16px; background: var(--chartreuse); border-radius: 2px; }
-      .logo-text { font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); }
-      .logo-text span { color: var(--chartreuse); }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 10px;
+    }
 
-      /* NIOVAAAAAAAAAAAA */
-      /* === SIDEBAR MENU ITEMS === */
-      .sidebar-menu-item {
-        background-color: transparent;
-        color: var(--text-muted) !important;
-        transition: all 0.2s ease;
-      }
+    /* === MENU BUTTON ANIMATION === */
+    #menu-btn .bar {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--chartreuse);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform-origin: center;
+    }
 
-      .sidebar-menu-item:hover {
-        background-color: var(--sidebar-hover) !important;
-      }
+    #menu-btn.open .bar:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
 
-      .sidebar-menu-item.active {
-        background-color: rgba(202, 244, 56, 0.1) !important;
-        color: var(--chartreuse) !important;
-        font-weight: 500;
-      }
-      /* FINNNN     NIOVAAAAAAAAAAAA */
+    #menu-btn.open .bar:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+
+    #menu-btn.open .bar:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* === TAILWIND PALETTE OVERRIDES === */
+    .text-slate-800,
+    .dark .text-slate-200 {
+      color: var(--text) !important;
+    }
+
+    .text-slate-400,
+    .text-slate-500,
+    .text-slate-600,
+    .dark .text-slate-400,
+    .dark .text-slate-500 {
+      color: var(--text-muted) !important;
+    }
+
+    .border-slate-200,
+    .border-slate-100,
+    .dark .border-slate-700\/50,
+    .dark .border-slate-800 {
+      border-color: var(--border) !important;
+    }
+
+    .placeholder\:text-slate-400::placeholder {
+      color: var(--text-muted) !important;
+    }
+
+    .dark .placeholder\:text-slate-500::placeholder {
+      color: var(--text-muted) !important;
+    }
+
+    .hover\:bg-slate-100:hover {
+      background-color: var(--sidebar-hover) !important;
+    }
+
+    .dark .hover\:bg-slate-800:hover {
+      background-color: var(--sidebar-active) !important;
+    }
+
+    a:focus,
+    button:focus {
+      outline: none !important;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-rect {
+      width: 44px;
+      height: 16px;
+      background: var(--chartreuse);
+      border-radius: 2px;
+    }
+
+    .logo-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .logo-text span {
+      color: var(--chartreuse);
+    }
+
+    /* NIOVAAAAAAAAAAAA */
+    /* === SIDEBAR MENU ITEMS === */
+    .sidebar-menu-item {
+      background-color: transparent;
+      color: var(--text-muted) !important;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-menu-item:hover {
+      background-color: var(--sidebar-hover) !important;
+    }
+
+    .sidebar-menu-item.active {
+      background-color: rgba(202, 244, 56, 0.1) !important;
+      color: var(--chartreuse) !important;
+      font-weight: 500;
+    }
+
+    /* FINNNN     NIOVAAAAAAAAAAAA */
 
 
-      /* === FORM INPUTS DARK THEME === */
-      #page-content input[type="text"],
-      #page-content input[type="number"],
-      #page-content input[type="password"],
-      #page-content select {
-        background-color: #0a2a1a !important;
-        border: 1px solid rgba(202, 244, 56, 0.2) !important;
-        color: #e8f5e2 !important;
-        -webkit-text-fill-color: #e8f5e2 !important;
-        caret-color: #CAF438;
-      }
-      #page-content input[type="text"]:focus,
-      #page-content input[type="number"]:focus,
-      #page-content input[type="password"]:focus,
-      #page-content select:focus {
-        border-color: #CAF438 !important;
-        box-shadow: 0 0 0 2px rgba(202, 244, 56, 0.15) !important;
-        background-color: #0a2a1a !important;
-      }
-      #page-content input::placeholder {
-        color: rgba(232, 245, 226, 0.35) !important;
-        -webkit-text-fill-color: rgba(232, 245, 226, 0.35) !important;
-      }
-      #page-content select option {
-        background-color: #001925;
-        color: #e8f5e2;
-      }
-      /* Fix autofill du navigateur */
-      #page-content input:-webkit-autofill,
-      #page-content input:-webkit-autofill:hover,
-      #page-content input:-webkit-autofill:focus,
-      #page-content input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 1000px #0a2a1a inset !important;
-        -webkit-text-fill-color: #e8f5e2 !important;
-        border: 1px solid rgba(202, 244, 56, 0.2) !important;
-        transition: background-color 5000s ease-in-out 0s;
-      }
-    </style>
-  </head>
+    /* === FORM INPUTS DARK THEME === */
+    #page-content input[type="text"],
+    #page-content input[type="number"],
+    #page-content input[type="password"],
+    #page-content select {
+      background-color: #0a2a1a !important;
+      border: 1px solid rgba(202, 244, 56, 0.2) !important;
+      color: #e8f5e2 !important;
+      -webkit-text-fill-color: #e8f5e2 !important;
+      caret-color: #CAF438;
+    }
 
-  <body>
-    <!-- HEADER -->
-    <header id="app-header" class="dark:bg-surface-dark px-6 flex items-center justify-between sticky top-0 z-50">
-      <button id="menu-btn" onclick="toggleSidebar()"
-        class="flex flex-col gap-[5px] justify-center items-center w-8 h-8 focus:outline-none cursor-pointer">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
+    #page-content input[type="text"]:focus,
+    #page-content input[type="number"]:focus,
+    #page-content input[type="password"]:focus,
+    #page-content select:focus {
+      border-color: #CAF438 !important;
+      box-shadow: 0 0 0 2px rgba(202, 244, 56, 0.15) !important;
+      background-color: #0a2a1a !important;
+    }
+
+    #page-content input::placeholder {
+      color: rgba(232, 245, 226, 0.35) !important;
+      -webkit-text-fill-color: rgba(232, 245, 226, 0.35) !important;
+    }
+
+    #page-content select option {
+      background-color: #001925;
+      color: #e8f5e2;
+    }
+
+    /* Fix autofill du navigateur */
+    #page-content input:-webkit-autofill,
+    #page-content input:-webkit-autofill:hover,
+    #page-content input:-webkit-autofill:focus,
+    #page-content input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #0a2a1a inset !important;
+      -webkit-text-fill-color: #e8f5e2 !important;
+      border: 1px solid rgba(202, 244, 56, 0.2) !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header id="app-header" class="dark:bg-surface-dark px-6 flex items-center justify-between sticky top-0 z-50">
+    <button id="menu-btn" onclick="toggleSidebar()"
+      class="flex flex-col gap-[5px] justify-center items-center w-8 h-8 focus:outline-none cursor-pointer">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <div class="flex items-center gap-3">
+      <div class="logo">
+        <div class="logo-rect"><img src="" alt=""></div>
+        <span class="logo-text">Rohy<span>Safe</span></span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <button class="p-2 focus:outline-none" style="color:var(--text-muted)">
+        <span class="material-icons-outlined">help_outline</span>
       </button>
+      <div
+        class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90 transition-opacity">
+        R</div>
+    </div>
+  </header>
 
-      <div class="flex items-center gap-3">
-        <div class="logo">
-          <div class="logo-rect"></div>
-          <span class="logo-text">Rohy<span>Safe</span></span>
-        </div>
-      </div>
+  <!-- BODY LAYOUT -->
+  <div id="layout">
 
-      <div class="flex items-center gap-4">
-        <button class="p-2 focus:outline-none" style="color:var(--text-muted)">
-          <span class="material-icons-outlined">help_outline</span>
-        </button>
-        <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90 transition-opacity">R</div>
-      </div>
-    </header>
-
-    <!-- BODY LAYOUT -->
-    <div id="layout">
-
-      <!-- SIDEBAR -->
-      <aside id="sidebar" class="dark:bg-[var(--sidebar-bg)] custom-scrollbar">
-        <div class="sidebar-inner py-6">
-          <div class="px-6 mb-8">
-            <div class="flex items-center gap-2 mb-1" style="color:var(--text-muted)">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="dark:bg-[var(--sidebar-bg)] custom-scrollbar">
+      <div class="sidebar-inner py-6">
+        <div class="px-6 mb-8">
+          <!-- <div class="flex items-center gap-2 mb-1" style="color:var(--text-muted)">
               <span class="material-icons-outlined text-sm">home</span>
               <span class="text-[10px] font-bold uppercase tracking-widest">RohySafe</span>
-            </div>
-            <!-- <h1 class="text-xl font-bold dark:text-white whitespace-nowrap">Salles</h1>
-            <p class="text-xs whitespace-nowrap" style="color:var(--text-muted)">Antananarivo, null, MDG</p> -->
-          </div>
+            </div> -->
+          <!-- <h1 class="text-xl font-bold dark:text-white whitespace-nowrap">Salles</h1> -->
+          <div class="logo-rect"></div>
 
-          <nav class="px-4 space-y-1">
-            <button onclick="setActiveMenuItem(this); loadPageContent('dashboard.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
-              <span class="material-icons-outlined mr-3 text-lg">dashboard</span>
-              Dashboard
-            </button>
-            <button onclick="setActiveMenuItem(this); loadPageContent('salle/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg whitespace-nowrap focus:outline-none transition-colors">
-              <span class="material-icons-outlined mr-3 text-lg">meeting_room</span>
-              Liste Salle
-            </button>
-            <button onclick="setActiveMenuItem(this); loadPageContent('vlan/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
-              <span class="material-icons-outlined mr-3 text-lg">lan</span>
-              Liste VLAN
-            </button>
-            <button onclick="setActiveMenuItem(this); loadPageContent('histo_quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
-              <span class="material-icons-outlined mr-3 text-lg">data_usage</span>
-              Historique Quota
-            </button>
-            <button onclick="setActiveMenuItem(this); loadPageContent('quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
-              Liste Quota
-            </button>
-            <button onclick="setActiveMenuItem(this); loadPageContent('quota_machine/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
-              Liste Quota Machine
-            </button>
-          </nav>
+          <span class="logo-text">Rohy<span>Safe</span></span>
 
-
-          <div class="px-4 my-8 border-t dark:border-slate-700/50 pt-8">
-            <p class="text-[10px] font-bold uppercase mb-6 tracking-widest" style="color:var(--text-muted)">Autres</p>
-            <a href="#" class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
-              <span class="material-icons-outlined mr-3 text-lg">logout</span>
-              Déconnexion
-            </a>
-          </div>
         </div>
-      </aside>
 
-      <!-- MAIN CONTENT -->
-      <main id="main-content" class="custom-scrollbar">
-        <div id="page-content">
-          <!-- Le contenu des pages sera injecté ici -->
+        <nav class="px-4 space-y-1">
+          <button onclick="setActiveMenuItem(this); loadPageContent('dashboard.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+            <span class="material-icons-outlined mr-3 text-lg">dashboard</span>
+            Dashboard
+          </button>
+          <button onclick="setActiveMenuItem(this); loadPageContent('salle/liste.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg whitespace-nowrap focus:outline-none transition-colors">
+            <span class="material-icons-outlined mr-3 text-lg">meeting_room</span>
+            Liste Salle
+          </button>
+          <button onclick="setActiveMenuItem(this); loadPageContent('vlan/liste.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+            <span class="material-icons-outlined mr-3 text-lg">lan</span>
+            Liste VLAN
+          </button>
+          <button onclick="setActiveMenuItem(this); loadPageContent('histo_quota/liste.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+            <span class="material-icons-outlined mr-3 text-lg">data_usage</span>
+            Historique Quota
+          </button>
+          <button onclick="setActiveMenuItem(this); loadPageContent('quota/liste.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+            Liste Quota
+          </button>
+          <button onclick="setActiveMenuItem(this); loadPageContent('quota_machine/liste.html')"
+            class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+            Liste Quota Machine
+          </button>
+        </nav>
+
+
+        <div class="px-4 my-8 border-t dark:border-slate-700/50 pt-8">
+          <p class="text-[10px] font-bold uppercase mb-6 tracking-widest" style="color:var(--text-muted)">Autres</p>
+          <a href="#"
+            class="flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap dark:text-slate-400 dark:hover:bg-slate-800">
+            <span class="material-icons-outlined mr-3 text-lg">logout</span>
+            Déconnexion
+          </a>
         </div>
-      </main>
-    </div>
+      </div>
+    </aside>
 
-    <!-- Background decoration -->
-    <div class="fixed top-0 right-0 p-8 opacity-5 pointer-events-none">
-      <span class="material-icons-outlined text-[300px]">settings_input_antenna</span>
-    </div>
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="custom-scrollbar">
+      <div id="page-content">
+        <!-- Le contenu des pages sera injecté ici -->
+      </div>
+    </main>
+  </div>
 
-    <script>
-      // Fonction de déconnexion
-      function logout() {
-        sessionStorage.removeItem('user');
-        window.location.href = 'login.html';
+  <!-- Background decoration -->
+  <div class="fixed top-0 right-0 p-8 opacity-5 pointer-events-none">
+    <span class="material-icons-outlined text-[300px]">settings_input_antenna</span>
+  </div>
+
+  <script>
+    // Fonction de déconnexion
+    function logout() {
+      sessionStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    function setActiveMenuItem(element) {
+      // Enlever la classe active de tous les menu items
+      document.querySelectorAll('.sidebar-menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      // Ajouter la classe active à l'élément cliqué
+      element.classList.add('active');
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const btn = document.getElementById('menu-btn');
+      sb.classList.toggle('collapsed');
+      btn.classList.toggle('open');
+    }
+
+    // Charger le contenu depuis une page
+    function loadPageContent(pagePath) {
+      const rawPath = String(pagePath || '').trim();
+      if (!rawPath) {
+        console.warn('loadPageContent: chemin vide');
+        return;
       }
 
-      function setActiveMenuItem(element) {
-        // Enlever la classe active de tous les menu items
-        document.querySelectorAll('.sidebar-menu-item').forEach(item => {
-          item.classList.remove('active');
-        });
-        // Ajouter la classe active à l'élément cliqué
-        element.classList.add('active');
-      }
+      const pageUrl = new URL(rawPath, window.location.href);
+      pageUrl.searchParams.set('_', Date.now());
 
-      function toggleSidebar() {
-        const sb = document.getElementById('sidebar');
-        const btn = document.getElementById('menu-btn');
-        sb.classList.toggle('collapsed');
-        btn.classList.toggle('open');
-      }
+      console.log('loadPageContent ->', rawPath, '=>', pageUrl.toString());
 
-      // Charger le contenu depuis une page
-      function loadPageContent(pagePath) {
-        const rawPath = String(pagePath || '').trim();
-        if (!rawPath) {
-          console.warn('loadPageContent: chemin vide');
-          return;
-        }
+      fetch(pageUrl.toString(), { cache: 'no-store' })
+        .then(response => {
+          console.log('fetch', rawPath, response.status, response.ok);
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+          }
+          return response.text();
+        })
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const title = doc.querySelector('title');
 
-        const pageUrl = new URL(rawPath, window.location.href);
-        pageUrl.searchParams.set('_', Date.now());
+          if (title) {
+            document.getElementById('pageTitle').textContent = title.textContent;
+          }
 
-        console.log('loadPageContent ->', rawPath, '=>', pageUrl.toString());
+          // Nettoyer l'ancienne vue injectée
+          document.querySelectorAll('style[data-page-style]').forEach(s => s.remove());
+          const pageContainer = document.getElementById('page-content');
+          if (pageContainer) {
+            pageContainer.innerHTML = '';
+          }
 
-        fetch(pageUrl.toString(), { cache: 'no-store' })
-          .then(response => {
-            console.log('fetch', rawPath, response.status, response.ok);
-            if (!response.ok) {
-              throw new Error('HTTP ' + response.status + ' ' + response.statusText);
-            }
-            return response.text();
-          })
-          .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const title = doc.querySelector('title');
+          // Injecter les <style> du fragment dans le <head> principal
+          doc.querySelectorAll('style').forEach(style => {
+            const s = document.createElement('style');
+            s.setAttribute('data-page-style', 'true');
+            s.textContent = style.textContent;
+            document.head.appendChild(s);
+          });
 
-            if (title) {
-              document.getElementById('pageTitle').textContent = title.textContent;
-            }
+          // Charger le contenu de la page
+          const content = doc.body.innerHTML;
+          if (pageContainer) {
+            pageContainer.innerHTML = content;
+          }
 
-            // Nettoyer l'ancienne vue injectée
-            document.querySelectorAll('style[data-page-style]').forEach(s => s.remove());
-            const pageContainer = document.getElementById('page-content');
-            if (pageContainer) {
-              pageContainer.innerHTML = '';
-            }
-
-            // Injecter les <style> du fragment dans le <head> principal
-            doc.querySelectorAll('style').forEach(style => {
-              const s = document.createElement('style');
-              s.setAttribute('data-page-style', 'true');
-              s.textContent = style.textContent;
-              document.head.appendChild(s);
-            });
-
-            // Charger le contenu de la page
-            const content = doc.body.innerHTML;
-            if (pageContainer) {
-              pageContainer.innerHTML = content;
-            }
-
-            // Exécuter les scripts de la page
-            const scripts = doc.querySelectorAll('script');
-            scripts.forEach(script => {
-              if (!script.src) {
-                window.eval(script.textContent);
-              }
-            });
-          })
-          .catch(error => {
-            console.error('Erreur de chargement:', error);
-            const container = document.getElementById('page-content');
-            if (container) {
-              container.innerHTML = '<div style="padding:16px;color:#a00;">Erreur de chargement: ' + error.message + '</div>';
+          // Exécuter les scripts de la page
+          const scripts = doc.querySelectorAll('script');
+          scripts.forEach(script => {
+            if (!script.src) {
+              window.eval(script.textContent);
             }
           });
-      }
-      // Make loadPageContent globally accessible for onclick handlers
-      window.loadPageContent = loadPageContent;
+        })
+        .catch(error => {
+          console.error('Erreur de chargement:', error);
+          const container = document.getElementById('page-content');
+          if (container) {
+            container.innerHTML = '<div style="padding:16px;color:#a00;">Erreur de chargement: ' + error.message + '</div>';
+          }
+        });
+    }
+    // Make loadPageContent globally accessible for onclick handlers
+    window.loadPageContent = loadPageContent;
 
-      // Charger le dashboard au chargement
-      document.addEventListener('DOMContentLoaded', () => {
-        // Définir le dashboard comme actif par défaut
-        const dashboardBtn = document.querySelector('.sidebar-menu-item');
-        if (dashboardBtn) {
-          dashboardBtn.classList.add('active');
-        }
-        loadPageContent('dashboard.html');
-      });
-    </script>
-  </body>
+    // Charger le dashboard au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+      // Définir le dashboard comme actif par défaut
+      const dashboardBtn = document.querySelector('.sidebar-menu-item');
+      if (dashboardBtn) {
+        dashboardBtn.classList.add('active');
+      }
+      loadPageContent('dashboard.html');
+    });
+  </script>
+</body>
+
 </html>
