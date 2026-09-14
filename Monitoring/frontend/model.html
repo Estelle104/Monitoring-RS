@@ -245,10 +245,10 @@
           <div class="px-6 mb-8">
             <div class="flex items-center gap-2 mb-1" style="color:var(--text-muted)">
               <span class="material-icons-outlined text-sm">home</span>
-              <span class="text-[10px] font-bold uppercase tracking-widest">Site</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest">RohySafe</span>
             </div>
-            <h1 class="text-xl font-bold dark:text-white whitespace-nowrap">Salles</h1>
-            <p class="text-xs whitespace-nowrap" style="color:var(--text-muted)">Antananarivo, null, MDG</p>
+            <!-- <h1 class="text-xl font-bold dark:text-white whitespace-nowrap">Salles</h1>
+            <p class="text-xs whitespace-nowrap" style="color:var(--text-muted)">Antananarivo, null, MDG</p> -->
           </div>
 
           <nav class="px-4 space-y-1">
@@ -266,7 +266,8 @@
             </button>
             <button onclick="setActiveMenuItem(this); loadPageContent('histo_quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
               <span class="material-icons-outlined mr-3 text-lg">data_usage</span>
-              historique de consommation
+              Historique Quota
+            </button>
             <button onclick="setActiveMenuItem(this); loadPageContent('quota/liste.html')" class="sidebar-menu-item w-full text-left flex items-center px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap">
               Liste Quota
             </button>
@@ -324,19 +325,40 @@
 
       // Charger le contenu depuis une page
       function loadPageContent(pagePath) {
-        fetch(pagePath)
-          .then(response => response.text())
+        const rawPath = String(pagePath || '').trim();
+        if (!rawPath) {
+          console.warn('loadPageContent: chemin vide');
+          return;
+        }
+
+        const pageUrl = new URL(rawPath, window.location.href);
+        pageUrl.searchParams.set('_', Date.now());
+
+        console.log('loadPageContent ->', rawPath, '=>', pageUrl.toString());
+
+        fetch(pageUrl.toString(), { cache: 'no-store' })
+          .then(response => {
+            console.log('fetch', rawPath, response.status, response.ok);
+            if (!response.ok) {
+              throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+            }
+            return response.text();
+          })
           .then(html => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const title = doc.querySelector('title');
-            
+
             if (title) {
               document.getElementById('pageTitle').textContent = title.textContent;
             }
 
-            // Supprimer les anciens styles de page injectés
+            // Nettoyer l'ancienne vue injectée
             document.querySelectorAll('style[data-page-style]').forEach(s => s.remove());
+            const pageContainer = document.getElementById('page-content');
+            if (pageContainer) {
+              pageContainer.innerHTML = '';
+            }
 
             // Injecter les <style> du fragment dans le <head> principal
             doc.querySelectorAll('style').forEach(style => {
@@ -348,8 +370,10 @@
 
             // Charger le contenu de la page
             const content = doc.body.innerHTML;
-            document.getElementById('page-content').innerHTML = content;
-            
+            if (pageContainer) {
+              pageContainer.innerHTML = content;
+            }
+
             // Exécuter les scripts de la page
             const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
@@ -358,7 +382,13 @@
               }
             });
           })
-          .catch(error => console.error('Erreur de chargement:', error));
+          .catch(error => {
+            console.error('Erreur de chargement:', error);
+            const container = document.getElementById('page-content');
+            if (container) {
+              container.innerHTML = '<div style="padding:16px;color:#a00;">Erreur de chargement: ' + error.message + '</div>';
+            }
+          });
       }
       // Make loadPageContent globally accessible for onclick handlers
       window.loadPageContent = loadPageContent;

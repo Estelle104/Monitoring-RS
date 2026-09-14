@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api histo_quota
-from app.api import salle, vlan, firewall, login, rx, quota, type_user, machine, quota_machine
+from app.api import salle, vlan, firewall, login, rx, quota, type_user, machine, quota_machine, histo_quota
 from app.services import network_rx
 import asyncio
 
