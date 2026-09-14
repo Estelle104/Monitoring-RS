@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api histo_quota
 from app.api import salle, vlan, firewall, login, rx, quota, type_user, machine, quota_machine
 from app.services import network_rx
 import asyncio
@@ -27,6 +28,7 @@ app.include_router(firewall.router, tags=["Firewall"])
 app.include_router(salle.router, prefix="/api", tags=["Salle"])
 app.include_router(vlan.router, prefix="/api", tags=["VLAN"])
 app.include_router(login.router, prefix="/api", tags=["Login"])
+app.include_router(histo_quota.router, prefix="/api", tags=["QuotaHistory"])
 
 app.include_router(quota.router, prefix="/api", tags=["Quota"])
 app.include_router(quota_machine.router, prefix="/api", tags=["Quota Machine"])
