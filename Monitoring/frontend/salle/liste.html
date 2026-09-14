@@ -6,15 +6,23 @@
       <h1 class="text-3xl font-bold dark:text-white mb-4">Liste des Salles</h1>
       <div class="flex items-center gap-4">
         <div class="relative group">
-          <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors" style="color:var(--text-muted)">search</span>
-          <input id="searchInput" class="w-full md:w-80 pl-10 pr-4 py-2.5 dark:bg-card-dark border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" style="color:var(--text)" placeholder="Recherche de salles" type="text" />
+          <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 transition-colors"
+            style="color:var(--text-muted)">search</span>
+          <input id="searchInput"
+            class="w-full md:w-80 pl-10 pr-4 py-2.5 dark:bg-card-dark border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)" placeholder="Recherche de salles" type="text" />
         </div>
         <p class="mt-2 text-sm" id="countSalles" style="color:var(--text-muted)">0 éléments</p>
       </div>
     </div>
     <div class="self-end md:self-center flex flex-col gap-2" style="display: flex;">
-      <button onclick="loadPageContent('salle/addSalle.html')" class="bg-primary font-bold py-2.5 px-6 rounded-md transition-colors text-sm uppercase tracking-wide hover:opacity-90 whitespace-nowrap" style="color:#001925; border:none; cursor:pointer;">Ajouter une salle</button>
-      <button onclick="loadPageContent('vlan/AddVlan.html')" class="font-bold py-2.5 px-6 rounded-md transition-colors text-sm uppercase tracking-wide hover:opacity-90 whitespace-nowrap" style="color:var(--chartreuse); border:1px solid var(--chartreuse); cursor:pointer; background:transparent;">Ajouter un VLAN</button>
+      <button onclick="loadPageContent('salle/addSalle.html')"
+        class="bg-primary font-bold py-2.5 px-6 rounded-md transition-colors text-sm uppercase tracking-wide hover:opacity-90 whitespace-nowrap"
+        style="color:#001925; border:none; cursor:pointer;">Ajouter une salle</button>
+      <button onclick="loadPageContent('vlan/AddVlan.html')"
+        class="font-bold py-2.5 px-6 rounded-md transition-colors text-sm uppercase tracking-wide hover:opacity-90 whitespace-nowrap"
+        style="color:var(--chartreuse); border:1px solid var(--chartreuse); cursor:pointer; background:transparent;">Ajouter
+        un VLAN</button>
     </div>
   </div>
 
@@ -29,9 +37,9 @@
 
   // const ports = ['gi1/0/2', 'gi1/0/3', 'gi1/0/4', 'gi1/0/5', 'gi1/0/7', 'gi1/0/7', 'gi1/0/8', 'gi1/0/9', '', 'gi1/0/11'];
 
-  
-  
-  window.loadSalles = async function() {
+
+
+  window.loadSalles = async function () {
     try {
       const response = await fetch('http://localhost:8000/api/salles');
       const result = await response.json();
@@ -46,7 +54,7 @@
     }
   };
 
-  window.setupSearch = function() {
+  window.setupSearch = function () {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -54,7 +62,7 @@
         if (searchTerm === '') {
           window.displaySalles(allSalles);
         } else {
-          const filtered = allSalles.filter(salle => 
+          const filtered = allSalles.filter(salle =>
             (salle.salle && salle.salle.toLowerCase().includes(searchTerm)) ||
             (salle.id && salle.id.toString().toLowerCase().includes(searchTerm))
           );
@@ -64,54 +72,104 @@
     }
   };
 
-  window.displaySalles = async function(salles) {
+  window.displaySalles = async function (salles) {
     const grid = document.getElementById('sallesGrid');
     const countElement = document.getElementById('countSalles');
-    
+
     if (!grid || !countElement) {
       console.error('Éléments DOM non trouvés');
       return;
     }
-    
+
     grid.innerHTML = '';
+
     if (salles.length === 0) {
-      grid.innerHTML = '<p class="text-center col-span-full" style="color:var(--text-muted)">Aucune salle trouvée</p>';
+      grid.innerHTML = `
+      <p class="text-center col-span-full" style="color:var(--text-muted)">Aucune salle trouvée</p>
+    `;
+
       countElement.textContent = '0 éléments';
       return;
     }
-    countElement.textContent = `${salles.length} élément${salles.length > 1 ? 's' : ''}`;
+
+    countElement.textContent =
+      `${salles.length} élément${salles.length > 1 ? 's' : ''}`;
+
     for (const [index, salle] of salles.entries()) {
+
       const card = document.createElement('div');
-      card.className = 'dark:bg-card-dark rounded-lg p-5 border dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow group cursor-pointer';
+
+      card.className =
+        'dark:bg-card-dark rounded-lg p-5 border dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow group cursor-pointer';
 
       let port = [];
       let Vlan = null;
-      let vlan = '';
 
       try {
+
         const vlanResponse = await fetch(
           `http://localhost:8000/api/vlans/vlan_port/${salle.id}`
         );
 
-        const vlanResult = await vlanResponse.json();
+        console.log(
+          `Salle ${salle.id} - STATUS :`,
+          vlanResponse.status
+        );
 
-        if (
-          vlanResult &&
-          vlanResult.status === 'ok' &&
-          vlanResult.data
-        ) {
-          Vlan = vlanResult.data[0];
+        /*
+         * 404 = cette salle n'a pas de VLAN.
+         * C'est normal, donc on ne considère pas cela comme
+         * une erreur.
+         */
+        if (vlanResponse.status === 404) {
 
-          vlan = Vlan.vlan || Vlan.id || '';
+          console.log(
+            `Salle ${salle.id} : aucun VLAN associé`
+          );
 
-          port = Array.isArray(Vlan.port) ? Vlan.port : [];
+          Vlan = null;
+          port = [];
+
+        } else if (!vlanResponse.ok) {
+
+          throw new Error(
+            `Erreur HTTP ${vlanResponse.status}`
+          );
 
         } else {
-          vlan = '';
-          port = [];
+
+          const vlanResult = await vlanResponse.json();
+
+          console.log(
+            `Salle ${salle.id} - RESULT :`,
+            vlanResult
+          );
+
+          if (
+            vlanResult &&
+            vlanResult.status === 'ok' &&
+            vlanResult.data
+          ) {
+
+            /*
+             * Ton API semble retourner un tableau.
+             * On récupère donc le premier VLAN.
+             */
+            if (Array.isArray(vlanResult.data)) {
+              Vlan = vlanResult.data[0] || null;
+            } else {
+              Vlan = vlanResult.data;
+            }
+
+            if (Vlan) {
+              port = Array.isArray(Vlan.port) ? Vlan.port : [];
+            }
+
+          }
         }
 
       } catch (error) {
+
         console.error(
           'Erreur lors du chargement du VLAN pour la salle',
           salle.id,
@@ -119,79 +177,207 @@
         );
 
         Vlan = null;
-        vlan = '';
         port = [];
       }
 
-      
-      var  nb_app_connectes = 0;
-      // faire le scan pour avoir le nombre des appareils connectés
-      try {
-        const subnet = Vlan.ip || '0.0.0.0/24';
-        const vlanInterface = Vlan.vlan
-        ? 'eno1.' + String(Vlan.vlan).padStart(4, '0')
-        : '';
-        
-        port = Array.isArray(Vlan.port) ? Vlan.port : [];
-        console.log("PORTS :", port);
-        
-        var response = await fetch(AD_API_BASE + '/firewall/scan?network=' + encodeURIComponent(subnet) + '&interface=' + encodeURIComponent(vlanInterface));
-        var rawDevices = await response.json();
-        nb_app_connectes = rawDevices.length;
-      } catch (err) {
-        console.error(err);
-        adToast("❌ Erreur scan réseau");
-      }
-      
-      let isOnline = false;
-      if (nb_app_connectes > 0) isOnline = true;
-      
-      if (isOnline) card.style.borderTop = '4px solid var(--chartreuse)';
-      const statusColor = isOnline ? 'var(--chartreuse)' : '#ef4444';
-      const statusIcon = isOnline ? 'cloud_done' : 'leak_remove';
-      const statusText = isOnline ? 'En ligne' : 'Hors ligne';
-      
-      console.log("VLAN :", Vlan);
       card.innerHTML = `
-        <div class="flex justify-between items-start mb-6">
-          <h3 class="text-lg font-semibold dark:text-white group-hover:text-primary transition-colors">${salle.salle || 'Salle ' + salle.id}</h3>
-          <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${statusColor}"></span>
-        </div>
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <div>
-            <p class="text-[10px] uppercase font-bold mb-2" style="color:var(--text-muted)">Appareils Connectés</p>
-            <span class="text-3xl font-bold dark:text-white">${nb_app_connectes}</span>
-           <!-- <p class="text-xs mt-1" style="color:var(--text-muted)">Non disponible</p> -->
-          </div>
-          <div>
-            <p class="text-[10px] uppercase font-bold mb-2" style="color:var(--text-muted)">Vlan</p>
-            <span class="text-3xl font-bold dark:text-white">${Vlan.vlan}</span>
-            <p class="text-xs mt-1" style="color:var(--text-muted)">${Vlan.ip || 0}</p>
-          </div>
-        </div>
-        <div class="pt-4 border-t dark:border-slate-700/50 flex items-center justify-between">
-          ${port.map(p => `
-            <div class="flex items-center gap-2">
+      <div class="flex justify-between items-start mb-6">
+
+        <h3 class="text-lg font-semibold dark:text-white group-hover:text-primary transition-colors">
+          ${salle.salle || 'Salle ' + salle.id}
+        </h3>
+
+      </div>
+
+
+      ${Vlan
+          ? `
+
+            <!-- VLAN -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+
               <div>
-                <p class="text-[15px] font-bold leading-tight" style="color:var(--text)">
-                  Port
+
+                <p
+                  class="text-[10px] uppercase font-bold mb-2"
+                  style="color:var(--text-muted)"
+                >
+                  VLAN Associé
                 </p>
-                <p class="text-[12px]" style="color:var(--text-muted)">
-                  ${p}
+
+                <span class="text-3xl font-bold dark:text-white">
+                  ${Vlan.vlan || Vlan.id || ''}
+                </span>
+
+                <p
+                  class="text-xs mt-1"
+                  style="color:var(--text-muted)"
+                >
+                  ${Vlan.ip || ''}
                 </p>
+
               </div>
+
             </div>
-          `).join('')}
-          <div class="flex items-center gap-1.5" style="color:${statusColor}">
-            <span class="material-icons-outlined text-base">${statusIcon}</span>
-            <span class="text-sm font-medium">${statusText}</span>
-          </div>
-        </div>
-      `;
+
+
+          `
+          : ''
+        }
+    `;
+
       grid.appendChild(card);
     }
   };
-  
+
+  // window.displaySalles = async function (salles) {
+  //   const grid = document.getElementById('sallesGrid');
+  //   const countElement = document.getElementById('countSalles');
+
+  //   if (!grid || !countElement) {
+  //     console.error('Éléments DOM non trouvés');
+  //     return;
+  //   }
+
+  //   grid.innerHTML = '';
+  //   if (salles.length === 0) {
+  //     grid.innerHTML = '<p class="text-center col-span-full" style="color:var(--text-muted)">Aucune salle trouvée</p>';
+  //     countElement.textContent = '0 éléments';
+  //     return;
+  //   }
+  //   countElement.textContent = `${salles.length} élément${salles.length > 1 ? 's' : ''}`;
+  //   for (const [index, salle] of salles.entries()) {
+  //     const card = document.createElement('div');
+  //     card.className = 'dark:bg-card-dark rounded-lg p-5 border dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow group cursor-pointer';
+
+  //     let port = [];
+  //     let Vlan = null;
+  //     let vlan = '';
+
+  //     try {
+  //       const vlanResponse = await fetch(
+  //         `http://localhost:8000/api/vlans/vlan_port/${salle.id}`
+  //       );
+
+  //       console.log("STATUS :", vlanResponse.status);
+  //       console.log("URL :", vlanResponse.url);
+
+
+  //       const vlanResult = await vlanResponse.json();
+
+  //       console.log("RESULT :", vlanResult);
+
+  //       if (
+  //         vlanResult &&
+  //         vlanResult.status === 'ok' &&
+  //         vlanResult.data
+  //       ) {
+  //         Vlan = vlanResult.data[0];
+
+  //         vlan = Vlan.vlan || Vlan.id || '';
+
+  //         port = Array.isArray(Vlan.port) ? Vlan.port : [];
+
+  //       } else {
+  //         vlan = '';
+  //         port = [];
+  //       }
+
+  //     } catch (error) {
+  //       console.error(
+  //         'Erreur lors du chargement du VLAN pour la salle',
+  //         salle.id,
+  //         error
+  //       );
+
+  //       Vlan = null;
+  //       vlan = '';
+  //       port = [];
+  //     }
+
+
+  //     // var nb_app_connectes = 0;
+  //     // // faire le scan pour avoir le nombre des appareils connectés
+  //     // try {
+  //     //   const subnet = Vlan.ip || '0.0.0.0/24';
+  //     //   const vlanInterface = Vlan.vlan
+  //     //     ? 'eno1.' + String(Vlan.vlan).padStart(4, '0')
+  //     //     : '';
+
+  //     //   port = Array.isArray(Vlan.port) ? Vlan.port : [];
+  //     //   console.log("PORTS :", port);
+
+  //     //   var response = await fetch(AD_API_BASE + '/firewall/scan?network=' + encodeURIComponent(subnet) + '&interface=' + encodeURIComponent(vlanInterface));
+  //     //   var rawDevices = await response.json();
+  //     //   nb_app_connectes = rawDevices.length;
+  //     // } catch (err) {
+  //     //   console.error(err);
+  //     //   adToast("❌ Erreur scan réseau");
+  //     // }
+
+  //     // let isOnline = false;
+  //     // if (nb_app_connectes > 0) isOnline = true;
+
+  //     // if (isOnline) card.style.borderTop = '4px solid var(--chartreuse)';
+  //     // const statusColor = isOnline ? 'var(--chartreuse)' : '#ef4444';
+  //     // const statusIcon = isOnline ? 'cloud_done' : 'leak_remove';
+  //     // const statusText = isOnline ? 'En ligne' : 'Hors ligne';
+  //     // <!-- <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${statusColor}"></span> -->
+  //     // <!-- <span class="text-3xl font-bold dark:text-white">${nb_app_connectes}</span> -->
+
+
+  //     console.log("VLAN :", Vlan);
+
+  //     console.log("VLAN :", Vlan);
+  //     console.log("PORT :", port);
+  //     console.log("PORT length :", port.length);
+  //     console.log("PORT type :", typeof port);
+
+  //     card.innerHTML = `
+  //       <div class="flex justify-between items-start mb-6">
+  //         <h3 class="text-lg font-semibold dark:text-white group-hover:text-primary transition-colors">${salle.salle || 'Salle ' + salle.id}</h3>
+  //       </div>
+  //       <div class="grid grid-cols-2 gap-4 mb-6">
+  //         <div>
+  //           <p class="text-[10px] uppercase font-bold mb-2" style="color:var(--text-muted)">Vlan Associé</p>
+  //           <span class="text-3xl font-bold dark:text-white">${Vlan.vlan}</span>
+  //           <p class="text-xs mt-1" style="color:var(--text-muted)">${Vlan.ip || 0}</p>
+  //         </div>
+  //         </div>
+
+  //         `;
+  //     grid.appendChild(card);
+  //   }
+  // };
+
+  // <div class="pt-4 border-t dark:border-slate-700/50">
+  //         <p class="text-[15px] font-bold leading-tight mb-3" style="color:var(--text)">
+  //           Port
+  //         </p>
+
+  //         <div class="flex items-center gap-4">
+  //           ${port.map(p => `
+  //             <div>
+  //               <p class="text-[12px]" style="color:var(--text-muted)">
+  //                 ${p}
+  //               </p>
+  //             </div>
+  //           `).join('')}
+  //         </div>
+  //       </div>
+  // <div>
+  //   <p class="text-[15px] font-bold leading-tight" style="color:var(--text)">
+  //     Port
+  //   </p>
+  //   <p class="text-[12px]" style="color:var(--text-muted)">
+  //     ${p}
+  //   </p>
+  // </div>
+
+  // <div class="flex items-center gap-1.5" style="color:${statusColor}">
+  //   <span class="material-icons-outlined text-base">${statusIcon}</span>
+  //   <span class="text-sm font-medium">${statusText}</span>
+  // </div>
   // Charger les salles puis initialiser la recherche
   window.loadSalles().then(() => window.setupSearch()).catch(err => console.error(err));
 </script>
