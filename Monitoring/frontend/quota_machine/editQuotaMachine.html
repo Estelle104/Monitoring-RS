@@ -1,0 +1,220 @@
+<title>Modifier Quota Machine</title>
+
+<div class="quota-machine-page" style="max-width:980px;">
+
+  <!-- En-tête -->
+  <div class="mb-8">
+    <h1 style="margin:0; color:#fff; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800;">Modifier Quota Machine</h1>
+    <p class="text-sm" style="color:var(--text-muted)">Modifiez la consommation pour cette machine</p>
+  </div>
+
+  <!-- Résumé machine -->
+  <div class="machine-summary">
+    <div class="machine-main">
+      <div>
+        <div class="machine-id-block">
+          <div class="machine-icon">
+            <span class="material-icons-outlined">desktop_windows</span>
+          </div>
+          <div>
+            <p id="machineInfo" class="machine-name">—</p>
+            <div class="machine-subline">
+              <span id="typeInfo" class="info-chip">—</span>
+              <span id="statusInfo" class="info-chip">Normal</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="machine-metrics">
+          <div class="metric-box">
+            <span>ETU</span>
+            <strong id="etuInfo">—</strong>
+          </div>
+          <div class="metric-box">
+            <span>Adresse MAC</span>
+            <strong id="macInfo">—</strong>
+          </div>
+          <div class="metric-box">
+            <span>Quota limite</span>
+            <strong id="quotaLimiteInfo">—</strong>
+          </div>
+          <div class="metric-box">
+            <span>Consommé actuel</span>
+            <strong id="quotaConsommeInfo">—</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panneau d'utilisation -->
+      <div class="usage-panel">
+        <p class="text-xs uppercase font-bold tracking-wider" style="color:var(--text-muted)">Utilisation</p>
+        <div id="usagePercentInfo" class="usage-percent mt-3">0%</div>
+        <div class="usage-bar"><span id="usageBarInfo"></span></div>
+        <p id="usageHintInfo" class="text-sm" style="color:var(--text-muted)">—</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de modification -->
+  <div class="edit-panel">
+    <form class="space-y-6" onsubmit="return false;">
+
+      <div>
+        <label class="block text-sm font-medium dark:text-white mb-2">Quota Consommé *</label>
+        <div class="quota-value-row">
+          <input
+            id="quotaConsommeValue"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ex: 10"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+          <select id="quotaConsommeUnit" class="quota-unit-select"></select>
+        </div>
+      </div>
+
+      <!-- Format lisible -->
+      <div class="format-panel">
+        <p style="color:var(--text-muted); font-size:0.85rem;">Format lisible</p>
+        <p id="formatDisplay" style="color:var(--chartreuse); font-size:1.2rem; font-weight:bold; margin-top:4px;">—</p>
+        <p id="bytesDisplay" style="color:var(--text-muted); font-size:0.82rem; margin-top:6px;">0 octet(s)</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4 pt-4 flex-wrap">
+        <button
+          onclick="updateQuotaMachine()"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+          Mettre à jour
+        </button>
+        <button
+          onclick="loadPageContent('quota_machine/liste.html')"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:rgba(202,244,56,0.1); color:var(--chartreuse); border:none; cursor:pointer;">
+          Annuler
+        </button>
+        <button
+          onclick="deleteCurrentQuotaMachine()"
+          type="button"
+          class="danger-button px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="cursor:pointer;">
+          Supprimer
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const { getProgressGradient, apiDeleteQM } = window.QuotaMachineShared;
+  const { formatBytes, splitBytes, getBytesFromInputs, buildUnitsSelect } = window.QuotaShared;
+
+  let currentQM = null;
+
+  // Init select unités
+  buildUnitsSelect(document.getElementById('quotaConsommeUnit'), 'mo');
+
+  /* --- Mise à jour du résumé --- */
+  function updateSummary() {
+    if (!currentQM) return;
+
+    const quotaLimit    = Number(currentQM.quota_limite || 0);
+    const quotaConsumed = getBytesFromInputs('quotaConsommeValue', 'quotaConsommeUnit');
+    const percent       = quotaLimit <= 0 ? 0 : Math.max(0, Math.min(100, (quotaConsumed / quotaLimit) * 100));
+    const status        = percent >= 100 ? 'Limite atteinte' : percent >= 75 ? 'Très élevé' : 'Normal';
+    const formatted     = formatBytes(quotaConsumed);
+
+    document.getElementById('machineInfo').textContent      = currentQM.hostname           || 'Machine sans nom';
+    document.getElementById('typeInfo').textContent         = currentQM.machine_type_user  || 'Type inconnu';
+    document.getElementById('macInfo').textContent          = currentQM.mac                || '—';
+    document.getElementById('etuInfo').textContent          = currentQM.etu                || '—';
+    document.getElementById('quotaLimiteInfo').textContent  = currentQM.formatted_quota_limite || formatBytes(quotaLimit);
+    document.getElementById('quotaConsommeInfo').textContent = formatted;
+    document.getElementById('usagePercentInfo').textContent = `${percent.toFixed(1)}%`;
+    document.getElementById('statusInfo').textContent       = status;
+    document.getElementById('usageHintInfo').textContent    = `${formatted} sur ${currentQM.formatted_quota_limite || formatBytes(quotaLimit)}`;
+    document.getElementById('formatDisplay').textContent    = formatted;
+    document.getElementById('bytesDisplay').textContent     = Math.trunc(quotaConsumed).toLocaleString('fr-FR') + ' octet(s)';
+
+    const bar = document.getElementById('usageBarInfo');
+    bar.style.width      = `${percent}%`;
+    bar.style.background = getProgressGradient(percent);
+  }
+
+  /* --- Chargement depuis localStorage --- */
+  function loadData() {
+    const raw = localStorage.getItem('quotaMachineData');
+    if (!raw) {
+      alert('Données manquantes');
+      loadPageContent('quota_machine/liste.html');
+      return;
+    }
+    currentQM = JSON.parse(raw);
+    const { value, unit } = splitBytes(currentQM.quota_consomme || 0);
+    document.getElementById('quotaConsommeValue').value = value;
+    buildUnitsSelect(document.getElementById('quotaConsommeUnit'), unit);
+    updateSummary();
+  }
+
+  document.getElementById('quotaConsommeValue').addEventListener('input',  updateSummary);
+  document.getElementById('quotaConsommeUnit').addEventListener('change', updateSummary);
+
+  /* --- Mise à jour --- */
+  window.updateQuotaMachine = function() {
+    const rawValue  = document.getElementById('quotaConsommeValue').value;
+    const quotaUnit = document.getElementById('quotaConsommeUnit').value;
+
+    if (rawValue === '' || isNaN(rawValue) || Number(rawValue) < 0) {
+      alert('Veuillez entrer une valeur valide pour le quota consommé');
+      return;
+    }
+
+    fetch(`http://localhost:8000/api/quota_machine/${currentQM.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quota_value: Number(rawValue), quota_unit: quotaUnit }),
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Erreur serveur');
+        return data;
+      })
+      .then(data => {
+        if (data.status === 'ok') {
+          alert('Quota machine mis à jour avec succès');
+          localStorage.removeItem('quotaMachineData');
+          loadPageContent('quota_machine/liste.html');
+        } else {
+          alert('Erreur lors de la mise à jour: ' + (data.detail || 'Erreur inconnue'));
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue: ' + error.message);
+      });
+  };
+
+  /* --- Suppression --- */
+  window.deleteCurrentQuotaMachine = function() {
+    if (!currentQM?.id) return;
+    apiDeleteQM(`http://localhost:8000/api/quota_machine/${currentQM.id}`, () => {
+      localStorage.removeItem('quotaMachineData');
+      loadPageContent('quota_machine/liste.html');
+    });
+  };
+
+  // Lancement
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadData);
+  } else {
+    loadData();
+  }
+})();
+</script>

@@ -1,0 +1,193 @@
+<title>Modifier Quota</title>
+
+<div class="quota-edit-page" style="padding:32px 24px; max-width:920px; color:var(--text);">
+
+  <!-- En-tête -->
+  <div class="mb-8">
+    <h1 style="margin:0; color:#fff; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800;">Modifier Quota</h1>
+    <p class="text-sm" style="color:var(--text-muted)">Modifiez uniquement la limite de données pour ce type d'utilisateur.</p>
+  </div>
+
+  <!-- Résumé actuel -->
+  <div class="quota-summary">
+    <div class="quota-summary-head">
+      <div class="quota-type-block">
+        <div class="quota-icon">
+          <span class="material-icons-outlined">data_usage</span>
+        </div>
+        <div>
+          <p id="typeNameInfo" class="quota-type-name">—</p>
+          <span id="quotaStatusInfo" class="quota-chip">Quota configuré</span>
+        </div>
+      </div>
+
+      <div class="quota-preview">
+        <p class="text-xs uppercase font-bold tracking-wider" style="color:var(--text-muted)">Nouvelle limite</p>
+        <strong id="previewLimitInfo">0 Bytes</strong>
+      </div>
+    </div>
+
+    <div class="quota-metrics">
+      <div class="metric-box">
+        <span>Type utilisateur</span>
+        <strong id="typeInfo">—</strong>
+      </div>
+      <div class="metric-box">
+        <span>ID type</span>
+        <strong id="typeIdInfo">—</strong>
+      </div>
+      <div class="metric-box">
+        <span>Limite actuelle</span>
+        <strong id="currentLimitInfo">—</strong>
+      </div>
+      <div class="metric-box">
+        <span>Octets</span>
+        <strong id="bytesInfo">0</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de modification -->
+  <div class="edit-panel">
+    <form class="space-y-6" onsubmit="return false;">
+
+      <!-- Nouvelle limite -->
+      <div>
+        <label class="block text-sm font-medium dark:text-white mb-2">Nouvelle limite *</label>
+        <div class="quota-value-row">
+          <input
+            id="quotaValue"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ex: 10"
+            class="w-full px-4 py-2.5 dark:bg-[var(--ink)] border dark:border-slate-700 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            style="color:var(--text)"
+          />
+          <select id="quotaUnit" class="quota-unit-select"></select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4 pt-4 flex-wrap">
+        <button
+          onclick="updateQuota()"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:var(--chartreuse); color:#001925; border:none; cursor:pointer;">
+          Mettre à jour
+        </button>
+        <button
+          onclick="loadPageContent('quota/liste.html')"
+          type="button"
+          class="px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="background:rgba(202,244,56,0.1); color:var(--chartreuse); border:none; cursor:pointer;">
+          Annuler
+        </button>
+        <button
+          onclick="deleteCurrentQuota()"
+          type="button"
+          class="danger-button px-6 py-2.5 rounded-md font-bold transition-colors text-sm uppercase tracking-wide"
+          style="cursor:pointer;">
+          Supprimer
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const { formatBytes, splitBytes, getBytesFromInputs, buildUnitsSelect, apiDelete } = window.QuotaShared;
+
+  let currentQuota = null;
+
+  // Init select unités
+  buildUnitsSelect(document.getElementById('quotaUnit'), 'mo');
+
+  /* --- Mise à jour du résumé dynamique --- */
+  function updateSummary() {
+    if (!currentQuota) return;
+    const bytes     = getBytesFromInputs('quotaValue', 'quotaUnit');
+    const formatted = formatBytes(bytes);
+
+    document.getElementById('typeNameInfo').textContent    = currentQuota.type_user  || 'Type inconnu';
+    document.getElementById('typeInfo').textContent        = currentQuota.type_user  || '—';
+    document.getElementById('typeIdInfo').textContent      = currentQuota.id_type_user || '—';
+    document.getElementById('currentLimitInfo').textContent =
+      currentQuota.formatted_quota_limite || formatBytes(currentQuota.quota_limite);
+    document.getElementById('bytesInfo').textContent       = Math.trunc(bytes).toLocaleString('fr-FR');
+    document.getElementById('previewLimitInfo').textContent = formatted;
+  }
+
+  /* --- Chargement des données depuis localStorage --- */
+  function loadQuotaData() {
+    const raw = localStorage.getItem('quotaData');
+    if (!raw) {
+      alert('Données manquantes');
+      loadPageContent('quota/liste.html');
+      return;
+    }
+    currentQuota = JSON.parse(raw);
+    const { value, unit } = splitBytes(currentQuota.quota_limite || 0);
+    document.getElementById('quotaValue').value = value;
+    buildUnitsSelect(document.getElementById('quotaUnit'), unit);
+    updateSummary();
+  }
+
+  document.getElementById('quotaValue').addEventListener('input',  updateSummary);
+  document.getElementById('quotaUnit').addEventListener('change', updateSummary);
+
+  /* --- Mise à jour du quota --- */
+  window.updateQuota = function() {
+    const quotaValue = document.getElementById('quotaValue').value;
+    const quotaUnit  = document.getElementById('quotaUnit').value;
+
+    if (quotaValue === '' || isNaN(quotaValue) || Number(quotaValue) < 0) {
+      alert('Veuillez entrer une valeur valide pour le quota limite');
+      return;
+    }
+
+    fetch(`http://localhost:8000/api/quota/${currentQuota.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quota_value: Number(quotaValue), quota_unit: quotaUnit }),
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Erreur serveur');
+        return data;
+      })
+      .then(data => {
+        if (data.status === 'ok') {
+          alert('Quota mis à jour avec succès');
+          localStorage.removeItem('quotaData');
+          loadPageContent('quota/liste.html');
+        } else {
+          alert('Erreur lors de la mise à jour: ' + (data.detail || 'Erreur inconnue'));
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue: ' + error.message);
+      });
+  };
+
+  /* --- Suppression du quota courant --- */
+  window.deleteCurrentQuota = function() {
+    if (!currentQuota?.id) return;
+    apiDelete(`http://localhost:8000/api/quota/${currentQuota.id}`, () => {
+      localStorage.removeItem('quotaData');
+      loadPageContent('quota/liste.html');
+    });
+  };
+
+  // Lancement
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadQuotaData);
+  } else {
+    loadQuotaData();
+  }
+})();
+</script>
