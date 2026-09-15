@@ -24,6 +24,7 @@ class ExpulseRequest(BaseModel):
 router = APIRouter()
 
 
+# Récupérer tous les appareils scannées 
 @router.get("/firewall/scan")
 def scan_and_check(
     network: str = Query(..., description="Réseau à scanner, ex: 192.168.3.0/24"),
@@ -53,6 +54,7 @@ def scan_and_check(
     return result
 
 
+# Vérifie si machine autorisée, bloquer si non
 @router.post("/firewall/check/{mac}")
 def check_device(mac: str):
     """
@@ -64,6 +66,7 @@ def check_device(mac: str):
     return {"authorized": authorized}
 
 
+# Faire autoriser une machine
 @router.post("/firewall/authorize")
 def authorize_device(req: AuthorizeRequest):
     """

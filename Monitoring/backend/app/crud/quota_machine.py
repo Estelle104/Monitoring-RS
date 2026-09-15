@@ -1,6 +1,8 @@
 from app.db.db import get_connection
+from crud.type_user import get_type_by_id_machine
+from crud.quota import get_quota_by_type
 
-
+# Récupère tous les information ssur quota_machine
 def get_all_quota_machine():
     conn = get_connection()
     cur = conn.cursor()
@@ -67,38 +69,6 @@ def create_quota_machine(data: dict):
     conn.close()
 
     return data["id_machine"]
-
-
-def get_type_by_id_machine(id_machine: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT * from machine where id = %s",
-        (id_machine,),
-    )
-    row = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    return row
-
-
-def get_quota_by_type(type: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT * from quota where id_type_user = %s",
-        (type,),
-    )
-    row = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    return row
 
 
 def update_quota_machine(quota_machine_id: int, quota_consomme: int):

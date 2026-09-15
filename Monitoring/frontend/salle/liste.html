@@ -52,6 +52,7 @@
     }
   };
 
+  // Faire une recherche
   window.setupSearch = function () {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
@@ -70,6 +71,7 @@
     }
   };
 
+  //  Afficher la liste des salles
   window.displaySalles = async function (salles) {
     const grid = document.getElementById('sallesGrid');
     const countElement = document.getElementById('countSalles');
@@ -114,11 +116,6 @@
           vlanResponse.status
         );
 
-        /*
-         * 404 = cette salle n'a pas de VLAN.
-         * C'est normal, donc on ne considère pas cela comme
-         * une erreur.
-         */
         if (vlanResponse.status === 404) {
 
           console.log(
@@ -149,10 +146,7 @@
             vlanResult.data
           ) {
 
-            /*
-             * Ton API semble retourner un tableau.
-             * On récupère donc le premier VLAN.
-             */
+            // Prendre le premier vlan dans tableau
             if (Array.isArray(vlanResult.data)) {
               Vlan = vlanResult.data[0] || null;
             } else {

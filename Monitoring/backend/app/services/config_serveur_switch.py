@@ -47,6 +47,7 @@ def get_free_interfaces(switch_ip="173.16.1.4",
     return [p["name"] for p in ports if p["available"]]
 
 
+# Mettre un vlan en mode trunk
 def allow_vlan_on_trunk(vlan_id, trunk_interface="gi1/0/1",
                        switch_ip="173.16.1.4",
                        username="cisco",
@@ -75,6 +76,7 @@ def allow_vlan_on_trunk(vlan_id, trunk_interface="gi1/0/1",
     ssh.close()
 
 
+# Autorise le VLAN sur le port trunk
 def assign_port_to_vlan(interface, vlan_id,
                         switch_ip="173.16.1.4",
                         username="cisco",
@@ -195,6 +197,7 @@ def get_port_pair(interface):
 #     return f"VLAN {vlan_id} prêt"
 
 
+# Crée et configure complètement le VLAN sur le switch
 def create_vlan_switch_A(vlan_config,
                          switch_ip="173.16.1.4",
                          username="cisco",

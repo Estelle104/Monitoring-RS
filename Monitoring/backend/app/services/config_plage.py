@@ -2,6 +2,7 @@ import math
 import ipaddress
 import subprocess
 
+# l'adresse réseau et du nb de PC -> sous-réseau IP du VLAN
 def creer_vlan_ip(adresse_reseau, nb_pc):
     total_hosts = nb_pc + 2
     bits = math.ceil(math.log2(total_hosts))
@@ -12,6 +13,7 @@ def creer_vlan_ip(adresse_reseau, nb_pc):
 
 
 def definir_vlan(adresse_reseau, nb_pc, interface, vlan_id):
+
     vlan_ip = creer_vlan_ip(adresse_reseau, nb_pc)
     
     print(f"VLAN IP       : {vlan_ip}")
@@ -25,15 +27,19 @@ def definir_vlan(adresse_reseau, nb_pc, interface, vlan_id):
     interface_vlan = f"{interface}.{vlan_id}"
 
     try:
+        # Charge le module Linux nécessaire pour gérer les VLAN.
         subprocess.run(["sudo", "modprobe", "8021q"], check=True)
 
+        # Crée l'interface VLAN sur l'interface réseau principale
         subprocess.run(["sudo", "ip", "link", "add", "link", interface,
                         "name", interface_vlan, "type", "vlan", "id", str(vlan_id)],
                        check=True)
 
+        # Attribue la première adresse IP disponible du réseau à l'interface VLAN
         subprocess.run(["sudo", "ip", "addr", "add", f"{vlan_ip.network_address+1}/{vlan_ip.prefixlen}",
                         "dev", interface_vlan], check=True)
 
+        # Active l'interface VLAN
         subprocess.run(["sudo", "ip", "link", "set", "up", interface_vlan], check=True)
 
         print(f"VLAN {vlan_id} créé et interface {interface_vlan} activée avec IP {vlan_ip.network_address+1}/{vlan_ip.prefixlen}")

@@ -38,3 +38,18 @@ def get_type_users_sans_quota():
     cur.close()
     conn.close()
     return rows
+
+def get_type_by_id_machine(id_machine: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * from machine where id = %s",
+        (id_machine,),
+    )
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return row

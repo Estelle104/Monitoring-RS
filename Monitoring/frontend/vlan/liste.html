@@ -29,6 +29,7 @@
   var API_BASE = 'http://localhost:8000/api';
   let allVlans = [];
 
+  // CHarger tous les vlans
   window.loadVlans = async function () {
     try {
       const response = await fetch(API_BASE + '/vlans');
@@ -44,6 +45,7 @@
     }
   };
 
+  // Permet de faire une recherche
   window.setupVlanSearch = function () {
     const searchInput = document.getElementById('searchVlanInput');
     if (searchInput) {
@@ -63,6 +65,7 @@
     }
   };
 
+  // Afficher les vlans
   window.displayVlans = async function (vlans) {
     const grid = document.getElementById('vlansGrid');
     const countEl = document.getElementById('countVlans');
@@ -81,9 +84,7 @@
     countEl.textContent =
       vlans.length + ' élément' + (vlans.length > 1 ? 's' : '');
 
-    // ==========================================================
     // SCANNER TOUS LES VLAN EN PARALLÈLE
-    // ==========================================================
 
     const vlansAvecAppareils = await Promise.all(
       vlans.map(async (vlan) => {
@@ -97,6 +98,7 @@
 
         try {
 
+          // scan sur le reseau
           const response = await fetch(
             AD_API_BASE +
             '/firewall/scan?network=' +
@@ -133,9 +135,7 @@
     );
 
 
-    // ==========================================================
     // AFFICHAGE DES VLAN
-    // ==========================================================
 
     vlansAvecAppareils.forEach((vlan, index) => {
 
@@ -148,9 +148,7 @@
         '4px solid var(--chartreuse)';
 
 
-      // ========================================================
       // PARAMÈTRES POUR LE CLIC
-      // ========================================================
 
       const subnet = vlan.ip || '0.0.0.0/24';
 

@@ -1,6 +1,6 @@
 from app.db.db import get_connection
 
-
+# recupere tous l info des etudiants a partir d une liste de mac
 def get_etudiant_info_by_macs(macs: list):
     """
     Pour une liste de MACs, récupère l'ETU et le nom de l'étudiant

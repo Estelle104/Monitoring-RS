@@ -31,6 +31,7 @@ def get_vlan_by_id(vlan_id: str):
 
     return row
 
+# recuperer le vlan avec l information de son port
 def get_vlan_port_by_id(salle_id: str):
     conn = get_connection()
     cur = conn.cursor()
