@@ -20,8 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Inclure les routes du firewall sous le préfixe /api
-app.include_router(firewall.router, prefix="/api", tags=["Firewall"])
+app.include_router(firewall.router, tags=["Firewall"])
 
 # Inclure les routes VLAN / Salle / Port
 app.include_router(salle.router, prefix="/api", tags=["Salle"])
