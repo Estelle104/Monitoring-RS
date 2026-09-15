@@ -1,6 +1,4 @@
 from app.db.db import get_connection
-from crud.type_user import get_type_by_id_machine
-from crud.quota import get_quota_by_type
 
 # Récupère tous les information ssur quota_machine
 def get_all_quota_machine():

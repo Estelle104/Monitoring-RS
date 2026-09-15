@@ -2,7 +2,7 @@ import subprocess
 import sys
 import traceback
 import re
-sys.path.insert(0, '/opt/lampp/htdocs/RohySafeFinale_24_04_2026/Monitoring/backend/app/services')
+sys.path.insert(0, '/opt/lampp/htdocs/RohySafeFinale_24_04_2026/Monitoring-RS/Monitoring/backend/app/services')
 from app.services.config_plage import definir_vlan
 
 
