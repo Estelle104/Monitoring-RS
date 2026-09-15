@@ -112,6 +112,7 @@
   let currentPage = 1;
   let currentPagination = { page: 1, per_page: PAGE_SIZE, total_rows: 0, total_pages: 1 };
 
+  //  Conversion d une valeur en lisibles (Ex: 1048576 -> 1 Mo)
   function formatBytes(bytes) {
     const n = Number(bytes || 0);
     if (n === 0) return '0 o';
@@ -131,6 +132,7 @@
     }
   }
 
+  //  Recuperer les valeurs à filtrer et les convertir en paramètres pour l'API
   function getFilters() {
     const etu = document.getElementById('filterEtu')?.value.trim();
     const exactDate = document.getElementById('filterDate')?.value.trim();
@@ -156,6 +158,7 @@
     return { etu, exactDate, dateFrom, dateTo, consumptionOp, consumptionValue, params };
   }
 
+  // Affiche sous les filtres un résumé des filtres actifs
   function updateFilterHint(filters) {
     const hint = document.getElementById('filterHint');
     if (!hint) return;
@@ -174,6 +177,7 @@
     hint.textContent = labels.length ? labels.join(' · ') : 'Aucun filtre actif';
   }
 
+  // Récupère les KPI depuis l'API et les affiche dans les cartes statistiques
   async function loadKPIs() {
     try {
       const response = await fetch(API_BASE + '/histo-quota/kpis');
@@ -189,6 +193,7 @@
     }
   }
 
+  //  recupere historique +  filtres + pagination
   async function loadQuotaHistory(page = currentPage) {
     const tbody = document.getElementById('quotaTableBody');
     const filters = getFilters();
@@ -223,6 +228,7 @@
     }
   }
 
+  //  Génère les resultats dans un tableau
   function renderRows(rows, mode) {
     const tbody = document.getElementById('quotaTableBody');
     tbody.innerHTML = '';
@@ -257,6 +263,7 @@
     });
   }
 
+  // Met à jour l'indicateur de page et les boutons prec/ suiv
   function renderPagination(pagination) {
     const pageIndicator = document.getElementById('pageIndicator');
     const paginationInfo = document.getElementById('paginationInfo');

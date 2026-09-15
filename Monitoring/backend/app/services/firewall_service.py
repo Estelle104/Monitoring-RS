@@ -189,7 +189,7 @@ class FirewallService:
         """
 
         bloc = f"""
-    host machine_interdite_{mac_address.replace(":", "")} {{
+        host machine_interdite_{mac_address.replace(":", "")} {{
         hardware ethernet {mac_address};
         deny booting;
     }}

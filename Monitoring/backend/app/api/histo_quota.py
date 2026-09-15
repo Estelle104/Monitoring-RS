@@ -8,6 +8,7 @@ from app.crud.histo_quota import get_histo_quota_kpis, get_histo_quota_list
 router = APIRouter()
 
 
+# Récupère l'historique de consommation + filtre dynamique + pagination
 @router.get("/histo-quota")
 def list_histo_quota(
     etu: Optional[int] = Query(None, description="Numéro étudiant"),

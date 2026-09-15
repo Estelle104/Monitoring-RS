@@ -1,49 +1,19 @@
 import math
 
-from app.api.quota import format_bytes, get_usage_status
+from app.api.quota import format_bytes, get_usage_status, calculate_quota_bytes
 from app.crud.quota_machine import get_all_quota_machine, create_quota_machine, update_quota_machine, delete_quota_machine
 from fastapi import APIRouter, Body, HTTPException
 
 router = APIRouter()
 
-
-def calculate_quota_bytes(value, unit):
-    """Convertir une valeur + unité en octets."""
-    if isinstance(value, bool):
-        raise ValueError
-
-    number = float(value)
-    if not math.isfinite(number) or number < 0:
-        raise ValueError
-
-    normalized_unit = str(unit or "").strip().lower()
-    unit_multipliers = {
-        "bytes": 1,
-        "byte": 1,
-        "b": 1,
-        "ko": 1024,
-        "kb": 1024,
-        "mo": 1024 ** 2,
-        "mb": 1024 ** 2,
-        "go": 1024 ** 3,
-        "gb": 1024 ** 3,
-        "to": 1024 ** 4,
-        "tb": 1024 ** 4,
-    }
-
-    if normalized_unit not in unit_multipliers:
-        raise ValueError
-
-    return int(round(number * unit_multipliers[normalized_unit]))
-
-
+# Récupérer le quota consommé en octets
 def get_quota_consomme_saisie(data: dict) -> int:
     """Extraire la valeur en octets depuis quota_value+quota_unit ou quota_consomme brut."""
-    # Nouveau format : valeur + unité
+    # Valeur + unité -> valeur en octets
     if "quota_value" in data and "quota_unit" in data:
         return calculate_quota_bytes(data["quota_value"], data["quota_unit"])
 
-    # Ancien format rétrocompatible : octets bruts
+    # quota consommé octets bruts
     if "quota_consomme" not in data:
         raise HTTPException(
             status_code=422,

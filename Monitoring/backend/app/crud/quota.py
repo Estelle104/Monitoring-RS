@@ -42,6 +42,7 @@ def update_quota(quota_id: int, quota_limite: int):
     conn.close()
     return updated > 0
 
+# supprime aussi les quota_machine correspondant
 def delete_quota(quota_id: int):
     conn = get_connection()
     cur = conn.cursor()
@@ -53,3 +54,19 @@ def delete_quota(quota_id: int):
     cur.close()
     conn.close()
     return deleted > 0
+
+
+def get_quota_by_type(type: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * from quota where id_type_user = %s",
+        (type,),
+    )
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return row

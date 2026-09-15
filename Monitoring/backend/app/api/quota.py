@@ -3,7 +3,7 @@ import math
 from app.crud.quota import get_all_quota, create_quota, update_quota, delete_quota
 from fastapi import APIRouter, Body, HTTPException
 
-
+# Conversion d une valeur en lisibles (Ex: 1048576 -> 1 Mo)
 def format_bytes(value):
     number = float(value or 0)
     if not math.isfinite(number) or number <= 0:
@@ -16,6 +16,7 @@ def format_bytes(value):
     return f"{text} {units[index]}"
 
 
+# valeur + unites -> valeur en bytes
 def calculate_quota_bytes(value, unit):
     """Convertir une valeur + unité en octets."""
     if isinstance(value, bool):
@@ -45,7 +46,7 @@ def calculate_quota_bytes(value, unit):
 
     return int(round(number * unit_multipliers[normalized_unit]))
 
-
+# recuperer quota_limit en octets
 def get_quota_limit_saisie(data: dict):
     if "quota_value" in data and "quota_unit" in data:
         return calculate_quota_bytes(data["quota_value"], data["quota_unit"])
@@ -67,7 +68,7 @@ def get_quota_limit_saisie(data: dict):
 
     return quota_limite
 
-
+# status selon usage de quota / quota_limite
 def get_usage_status(percent):
     if percent >= 100:
         return {"label": "Limite atteinte", "className": "status-danger"}

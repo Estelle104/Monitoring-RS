@@ -47,23 +47,23 @@ def generer_config_dhcp(adresse_reseau, nb_pc, interface, vlan_id):
         # Créer le contenu du fichier dhcpd.conf
         print("▶ Étape 3: Génération du fichier de configuration...")
         contenu_dhcp = f"""default-lease-time 600;
-max-lease-time 7200;
-authoritative;
+        max-lease-time 7200;
+        authoritative;
 
-subnet {adresse_reseau_finale} netmask {masque} {{
-    range {plage_debut} {plage_fin};
-    option routers {ip_routeur};
+        subnet {adresse_reseau_finale} netmask {masque} {{
+            range {plage_debut} {plage_fin};
+            option routers {ip_routeur};
 
-    # Bloc pour vérifier la MAC avant d'attribuer l'IP
-    on discover {{
-        set authorized = binary-to-ascii(16, 8, ":", hardware);
-        execute("/etc/dhcp/check-mac.sh", authorized);
-        if (execute-result != 0) {{
-            discard;
+            # Bloc pour vérifier la MAC avant d'attribuer l'IP
+            on discover {{
+                set authorized = binary-to-ascii(16, 8, ":", hardware);
+                execute("/etc/dhcp/check-mac.sh", authorized);
+                if (execute-result != 0) {{
+                    discard;
+                }}
+            }}
         }}
-    }}
-}}
-"""
+        """
 
         print(f"✓ Fichier de configuration généré\n")
 

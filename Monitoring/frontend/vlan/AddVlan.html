@@ -198,16 +198,12 @@
 <script>
   var API_BASE = 'http://localhost:8000/api';
 
-  /* =========================
-     TOAST SIMPLE
-  ========================= */
+  // toast
   function showToast(msg, type) {
     alert(msg);
   }
 
-  /* =========================
-     LOAD INTERFACES
-  ========================= */
+  // Charger les interfaces
   function loadInterfaces() {
     fetch(API_BASE + '/interfaces')
       .then(res => res.json())
@@ -227,9 +223,7 @@
       });
   }
 
-  /* =========================
-     LOAD SALLES
-  ========================= */
+  // Charger les salles
   function loadSalles() {
     fetch(API_BASE + '/salles')
       .then(res => res.json())
@@ -249,9 +243,7 @@
       });
   }
 
-  /* =========================
-     VALIDATION
-  ========================= */
+    //  VALIDATION des valeurs
   function validate() {
     let vlan = document.getElementById("vlan-number").value;
     let ip = document.getElementById("vlan-ip").value;
@@ -281,9 +273,7 @@
     return true;
   }
 
-  /* =========================
-     SUBMIT FORM
-  ========================= */
+    //  SUBMIT FORM
   document.getElementById("vlan-form").addEventListener("submit", function (e) {
     e.preventDefault();
     if (!validate()) return;

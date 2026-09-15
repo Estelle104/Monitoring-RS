@@ -487,8 +487,9 @@ window.adExpelDevice = async function(mac) {
   }
 };
 
-// ── Render ──
+// Afficher la liste des appareils dans le tableau
 window.adRenderTable = function() {
+  //  Valeurs des filtres
   var q    = document.getElementById('adDeviceSearch').value.toLowerCase();
   var sf   = document.getElementById('adDeviceFilter').value;
   var dMin = adToMinutes(document.getElementById('adDurMin').value, document.getElementById('adDurUnitMin').value);
@@ -500,6 +501,7 @@ window.adRenderTable = function() {
     adLastFilterKey = filterKey;
   }
 
+    // Filtrer
   var list = adDevices.filter(function(d) {
     if (sf !== 'all' && d.status !== sf) return false;
     if (dMin !== null && d.uptimeMin < dMin) return false;
@@ -510,6 +512,7 @@ window.adRenderTable = function() {
 
   var tbody = document.getElementById('adDeviceTable');
   var empty = document.getElementById('adEmptyState');
+  // Calcule la pagination
   var totalItems = list.length;
   var totalPages = Math.max(1, Math.ceil(totalItems / adItemsPerPage));
   if (adCurrentPage > totalPages) adCurrentPage = totalPages;
@@ -529,7 +532,8 @@ window.adRenderTable = function() {
     return;
   }
   empty.style.display = 'none';
-
+  
+  //  Afficher les appareils dans tbody
   tbody.innerHTML = pageList.map(function(d) {
     return '<tr>' +
       '<td style="text-align: center;"><input type="checkbox" class="ad-device-checkbox" data-device-id="' + d.id + '" onchange="adUpdateButtonsVisibility()"></td>' +
@@ -557,6 +561,7 @@ window.adRenderTable = function() {
   adUpdateButtonsVisibility();
 };
 
+// Met à jour l'affichage de la pagination
 window.adUpdatePagination = function(start, end, total, totalPages) {
   var wrap = document.getElementById('adPaginationWrap');
   var info = document.getElementById('adPaginationInfo');
@@ -573,11 +578,13 @@ window.adUpdatePagination = function(start, end, total, totalPages) {
   nextBtn.disabled = adCurrentPage >= totalPages;
 };
 
+//  CHanger de page
 window.adChangePage = function(offset) {
   adCurrentPage += offset;
   adRenderTable();
 };
 
+// Met a jour les statistiques générales des appareils (autorisé, bloquée)
 window.adUpdateStats = function() {
   var total   = adDevices.length;
   var allowed = adDevices.filter(function(d){ return d.status==='autorisé'; }).length;
@@ -594,7 +601,7 @@ window.adUpdateStats = function() {
   document.getElementById('adBarBlocked').style.width = pct(blocked) + '%';
 };
 
-// ── Actions ──
+// ── Actions autoriser ou bloquer
 window.adSetStatus = async function(id, newStatus) {
   var dev = adDevices.find(function(d){ return d.id === id; });
   if (!dev) return;
@@ -698,12 +705,14 @@ window.adToggleSelectAll = function() {
   adUpdateButtonsVisibility();
 };
 
+//  Permet de selectionner tous les appareils
 window.adSelectAll = function() {
   var checkbox = document.getElementById('adSelectAllCheckbox');
   checkbox.checked = true;
   adToggleSelectAll();
 };
 
+// Récupère tous les appareils actuellement sélectionnés
 window.adGetSelectedDevices = function() {
   var checkboxes = document.querySelectorAll('.ad-device-checkbox:checked');
   var selected = [];
@@ -715,6 +724,7 @@ window.adGetSelectedDevices = function() {
   return selected;
 };
 
+// Gère l'affichage des boutons d'actions groupées
 window.adUpdateButtonsVisibility = function() {
   var selected = adGetSelectedDevices();
   var selectAllCheckbox = document.getElementById('adSelectAllCheckbox');
@@ -743,6 +753,7 @@ window.adUpdateButtonsVisibility = function() {
   }
 };
 
+// Autoriser plusieurs appareils en même temps
 window.adAuthorizeSelected = async function() {
   var selected = adGetSelectedDevices();
   if (!selected.length) {

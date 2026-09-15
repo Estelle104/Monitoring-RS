@@ -1,4 +1,3 @@
-# app/api/vlan_api.py
 from fastapi import APIRouter, HTTPException, Body
 from fastapi import Request
 import json
@@ -7,14 +6,9 @@ from typing import Optional
 from app.crud.vlan import get_all_vlans, get_vlan_by_id, get_vlan_by_idSalle, create_vlan, create_salle_vlan_link, update_vlan, delete_vlan, get_vlan_port_by_id, get_vlan_port_by_idSalle
 from app.crud.salle import get_all_salles, get_salle_by_id
 from app.crud.port import get_all_ports, get_ports_by_vlan, create_port, update_port, delete_port
-# from app.crud.salle_vlan import (
-#     get_all_salle_vlans, get_salle_vlans_by_vlan,
-#     create_salle_vlan, update_salle_vlan, delete_salle_vlan
-# )
 from app.services.config_plage import definir_vlan, creer_vlan_ip
 from app.services.config_dhcp import generer_config_dhcp
 from app.services.config_serveur_switch import create_vlan_switch_A, get_switch_ports, get_free_interfaces
-# from app.services.internet import interface_down, interface_up
 router = APIRouter()
 
 
@@ -25,7 +19,7 @@ class VlanCreate(BaseModel):
     id_salle: str
     interface: Optional[str] = None
     switch_port: Optional[str] = None  # Port du switch (ex: gi1/0/4, Fa0/5)
-    switch_port2: Optional[str] = None  # Port du switch (ex: gi1/0/4, Fa0/5)
+    switch_port2: Optional[str] = None  # Port2 du switch (ex: gi1/0/4, Fa0/5)
     nb_pc: Optional[int] = 50
     switch_ip: Optional[str] = None
     username: Optional[str] = None
@@ -264,11 +258,11 @@ def set_bandwidth_limit(body: BandwidthLimitRequest):
         if result.returncode != 0:
             raise HTTPException(status_code=404, detail=f"Interface {iface} introuvable")
 
-        # 1️⃣ Supprimer les anciennes règles tc (ignorer erreur si aucune)
+        # Supprimer les anciennes règles tc (ignorer erreur si aucune)
         subprocess.run(["sudo", "tc", "qdisc", "del", "dev", iface, "root"], capture_output=True)
         subprocess.run(["sudo", "tc", "qdisc", "del", "dev", iface, "ingress"], capture_output=True)
 
-        # 2️⃣ Limiter le download (trafic sortant de l'interface vers les clients)
+        # Limiter le download (trafic sortant de l'interface vers les clients)
         # Utilise HTB (Hierarchical Token Bucket)
         subprocess.run([
             "sudo", "tc", "qdisc", "add", "dev", iface, "root", "handle", "1:",
@@ -282,7 +276,7 @@ def set_bandwidth_limit(body: BandwidthLimitRequest):
             "ceil", f"{body.download_kbps}kbit"
         ], check=True)
 
-        # 3️⃣ Limiter l'upload (trafic entrant — via ingress + police)
+        # Limiter l'upload (trafic entrant — via ingress + police)
         subprocess.run([
             "sudo", "tc", "qdisc", "add", "dev", iface, "ingress"
         ], check=True)

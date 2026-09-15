@@ -153,6 +153,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
   rel="stylesheet" />
 <script>
+  // Charge chart.js
   function loadChartJS(cb) {
     if (window.Chart) { cb(); return; }
     const s = document.createElement('script');
@@ -162,7 +163,7 @@
   }
 
   function initDashboard() {
-    // Hover effect on stat cards
+    // effet au survol des stats
     document.querySelectorAll('.stat-card').forEach(card => {
       card.addEventListener('mouseenter', () => {
         card.style.transform = 'translateY(-3px)';
@@ -174,7 +175,7 @@
       });
     });
 
-    // Load active salles count
+    // Recupere le nb des salles
     async function loadActiveSalles() {
       try {
         const response = await fetch('http://localhost:8000/api/salles');
@@ -188,36 +189,49 @@
     }
     loadActiveSalles();
 
-    // ── Variation Chart (live interfaces) ──────────────────────────────
+    // Données du graphique de variation réseau
+
+
+    // nb max points a afficher sur le graphique
     const MAX_POINTS = 40;
+    // Seuil à partir duquel on considère le débit comme critique
     const THRESHOLD_MBPS = 800;
+    // Valeur maximale affichée sur l'axe Y
     const MAX_BW_MBPS = 600;
+    // Interfaces réseau surveillées
     const interfaceNames = ['enp7s0', 'enp4s0'];
+    // Couleurs des interfaces
     const interfaceColors = {
       enp7s0: '#f43838',
       enp4s0: '#7efb5c'
     };
 
+    // Génère des valeurs initiales pour remplir le graphique
     const variationData = {
       enp7s0: Array.from({ length: MAX_POINTS }, (_, i) => Math.round(35 + Math.sin(i * 0.32) * 10 + Math.random() * 8)),
       enp4s0: Array.from({ length: MAX_POINTS }, (_, i) => Math.round(18 + Math.cos(i * 0.28) * 8 + Math.random() * 6))
     };
+
     const variationLabels = Array.from({ length: MAX_POINTS }, (_, i) => {
       const s = MAX_POINTS - i;
       return s % 5 === 0 ? `-${s}s` : '';
     });
 
+    // Crée une ligne contenant la même valeur du seuil critique
     const thresholdData = Array(MAX_POINTS).fill(THRESHOLD_MBPS);
 
     const vCtx = document.getElementById('variationChart');
     let variationChart;
     if (vCtx) {
+      // Création du graphique de variation du débit des interfaces
       variationChart = new Chart(vCtx, {
         type: 'line',
         data: {
           labels: variationLabels,
           datasets: [
             {
+              // Débit de l'interface enp7s0
+              
               label: 'enp7s0',
               data: variationData.enp7s0,
               borderColor: interfaceColors.enp7s0,
@@ -239,6 +253,8 @@
               clip: false,
             },
             {
+              // Débit de l'interface enp4s0.
+
               label: 'enp4s0',
               data: variationData.enp4s0,
               borderColor: interfaceColors.enp4s0,
@@ -260,6 +276,8 @@
               clip: false,
             },
             {
+              // Ligne horizontale représentant le seuil critique.
+
               label: 'Seuil critique',
               data: thresholdData,
               borderColor: 'rgba(239,68,68,0.55)',
@@ -279,6 +297,8 @@
           plugins: {
             legend: { display: false },
             tooltip: {
+              // Configuration de l'infobulle affichée au survol.
+
               backgroundColor: 'rgba(0,25,37,0.95)',
               borderColor: 'rgba(202,244,56,0.2)',
               borderWidth: 1,
@@ -297,6 +317,7 @@
             }
           },
           scales: {
+            // Configuration de l'axe vertical
             y: {
               min: 0,
               max: MAX_BW_MBPS,
@@ -309,6 +330,7 @@
               grid: { color: 'rgba(202,244,56,0.06)', drawBorder: false },
               border: { display: false },
             },
+            // Configuration de l'axe horizontal
             x: {
               ticks: { color: 'rgba(232,245,226,0.35)', font: { size: 10 } },
               grid: { display: false },
@@ -318,6 +340,7 @@
         }
       });
 
+      // Met à jour le texte affichant le débit actuel des deux interfaces
       function refreshInterfaceStats() {
         const currentEl = document.getElementById('bw-current');
         if (currentEl) {
@@ -329,8 +352,9 @@
 
       refreshInterfaceStats();
 
-      // WebSocket: receive real-time netmetrics from backend and update chart
+      // ── WebSocket : réception des données réseau en temps réel
       function setupNetmetricsWS() {
+        // Utilise ws en HTTP et wss en HTTPS.
         const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
         const wsUrl = wsProto + '://' + location.hostname + ':8000/ws/netmetrics';
         let ws;
@@ -349,11 +373,16 @@
             // payload: { ts: <num>, data: {iface: value, ...} }
             const data = payload.data || {};
             console.log('[netmetrics] received:', data);
+
+            // Récupère les débits des deux interfaces
             const enp7s0Mbps = Number(data.enp7s0 ?? data['enp7s0']) || 0;
             const enp4s0Mbps = Number(data.enp4s0 ?? data['enp4s0']) || 0;
+
+            // Empêche une valeur reçue de dépasser le maximum
             const enp7s0Value = Math.min(MAX_BW_MBPS, enp7s0Mbps);
             const enp4s0Value = Math.min(MAX_BW_MBPS, enp4s0Mbps);
 
+            // Ajoute les nouvelles valeurs et supprime les plus anciennes
             variationData.enp7s0.push(enp7s0Value);
             variationData.enp7s0.shift();
             variationData.enp4s0.push(enp4s0Value);
@@ -362,8 +391,10 @@
             variationLabels.shift();
             variationLabels.push('');
 
+            // Met à jour les valeurs affichées à côté du graphique
             refreshInterfaceStats();
 
+            // Met à jour les données du graphique
             if (variationChart && variationChart.data && variationChart.data.datasets && variationChart.data.datasets[0]) {
               variationChart.data.datasets[0].data = variationData.enp7s0;
               variationChart.data.datasets[1].data = variationData.enp4s0;
@@ -374,13 +405,14 @@
           }
         };
       }
-      // start ws after small delay to ensure charts ready
       setTimeout(setupNetmetricsWS, 500);
     }
 
-    // Bandwidth Chart
+    // ── Graphique de bande passante
     const ctx = document.getElementById('bandwidthChart');
     if (ctx) {
+
+      // Données statiques
       new Chart(ctx, {
         type: 'line',
         data: {
