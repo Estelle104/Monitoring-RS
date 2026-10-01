@@ -206,14 +206,32 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      /* gap: 2px; */
     }
 
     .logo-rect {
-      width: 44px;
-      height: 16px;
-      background: var(--chartreuse);
-      border-radius: 2px;
+      width: 96px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sidebar .logo-rect {
+      width: 120px;
+      height: 52px;
+    }
+
+    .logo-rect img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
     }
 
     .logo-text {
@@ -303,9 +321,9 @@
       <span class="bar"></span>
     </button>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center" style="margin-right: 5%;">
       <div class="logo">
-        <div class="logo-rect"><img src="" alt=""></div>
+        <div class="logo-rect"><img src="../image/logo.png" alt="RohySafe"></div>
         <span class="logo-text">Rohy<span>Safe</span></span>
       </div>
     </div>
@@ -326,11 +344,9 @@
     <!-- SIDEBAR -->
     <aside id="sidebar" class="dark:bg-[var(--sidebar-bg)] custom-scrollbar">
       <div class="sidebar-inner py-6">
-        <div class="px-6 mb-8">
-          <div class="logo-rect"><img src="" alt="RohySafe"></div>
-
+        <div class="logo px-6 mb-8">
+          <div class="logo-rect"><img src="../image/logo.png" alt="RohySafe"></div>
           <span class="logo-text">Rohy<span>Safe</span></span>
-
         </div>
 
         <nav class="px-4 space-y-1">
