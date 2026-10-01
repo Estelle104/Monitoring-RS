@@ -167,3 +167,19 @@ INSERT INTO login (username, pwd, code, role) VALUES (
     '123456', 
     'admin'
 );   
+
+
+-- a ajouter le 02-09-2026
+CREATE TABLE IF NOT EXISTS wan (
+    id SERIAL PRIMARY KEY,
+    wan VARCHAR(50) NOT NULL UNIQUE,
+    debit_max BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS histo_debit (
+    id SERIAL PRIMARY KEY,
+    id_wan INT NOT NULL,
+    debit BIGINT NOT NULL,
+    date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_wan) REFERENCES wan(id)
+);
